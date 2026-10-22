@@ -164,6 +164,12 @@ async def run_forever() -> None:
     status["running"] = True
     started_at = _now()
     last_fda = 0.0
+    try:
+        # Lot lists for recalls ingested before code_info existed (re-run safe, update only).
+        from phase2_ingest.load_to_clickhouse import backfill_code_info
+        await asyncio.to_thread(backfill_code_info)
+    except Exception as exc:  # noqa: BLE001
+        status["last_backfill_error"] = str(exc)[:300]
     while True:
         try:
             if time.time() - last_fda >= FDA_POLL_SEC:
@@ -204,13 +210,32 @@ def list_alerts(limit: int = 50) -> list[dict]:
         """,
         parameters={"n": limit},
     ).result_rows
+    lots = code_info_for([r[0] for r in rows])
     out = []
     for r in rows:
         a = dict(zip(ALERT_COLUMNS, r))
         a["detected_at"] = a["detected_at"].isoformat() + "Z"
         a["updated_at"] = a["updated_at"].isoformat() + "Z"
+        # Read from fda_recalls, not stored on the alert: the monitor's inserts stay unchanged
+        # and a later code_info backfill shows up without rewriting pharmacist_alerts.
+        a["code_info"] = lots.get(a["recall_number"], "")
         out.append(a)
     return out
+
+
+def code_info_for(recall_numbers: list[str]) -> dict[str, str]:
+    """FDA lot list (openFDA code_info) per recall number; '' when FDA gave none."""
+    if not recall_numbers:
+        return {}
+    rows = _client().query(
+        """
+        SELECT recall_number, anyIf(code_info, code_info != '')
+        FROM supershield.fda_recalls WHERE has(%(r)s, recall_number)
+        GROUP BY recall_number
+        """,
+        parameters={"r": list(set(recall_numbers))},
+    ).result_rows
+    return {r[0]: r[1] for r in rows}
 
 
 def set_alert_status(recall_number: str, new_status: str) -> dict | None:
@@ -225,19 +250,19 @@ def set_alert_status(recall_number: str, new_status: str) -> dict | None:
 
 
 def affected_customers(recall_number: str, state: str = "", limit: int = 100,
-                       offset: int = 0) -> dict:
+                       offset: int = 0, with_counts: bool = True) -> dict:
     """Pharmacist-only review list (contains contact details - never sent to LLMs/map)."""
     where = "a.recall_number = %(r)s" + (" AND a.state = %(s)s" if state else "")
     params = {"r": recall_number, "s": state, "n": limit, "o": offset}
     client = _client()
     total = int(client.query(f"SELECT count() FROM supershield.patient_alerts a WHERE {where}",
-                             parameters=params).result_rows[0][0])
+                             parameters=params).result_rows[0][0]) if with_counts else None
     rows = client.query(
         f"""
         SELECT a.customer_id, a.name, a.phone_number, a.pharmacy_id, p.name, p.chain,
                a.state, a.product_ndc, f.status
         FROM supershield.patient_alerts AS a
-        LEFT JOIN supershield.pharmacies AS p ON a.pharmacy_id = p.pharmacy_id
+        LEFT JOIN {clickhouse_tools.PHARMACIES} AS p ON a.pharmacy_id = p.pharmacy_id
         LEFT JOIN (
             SELECT customer_id, argMax(status, updated_at) AS status
             FROM supershield.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id
@@ -248,7 +273,7 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
         """,
         parameters=params,
     ).result_rows
-    followed = client.query(
+    followed = [] if not with_counts else client.query(
         "SELECT latest, count() FROM "
         "(SELECT customer_id, argMax(status, updated_at) AS latest "
         " FROM supershield.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id) "
@@ -266,6 +291,45 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
             for r in rows
         ],
     }
+
+
+CSV_COLUMNS = ["customer_id", "name", "phone", "pharmacy", "chain", "state", "ndc", "followup"]
+
+
+def _csv_cell(v) -> str:
+    # Spreadsheet formula-injection guard; phone numbers like +1555... stay as-is.
+    v = "" if v is None else str(v)
+    risky = v[:1] in ("=", "@", "\t", "\r") or (
+        v[:1] in ("+", "-") and not v[1:].replace("-", "").replace(" ", "").isdigit())
+    return "'" + v if risky else v
+
+
+def affected_customers_csv(recall_number: str, page: int = 5000):
+    """Full affected-customer list as CSV text chunks (pharmacist export, contains contact details).
+
+    Pages with LIMIT/OFFSET so each chunk is one short query on whichever worker thread
+    pulls it (the per-thread ClickHouse sessions can't hold a long-lived stream).
+    """
+    import csv
+    import io
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(CSV_COLUMNS)
+    yield buf.getvalue()
+    offset = 0
+    while True:
+        rows = affected_customers(recall_number, "", page, offset, with_counts=False)["customers"]
+        if not rows:
+            return
+        buf.seek(0)
+        buf.truncate()
+        for c in rows:
+            writer.writerow([_csv_cell(c[k]) for k in CSV_COLUMNS])
+        yield buf.getvalue()
+        if len(rows) < page:
+            return
+        offset += page
 
 
 def set_followup(recall_number: str, customer_id: str, new_status: str) -> dict:

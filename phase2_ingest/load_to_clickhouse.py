@@ -20,7 +20,7 @@ from phase3_lakehouse.clickhouse_bootstrap import get_client  # noqa: E402
 COLUMNS = [
     "recall_number", "product_ndc", "reason_for_recall", "classification",
     "severity", "status", "recalling_firm", "distribution_pattern",
-    "report_date", "source_url", "product_description", "generic_name",
+    "report_date", "source_url", "product_description", "generic_name", "code_info",
 ]
 
 
@@ -45,6 +45,7 @@ def flatten(record: dict) -> list[list]:
         source_url,
         record.get("product_description") or "",
         ", ".join(openfda.get("generic_name") or []),
+        record.get("code_info") or "",
     ]
     rows = []
     for ndc in ndcs:
@@ -55,7 +56,10 @@ def flatten(record: dict) -> list[list]:
 
 
 def main() -> None:
-    ingest_new()
+    if "--backfill-code-info" in sys.argv:
+        backfill_code_info()
+    else:
+        ingest_new()
 
 
 def fetch_records() -> list[dict]:
@@ -161,6 +165,62 @@ def ingest_shared_feed() -> list[str]:
     if not rows:
         return []
     return _insert_new(rows)
+
+
+def fetch_by_recall_numbers(recall_numbers: list[str], batch: int = 40) -> list[dict]:
+    """openFDA records for specific recall numbers (OR-search in batches)."""
+    import requests
+    from settings import OPENFDA_API_KEY
+
+    out: list[dict] = []
+    for i in range(0, len(recall_numbers), batch):
+        chunk = recall_numbers[i:i + batch]
+        params = {"search": "recall_number:(" + " ".join(f'"{rn}"' for rn in chunk) + ")",
+                  "limit": 1000}
+        if OPENFDA_API_KEY:
+            params["api_key"] = OPENFDA_API_KEY
+        resp = requests.get(OPENFDA_ENFORCEMENT, params=params, timeout=60)
+        if resp.status_code == 404:
+            continue
+        resp.raise_for_status()
+        out.extend(resp.json().get("results", []))
+    return out
+
+
+def backfill_code_info() -> dict:
+    """Fill code_info for already-ingested recalls (openFDA + shared feed).
+
+    Uses an ALTER ... UPDATE mutation, never a re-insert: re-inserting would fire
+    mv_patient_matches and duplicate patient_alerts. Only rows with an empty
+    code_info are touched, so this is safe to re-run.
+    """
+    client = get_client()
+    missing = [r[0] for r in client.query(
+        "SELECT DISTINCT recall_number FROM supershield.fda_recalls WHERE code_info = ''"
+    ).result_rows]
+    lots: dict[str, str] = {}
+    for rec in read_shared_feed():
+        if rec.get("recall_number") in missing and rec.get("code_info"):
+            lots[rec["recall_number"]] = rec["code_info"]
+    real = [rn for rn in missing
+            if rn and rn not in lots and not rn.startswith(("D-SS-", "DEMO-"))]
+    for rec in fetch_by_recall_numbers(real):
+        if rec.get("recall_number") in missing and rec.get("code_info"):
+            lots[rec["recall_number"]] = rec["code_info"]
+    if lots:
+        keys = sorted(lots)
+        client.command(
+            "ALTER TABLE supershield.fda_recalls "
+            "UPDATE code_info = transform(recall_number, %(k)s, %(v)s, code_info) "
+            "WHERE code_info = '' AND has(%(k)s, recall_number)",
+            parameters={"k": keys, "v": [lots[k] for k in keys]},
+            settings={"mutations_sync": 2},
+        )
+    result = {"missing": len(missing), "filled": len(lots),
+              "still_empty": sorted(set(missing) - set(lots))}
+    print(f"code_info backfill: {result['filled']} of {result['missing']} recalls filled; "
+          f"no lot list for {len(result['still_empty'])}")
+    return result
 
 
 if __name__ == "__main__":

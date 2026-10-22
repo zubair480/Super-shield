@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS supershield.fda_recalls
     source_url         String,
     product_description String DEFAULT '',  -- SuperShield: shared with patient workflow
     generic_name       String DEFAULT '',   -- SuperShield: drug-name matching key
+    code_info          String DEFAULT '',   -- FDA lot list (free text); dispensing records carry no lot
     ingested_at        DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(ingested_at)

@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 import sys
 from pathlib import Path
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -74,6 +75,30 @@ async def pharmacy_followup(recall_number: str, customer_id: str, body: StatusBo
     if body.status not in FOLLOWUP_STATUSES:
         return JSONResponse({"error": f"status must be one of {FOLLOWUP_STATUSES}"}, status_code=400)
     return await asyncio.to_thread(monitor.set_followup, recall_number, customer_id, body.status)
+
+
+@app.get("/api/pharmacy/summary")
+async def pharmacy_summary():
+    """Home KPIs over unresolved alerts (definitions in clickhouse_tools.pharmacy_summary)."""
+    return await asyncio.to_thread(clickhouse_tools.pharmacy_summary)
+
+
+@app.get("/api/pharmacy/alerts/{recall_number}/customers.csv")
+async def pharmacy_customers_csv(recall_number: str):
+    """Full affected-customer list as a CSV download (pharmacist-only; contains contacts)."""
+    page = await asyncio.to_thread(monitor.affected_customers, recall_number, "", 1)
+    if not page["total"]:
+        return JSONResponse({"error": "no affected customers for this recall"}, status_code=404)
+    safe = re.sub(r"[^A-Za-z0-9_-]", "_", recall_number)
+    return StreamingResponse(
+        monitor.affected_customers_csv(recall_number), media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="affected-customers-{safe}.csv"'})
+
+
+@app.get("/api/search")
+async def search(q: str = ""):
+    """Recall lookup by recall number, NDC, drug name or firm (max 20)."""
+    return await asyncio.to_thread(clickhouse_tools.search_recalls, q, 20)
 
 
 @app.post("/api/demo/recall")

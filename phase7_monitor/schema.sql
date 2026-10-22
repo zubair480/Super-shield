@@ -4,6 +4,8 @@
 -- Older lakehouses predate these shared columns (patient workflow uses them).
 ALTER TABLE supershield.fda_recalls ADD COLUMN IF NOT EXISTS product_description String DEFAULT '';
 ALTER TABLE supershield.fda_recalls ADD COLUMN IF NOT EXISTS generic_name String DEFAULT '';
+-- FDA lot list (openFDA code_info) for the pharmacist's per-customer lot check.
+ALTER TABLE supershield.fda_recalls ADD COLUMN IF NOT EXISTS code_info String DEFAULT '';
 
 -- One row per recall that matched pharmacy dispensing records by NDC.
 -- ReplacingMergeTree on updated_at so status changes are plain inserts.
