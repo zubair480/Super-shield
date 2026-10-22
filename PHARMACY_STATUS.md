@@ -22,7 +22,7 @@ ask instead of editing it.
 ## Shared contract (follows Patient's `shared/fda/README.md`)
 
 - Common identifier: openFDA **`recall_number`**.
-- One FDA source: live openFDA `drug/enforcement` (no key), ingested by PyAirbyte into `safetynet.fda_recalls`.
+- One FDA source: live openFDA `drug/enforcement` (no key), ingested by a direct HTTP call (`fetch_direct()`) into `safetynet.fda_recalls`. PyAirbyte was removed (no added value).
 - Synthetic demo recalls: **uses** `shared/fda/demo-recalls.json` + `node shared/fda/inject-recall.mjs`
   (`D-SS-####-2026`, `"synthetic": true`). The pharmacy monitor reads the file every 15s
   (`SHARED_RECALLS_FILE`) and loads new records into `safetynet.fda_recalls`. Package NDCs

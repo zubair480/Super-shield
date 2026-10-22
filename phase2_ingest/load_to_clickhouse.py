@@ -1,11 +1,11 @@
-"""Phase 2: Load openFDA recalls (read via PyAirbyte) into ClickHouse.
+"""Phase 2: Load openFDA recalls (direct openFDA HTTP) into ClickHouse.
 
 Flattens the nested openFDA records, maps classification -> severity, expands
 multi-NDC recalls into one row per product_ndc, and inserts into fda_recalls.
 Each insert fires the materialized view -> patient_alerts (the matching engine).
 
-Re-running is incremental: PyAirbyte's cache state means only new recalls are
-read, and ReplacingMergeTree dedups on (product_ndc, recall_number).
+Re-running is incremental: only recall_numbers not already in fda_recalls are
+inserted, and ReplacingMergeTree dedups on (product_ndc, recall_number).
 """
 from __future__ import annotations
 
@@ -59,17 +59,12 @@ def main() -> None:
 
 
 def fetch_records() -> list[dict]:
-    """openFDA records via PyAirbyte; direct openFDA HTTP if PyAirbyte isn't installed."""
-    try:
-        from phase2_ingest.airbyte_source import read_recalls
-    except ImportError:
-        return fetch_direct()
-    result, _ = read_recalls()
-    return list(result["drug_enforcement"])
+    """openFDA records for the ingestion window (direct HTTP; no PyAirbyte)."""
+    return fetch_direct()
 
 
 def fetch_direct(lookback_days: int = 120) -> list[dict]:
-    """Same openFDA window as the PyAirbyte manifest, as a plain HTTP read."""
+    """Recent openFDA drug recalls (last `lookback_days`), as a plain HTTP read."""
     from datetime import datetime, timedelta, timezone
 
     import requests

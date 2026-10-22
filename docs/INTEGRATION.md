@@ -10,7 +10,7 @@ use `DEMO-YYYYMMDDHHMMSS` and must be labelled as synthetic in any UI or notific
 
 ## Shared table: `safetynet.fda_recalls`
 
-Written by the pharmacy ingest (PyAirbyte → openFDA, polled every `FDA_POLL_SEC`, default 300s).
+Written by the pharmacy ingest (direct openFDA HTTP, `fetch_direct()`, polled every `FDA_POLL_SEC`, default 300s).
 One row per (recall_number, product_ndc).
 
 | column | use |
