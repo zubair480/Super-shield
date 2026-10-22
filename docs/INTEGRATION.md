@@ -31,7 +31,10 @@ source_url, ingested_at, synthetic}]`.
 
 ## Final demo
 
-> Open item: switch this to the shared `shared/fda/demo-recalls.json` feed on `feat/patient` (`D-SS- Class I recall into `safetynet.fda_recalls`
+> Open item: switch this to the shared `shared/fda/demo-recalls.json` feed on `feat/patient`
+> (`D-SS-####-2026`) so both dashboards show the same demo recall.
+
+`POST /api/demo/recall` inserts ONE synthetic Class I recall into `safetynet.fda_recalls`
 for the most-dispensed NDC (with its generic name when openFDA knows it).
 
 - Pharmacy side: ClickHouse MV matches it by NDC → monitor creates the pharmacist alert
