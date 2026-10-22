@@ -1,0 +1,1417 @@
+[
+  {
+    "recall_number": "D-1455-2019",
+    "classification": "Class II",
+    "status": "Ongoing",
+    "reason_for_recall": "CGMP Deviations: impurity for N-Nitroso-N-methyl-4-aminobutyric acid (NMBA) detected in the active pharmaceutical ingredient (API) used to manufacture finished products.",
+    "product_description": "LOSARTAN POTASSIUM 50 mg TABLET BULK  90 count bottles and 1000 count bottles, NDC 00591-3746-00",
+    "recalling_firm": "Teva Pharmaceuticals USA",
+    "city": "Parsippany",
+    "state": "NJ",
+    "country": "United States",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "E-Mail",
+    "distribution_pattern": "Nationwide by 4 major distributors.",
+    "product_quantity": "2,924,000 tablets",
+    "recall_initiation_date": "20190606",
+    "center_classification_date": "20190709",
+    "report_date": "20190717",
+    "code_info": "Arrow Malta (Teva) Bulk Product Lot #  1169752A, exp. date 01/2020, 1000 tablets/bottle  1169753A, exp. date 01/2020, 90 tablets/bottle    Golden State Medical Finished Product Lot #  GS017387, exp. date 01/2020  GS017651, exp. date 01/2020  GS017479, exp. date 01/2020",
+    "openfda": {
+      "brand_name": [
+        "Losartan Potassium"
+      ],
+      "generic_name": [
+        "LOSARTAN POTASSIUM"
+      ],
+      "substance_name": [
+        "LOSARTAN POTASSIUM"
+      ]
+    }
+  },
+  {
+    "recall_number": "D-0303-2019",
+    "classification": "Class II",
+    "status": "Ongoing",
+    "reason_for_recall": "CGMP Deviations: FDA laboratory testing confirmed presence of an impurity, N-nitrosodimethylamine (NDEA) in product.",
+    "product_description": "Amlodipine and Valsartan Tablets 5 mg/160 mg, (a) 30-count bottles (NDC 0093-7690-56) & 90-count bottles (NDC 0093-7690-98), RX Only, Manufactured In Israel By: TEVA PHARMACEUTICAL IND. LTD. Jerusalem, 9777402, Israel, Manufactured For: TEVA PHARMACEUTICALS USA, INC. North Wales, PA 19454.",
+    "recalling_firm": "Teva Pharmaceuticals USA",
+    "city": "North Wales",
+    "state": "PA",
+    "country": "United States",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "USA Nationwide including Puerto Rico.",
+    "product_quantity": "120,394 bottles",
+    "recall_initiation_date": "20181127",
+    "center_classification_date": "20181214",
+    "report_date": "20181219",
+    "code_info": "NDC 0093-7690-56 & NDC 0093-7690-98  Lot # 23X017, 23X018, 23X019, 23X020, 23X022, 23X023, 23X024",
+    "openfda": {
+      "brand_name": [
+        "Amlodipine and Valsartan"
+      ],
+      "generic_name": [
+        "AMLODIPINE AND VALSARTAN"
+      ],
+      "substance_name": [
+        "AMLODIPINE BESYLATE",
+        "VALSARTAN"
+      ]
+    }
+  },
+  {
+    "recall_number": "D-1349-2020",
+    "classification": "Class II",
+    "status": "Ongoing",
+    "reason_for_recall": "CGMP Deviations: FDA analysis detected N-Nitrosodimethylamine (NDMA) impurity above the acceptable intake level",
+    "product_description": "amneal Metformin Hydrochloride Extended-Release Tablets, USP, 750 mg, Rx only, 100 Tablets bottles, Manufactured by: Amneal Pharmaceuticals Pvt. Ltd. Ahmedabad, 388213, INDIA Distributed by: Amneal Pharmaceuticals LLC Bridgewater, NJ 08807   NDC 65162-179-10",
+    "recalling_firm": "Amneal Pharmaceuticals of New York, LLC",
+    "city": "Brookhaven",
+    "state": "NY",
+    "country": "United States",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Nationwide",
+    "product_quantity": "N/A",
+    "recall_initiation_date": "20200529",
+    "center_classification_date": "20200625",
+    "report_date": "20200701",
+    "code_info": "AM181337A 10/31/2020  AM181338A 10/31/2020  AM181339A 11/30/2020  AM181340A 11/30/2020  AM181341A 11/30/2020  AM181342A 11/30/2020  AM181343A 11/30/2020  AM181344A 11/30/2020  AM181356A 11/30/2020  AM181357A 11/30/2020  AM181358A 11/30/2020  AM181359A 11/30/2020  AM181360A 11/30/2020  AM181361A 11/30/2020  AM181362A 11/30/2020  AM181363A 11/30/2020  AM181415A 11/30/2020  AM190040B 12/31/2020  AM190041A 12/31/2020  AM190042A 12/31/2020  AM190043A 12/31/2020  AM190044A 12/31/2020  AM190045A 12/31/2020  AM190046A 12/31/2020  AM190473B 4/30/2021  AM190474A 4/30/2021  AM190475A 4/30/2021  AM190476A 4/30/2021  AM190477A 4/30/2021  AM190478A 4/30/2021  AM190479A 4/30/2021  AM190480A 4/30/2021  AM190481A 4/30/2021  AM190482A 4/30/2021  AM190834A 7/31/2021  AM190835A 7/31/2021  AM190836A 7/31/2021  AM190837A 7/31/2021  AM190838A 7/31/2021  AM191004A 8/31/2021  AM191005A 8/31/2021  AM191006A 8/31/2021  AM191007A 8/31/2021  AM191008A 9/30/2021  AM191271A 10/31/2021  AM191272A 10/31/2021  AM191273A 10/31/2021  AM191274A 10/31/2021  AM191338A 11/30/2021  AM191339A 11/30/2021  AM191340A 11/30/2021  AM191341 12/31/2021  AM191342 12/31/2021  AM200109 12/31/2021  AM200110 12/31/2021  AM200111 12/31/2021",
+    "openfda": {
+      "brand_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ],
+      "substance_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ]
+    }
+  },
+  {
+    "recall_number": "D-0632-2020",
+    "classification": "Class II",
+    "status": "Ongoing",
+    "reason_for_recall": "CGMP Deviations: Impurity N-nitrosodimethylamine (NDMA) found in API",
+    "product_description": "RANITIDINE TABLETS, USP 150mg, 10,000-count bag, Country of Origin: INDIA  NDC 62207-773-32",
+    "recalling_firm": "Granules India Limited",
+    "city": "Qutbullapur Mandal, Ranga Redd",
+    "state": "N/A",
+    "country": "India",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "OR, NY, NJ",
+    "product_quantity": "23,090,000 tablets",
+    "recall_initiation_date": "20191213",
+    "center_classification_date": "20191229",
+    "report_date": "20200108",
+    "code_info": "7730001A, 7730002A, 7730003A, 7730004A, 7730005A, 7730006A, 7730007A, 7730008A, 7730009A, 7730010A, 7730011A and 7730012A",
+    "openfda": {
+      "brand_name": [
+        "RANITIDINE"
+      ],
+      "generic_name": [
+        "RANITIDINE"
+      ],
+      "substance_name": [
+        "RANITIDINE HYDROCHLORIDE"
+      ]
+    }
+  },
+  {
+    "recall_number": "D-0179-2025",
+    "classification": "Class I",
+    "status": "Ongoing",
+    "reason_for_recall": "Labeling: Label Error on Declared Strength; Some cartons were incorrectly labeled. The blister strips inside the product carton reflect the correct strength.",
+    "product_description": "Clonazepam Orally Disintegrating Tablets, USP, 0.125 mg, C-IV, Rx Only, 60 tablets per carton (10 blister cards containing 6 tablets each), Distributed by: PAR Pharmaceutical, Chestnut Ridge, NY 10977, NDC#: 49884-306-02 (carton), NDC #: 49884-306-52 (blisters).",
+    "recalling_firm": "Endo USA, Inc.",
+    "city": "Malvern",
+    "state": "PA",
+    "country": "United States",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Nationwide in the USA",
+    "product_quantity": "8,029 cartons",
+    "recall_initiation_date": "20241118",
+    "center_classification_date": "20250103",
+    "report_date": "20250115",
+    "code_info": "Lot #: 550174101, Exp. 01/31/2027.",
+    "openfda": {
+      "brand_name": [
+        "CLONAZEPAM"
+      ],
+      "generic_name": [
+        "CLONAZEPAM"
+      ],
+      "substance_name": [
+        "CLONAZEPAM"
+      ]
+    }
+  },
+  {
+    "status": "Ongoing",
+    "city": "Columbus",
+    "state": "OH",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Amerisource Health Services LLC",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "PA, OH, PR",
+    "recall_number": "D-0101-2025",
+    "product_description": "Duloxetine Delayed-Release Capsules, USP, 60 mg, Rx only, 1,000 count bottle, Manufactured by: Aurobindo Pharma Limited, Hyderabad-500 090, India, For BluePoint Laboratories   NDC 68001-415-08",
+    "product_quantity": "8,561 bottles",
+    "reason_for_recall": "CGMP Deviations: Presence of N-nitroso-duloxetine impurity above the recommended interim limit",
+    "recall_initiation_date": "20241114",
+    "center_classification_date": "20241203",
+    "report_date": "20241211",
+    "code_info": "Lot, expiry: DT6022159A, DT6022167A, DT6022168A, exp 11/30/2024; Lot DT6023034A, 12/31/2024; Lots DT6023050A, DT6023051A, DT6023063A, DT6023067A, exp 01/31/2025; Lots DT6023073A,  DT6023072A, exp 02/28/2025"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Berkeley Heights",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA203088"
+      ],
+      "brand_name": [
+        "DULOXETINE"
+      ],
+      "generic_name": [
+        "DULOXETINE HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "Breckenridge Pharmaceutical, Inc."
+      ],
+      "product_ndc": [
+        "51991-746",
+        "51991-747",
+        "51991-748",
+        "51991-750"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "DULOXETINE HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "596926",
+        "596930",
+        "596934",
+        "616402"
+      ],
+      "spl_id": [
+        "32327581-bdab-41ac-9adc-bf208e1c4e42"
+      ],
+      "spl_set_id": [
+        "caef6f50-1571-4ec7-8f8c-42b924d323ee"
+      ],
+      "package_ndc": [
+        "51991-746-06",
+        "51991-746-90",
+        "51991-746-05",
+        "51991-747-33",
+        "51991-747-90",
+        "51991-747-10",
+        "51991-748-33",
+        "51991-748-90",
+        "51991-748-10",
+        "51991-750-33",
+        "51991-750-90",
+        "51991-750-05",
+        "51991-750-10"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "unii": [
+        "9044SC542W"
+      ]
+    },
+    "recalling_firm": "Breckenridge Pharmaceutical, Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "U.S Nationwide",
+    "recall_number": "D-0552-2025",
+    "product_description": "Duloxetine Delayed-Release Capsules, USP, 60mg, 1,000-count bottles, Rx Only, Mfr. by: Towa Pharmaceutical Europe, S.L. Martorelles, (Barcelona), Spain, Distributed by: Breckenridge Pharmaceuticals, Inc., Berkeley Heights, NJ 07922. NDC 51991-748-10.",
+    "product_quantity": "1,829 60-count bottles",
+    "reason_for_recall": "CGMP Deviations: Presence of N-nitroso-duloxetine impurity above safety assessment limit",
+    "recall_initiation_date": "20250715",
+    "center_classification_date": "20250801",
+    "report_date": "20250813",
+    "code_info": "Lot: 230836C, Exp.: 02/28/2026"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Berlin",
+    "state": "CT",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA203088"
+      ],
+      "brand_name": [
+        "DULOXETINE"
+      ],
+      "generic_name": [
+        "DULOXETINE HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "Breckenridge Pharmaceutical, Inc."
+      ],
+      "product_ndc": [
+        "51991-746",
+        "51991-747",
+        "51991-748",
+        "51991-750"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "DULOXETINE HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "596926",
+        "596930",
+        "596934",
+        "616402"
+      ],
+      "spl_id": [
+        "32327581-bdab-41ac-9adc-bf208e1c4e42"
+      ],
+      "spl_set_id": [
+        "caef6f50-1571-4ec7-8f8c-42b924d323ee"
+      ],
+      "package_ndc": [
+        "51991-746-06",
+        "51991-746-90",
+        "51991-746-05",
+        "51991-747-33",
+        "51991-747-90",
+        "51991-747-10",
+        "51991-748-33",
+        "51991-748-90",
+        "51991-748-10",
+        "51991-750-33",
+        "51991-750-90",
+        "51991-750-05",
+        "51991-750-10"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "unii": [
+        "9044SC542W"
+      ]
+    },
+    "recalling_firm": "Breckenridge Pharmaceutical, Inc",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Nationwide in the US",
+    "recall_number": "D-0161-2025",
+    "product_description": "Duloxetine Delayed-Release Capsules, USP, 30mg, Rx Only, 90-count bottles (NDC 51991-747-90) Mfr. by: Towa Pharmaceutical Europe, S.L. Martorelles, (Barcelona), Spain, Dist. by: Breckenridge Pharmaceuticals, Inc., Berkeley Heights, NJ 07922.",
+    "product_quantity": "163,883 bottles",
+    "reason_for_recall": "CGMP Deviations: presence of N-nitroso-duloxetine impurity above FDA recommended interim limit.",
+    "recall_initiation_date": "20241206",
+    "center_classification_date": "20241223",
+    "report_date": "20250101",
+    "code_info": "Lot #  222205C, exp. date 11/2025"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Bedminster",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA209288"
+      ],
+      "brand_name": [
+        "ATORVASTATIN CALCIUM"
+      ],
+      "generic_name": [
+        "ATORVASTATIN CALCIUM"
+      ],
+      "manufacturer_name": [
+        "Ascend Laboratories, LLC"
+      ],
+      "product_ndc": [
+        "67877-511",
+        "67877-512",
+        "67877-513",
+        "67877-514"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "ATORVASTATIN CALCIUM TRIHYDRATE"
+      ],
+      "rxcui": [
+        "259255",
+        "617310",
+        "617311",
+        "617312"
+      ],
+      "spl_id": [
+        "777b866a-796a-4d15-8cb6-dd0c9a1856e2"
+      ],
+      "spl_set_id": [
+        "67e60880-091a-4df7-8696-6e6c42a490e2"
+      ],
+      "package_ndc": [
+        "67877-511-90",
+        "67877-511-05",
+        "67877-511-10",
+        "67877-511-55",
+        "67877-511-33",
+        "67877-511-38",
+        "67877-512-90",
+        "67877-512-05",
+        "67877-512-10",
+        "67877-512-44",
+        "67877-512-33",
+        "67877-512-38",
+        "67877-513-90",
+        "67877-513-05",
+        "67877-513-10",
+        "67877-513-23",
+        "67877-513-33",
+        "67877-513-38",
+        "67877-514-90",
+        "67877-514-05",
+        "67877-514-10",
+        "67877-514-33",
+        "67877-514-38"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "upc": [
+        "0367877512051",
+        "0367877513102",
+        "0367877514109"
+      ],
+      "unii": [
+        "48A5M73Z4Q"
+      ]
+    },
+    "recalling_firm": "Ascend Laboratories, LLC",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "U.S. Nationwide",
+    "recall_number": "D-0020-2026",
+    "product_description": "Atorvastatin Calcium Tablets USP, 80 mg, Rx Only, a). 90-count(NDC 67877-514-90), b). 500-count(NDC 67877-514-05), Manufactured by: Alkem Laboratories, Ltd. India, Distributed by: Ascend Laboratories, LLC, Parsippany, NJ 07054",
+    "product_quantity": "",
+    "reason_for_recall": "Failed Dissolution Specifications",
+    "recall_initiation_date": "20250919",
+    "center_classification_date": "20251010",
+    "report_date": "20251022",
+    "code_info": "Lot#: 25140249, Exp. Dec. 2026 Lot#: 25140247, Exp. Dec. 2026 Lot#: 24144999, Exp. Nov. 2026 Lot#: 24144942, Exp. Nov. 2026 Lot#: 24144845, Exp. Nov. 2026 Lot#: 24144713, Exp. Nov. 2026 Lot#: 24144652, Exp. Oct. 2026 Lot#: 24143898, Exp. Aug. 2026 Lot#: 24143412, Exp. Aug. 2026 Lot#: 24143582, Exp. Aug. 2026"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Anaheim",
+    "state": "CA",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Preferred Pharmaceuticals, Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "USA Nationwide",
+    "recall_number": "D-0511-2023",
+    "product_description": "Atorvastatin Calcium Tablets, USP, 10 mg, 90-count bottle, Rx only, Manufactured: Accord Healthcare, Inc., Durham, NC 27703, NDC 68788-7630-9",
+    "product_quantity": "158 Bottles",
+    "reason_for_recall": "cGMP Deviations for the manufacturing Firm (Accord Healthcare) after their inspection.",
+    "recall_initiation_date": "20230323",
+    "center_classification_date": "20230406",
+    "report_date": "20230412",
+    "code_info": "Lot #: A0523D, Exp 5/31/2024, F14220, Exp 7/31/2023, J0622Q; Exp 1/31/2024."
+  },
+  {
+    "status": "Ongoing",
+    "city": "Canonsburg",
+    "state": "PA",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA076187"
+      ],
+      "brand_name": [
+        "LEVOTHYROXINE SODIUM"
+      ],
+      "generic_name": [
+        "LEVOTHYROXINE SODIUM"
+      ],
+      "manufacturer_name": [
+        "Mylan Pharmaceuticals Inc."
+      ],
+      "product_ndc": [
+        "0378-1800",
+        "0378-1803",
+        "0378-1805",
+        "0378-1807",
+        "0378-1809",
+        "0378-1811",
+        "0378-1813",
+        "0378-1823",
+        "0378-1815",
+        "0378-1817",
+        "0378-1819",
+        "0378-1821"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "LEVOTHYROXINE SODIUM"
+      ],
+      "rxcui": [
+        "892246",
+        "892251",
+        "892255",
+        "966220",
+        "966221",
+        "966222",
+        "966224",
+        "966225",
+        "966248",
+        "966249",
+        "966253",
+        "966270"
+      ],
+      "spl_id": [
+        "ca193039-55b1-4a7e-aa67-c4bff4f9f5b0"
+      ],
+      "spl_set_id": [
+        "e95720f2-91c9-a6d0-f7d5-8bcb94d07bbc"
+      ],
+      "package_ndc": [
+        "0378-1800-77",
+        "0378-1800-10",
+        "0378-1803-77",
+        "0378-1803-10",
+        "0378-1805-77",
+        "0378-1805-10",
+        "0378-1807-77",
+        "0378-1807-10",
+        "0378-1809-77",
+        "0378-1809-10",
+        "0378-1811-77",
+        "0378-1811-10",
+        "0378-1813-77",
+        "0378-1813-10",
+        "0378-1823-77",
+        "0378-1823-10",
+        "0378-1815-77",
+        "0378-1815-10",
+        "0378-1817-77",
+        "0378-1817-10",
+        "0378-1819-77",
+        "0378-1819-10",
+        "0378-1821-77"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "unii": [
+        "9J765S329G"
+      ]
+    },
+    "recalling_firm": "Viatris Inc",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Nationwide within the United States and Puerto Rico",
+    "recall_number": "D-0120-2025",
+    "product_description": "Levothyroxine Sodium Tablets USP, 150 mcg, packaged in a) 90-count bottles (NDC 0378-1815-77) and b) 1000-count bottles (NDC 0378-1815-10), Rx only, Manufactured for: Mylan Pharmaceuticals Inc. Morgantown, WV 26505 U.S.A.",
+    "product_quantity": "9,828 bottles",
+    "reason_for_recall": "Superpotent Drug and Subpotent Drug: potency failures obtained",
+    "recall_initiation_date": "20241118",
+    "center_classification_date": "20241212",
+    "report_date": "20241218",
+    "code_info": "Lot #: a) 8177720, Exp. Date Jun 2025; b) 3200218, Exp. Date Jun 2025"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Hyderabad",
+    "state": "",
+    "country": "India",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA211020"
+      ],
+      "brand_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "Rising Pharma Holdings, Inc."
+      ],
+      "product_ndc": [
+        "16571-862",
+        "16571-863"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "993541",
+        "993557"
+      ],
+      "spl_id": [
+        "fe42636a-ae04-43be-b032-8973bbdde7d5"
+      ],
+      "spl_set_id": [
+        "e4f4d3fa-ddf6-4125-8486-8157efc095c1"
+      ],
+      "package_ndc": [
+        "16571-862-03",
+        "16571-862-09",
+        "16571-862-50",
+        "16571-862-10",
+        "16571-862-12",
+        "16571-863-03",
+        "16571-863-09",
+        "16571-863-50",
+        "16571-863-10"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "upc": [
+        "0316571862030",
+        "0316571863037"
+      ],
+      "unii": [
+        "ZG7E5POY8O"
+      ]
+    },
+    "recalling_firm": "Graviti Pharmaceuticals Private Limited",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Product was distributed to 1 distributor and 16 wholesalers/pharmacy retailers nationwide.",
+    "recall_number": "D-0037-2026",
+    "product_description": "Bupropion Hydrochloride Extended-Release Tablets USP (XL), 300 mg, 30-count bottles, Rx Only, Mfd. by: Graviti Pharmaceuticals Private Limited, Sangareddy, Telangana, India, Dist. by: Rising Phar, NDC 16571-863-03.",
+    "product_quantity": "46,512/30 count bottles",
+    "reason_for_recall": "Failed Tablet/Capsule Specifications",
+    "recall_initiation_date": "20250915",
+    "center_classification_date": "20251021",
+    "report_date": "20251029",
+    "code_info": "Batch # BPB124341A, Exp date: 10/2026"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Columbus",
+    "state": "OH",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA090693"
+      ],
+      "brand_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "American Health Packaging"
+      ],
+      "product_ndc": [
+        "60687-782",
+        "60687-793"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "BUPROPION HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "993541",
+        "993557"
+      ],
+      "spl_id": [
+        "37b2800f-32bb-1c88-e063-6294a90acfe7"
+      ],
+      "spl_set_id": [
+        "8dab6d17-bf41-4a28-90db-b66959c0e143"
+      ],
+      "package_ndc": [
+        "60687-782-11",
+        "60687-782-01",
+        "60687-793-11",
+        "60687-793-21"
+      ],
+      "original_packager_product_ndc": [
+        "68180-319",
+        "68180-320"
+      ],
+      "unii": [
+        "ZG7E5POY8O"
+      ]
+    },
+    "recalling_firm": "Amerisource Health Services LLC",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Nationwide in the USA",
+    "recall_number": "D-0590-2024",
+    "product_description": "buPROPion Hydrochloride Extended-release Tablets USP (XL) Once-Daily, 150 mg, 100 Tablets (10 x 10) per carton, Rx Only, Distributed by: American Health Packaging, Columbus, Ohio 43217, NDC: 60687-782-01.",
+    "product_quantity": "2,484 cartons",
+    "reason_for_recall": "Failed Dissolution Specifications; the product is dissolving faster than the specified limits.",
+    "recall_initiation_date": "20240624",
+    "center_classification_date": "20240708",
+    "report_date": "20240717",
+    "code_info": "Lot 1017343, Exp. 12/31/2025"
+  },
+  {
+    "status": "Ongoing",
+    "city": "East Brunswick",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA079106"
+      ],
+      "brand_name": [
+        "BISOPROLOL FUMARATE AND HYDROCHLOROTHIAZIDE"
+      ],
+      "generic_name": [
+        "BISOPROLOL FUMARATE AND HYDROCHLOROTHIAZIDE"
+      ],
+      "manufacturer_name": [
+        "Unichem Pharmaceuticals (USA), Inc."
+      ],
+      "product_ndc": [
+        "29300-187",
+        "29300-188",
+        "29300-189"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "BISOPROLOL FUMARATE",
+        "HYDROCHLOROTHIAZIDE"
+      ],
+      "rxcui": [
+        "854908",
+        "854916",
+        "854919"
+      ],
+      "spl_id": [
+        "057844aa-5d7e-4e83-b71f-9072d2a2b93d"
+      ],
+      "spl_set_id": [
+        "b9ee689a-ea12-435d-b01c-70d45891e62f"
+      ],
+      "package_ndc": [
+        "29300-187-13",
+        "29300-187-01",
+        "29300-187-05",
+        "29300-187-10",
+        "29300-188-13",
+        "29300-188-01",
+        "29300-188-05",
+        "29300-188-10",
+        "29300-189-13",
+        "29300-189-01",
+        "29300-189-05",
+        "29300-189-10"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "nui": [
+        "N0000175359",
+        "N0000175419",
+        "M0471776"
+      ],
+      "pharm_class_pe": [
+        "Increased Diuresis [PE]"
+      ],
+      "pharm_class_epc": [
+        "Thiazide Diuretic [EPC]"
+      ],
+      "pharm_class_cs": [
+        "Thiazides [CS]"
+      ],
+      "unii": [
+        "UR59KN573L",
+        "0J48LPH2TH"
+      ]
+    },
+    "recalling_firm": "Unichem Pharmaceuticals USA Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "US Nationwide and PR.",
+    "recall_number": "D-0301-2026",
+    "product_description": "Bisoprolol Fumarate and Hydrochlorothiazide tablets, USP, 2.5 mg/6.25 mg, 100-count bottle, Rx Only, Manufactured by: UNICHEM LABORATORIS LTD., Pilerne Ind. Estate, Pilerne, Bardez, Goa 403 511, India, Manufactured for: UNICHEM PHARMACEUTICALS (USA), INC., East Brunswick, NJ 08816, NDC 29300-187-01",
+    "product_quantity": "N/A",
+    "reason_for_recall": "cGMP Deviations: recall due to not meeting the N-Nitroso Bisoprolol impurity specification limits.",
+    "recall_initiation_date": "20260121",
+    "center_classification_date": "20260130",
+    "report_date": "20260211",
+    "code_info": "Lot # GBHL24005A, Exp Date: 09/2026"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Sinnar, Nashik District",
+    "state": "N/A",
+    "country": "India",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA078020"
+      ],
+      "brand_name": [
+        "VALSARTAN AND HYDROCHLOROTHIAZIDE"
+      ],
+      "generic_name": [
+        "VALSARTAN AND HYDROCHLOROTHIAZIDE"
+      ],
+      "manufacturer_name": [
+        "Mylan Pharmaceuticals Inc."
+      ],
+      "product_ndc": [
+        "0378-6321",
+        "0378-6322",
+        "0378-6323",
+        "0378-6324",
+        "0378-6325"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "HYDROCHLOROTHIAZIDE",
+        "VALSARTAN"
+      ],
+      "rxcui": [
+        "200284",
+        "200285",
+        "349353",
+        "636042",
+        "636045"
+      ],
+      "spl_id": [
+        "16044239-373d-4b04-9a4d-fd4232a93b6c"
+      ],
+      "spl_set_id": [
+        "3ba1f9f9-0037-4522-8605-e27dc8552b5b"
+      ],
+      "package_ndc": [
+        "0378-6321-77",
+        "0378-6321-05",
+        "0378-6322-77",
+        "0378-6322-05",
+        "0378-6323-77",
+        "0378-6323-05",
+        "0378-6324-77",
+        "0378-6324-05",
+        "0378-6325-77",
+        "0378-6325-05"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "upc": [
+        "0303786323777"
+      ],
+      "nui": [
+        "N0000000070",
+        "N0000175561",
+        "N0000175359",
+        "N0000175419",
+        "M0471776"
+      ],
+      "pharm_class_moa": [
+        "Angiotensin 2 Receptor Antagonists [MoA]"
+      ],
+      "pharm_class_epc": [
+        "Angiotensin 2 Receptor Blocker [EPC]",
+        "Thiazide Diuretic [EPC]"
+      ],
+      "pharm_class_pe": [
+        "Increased Diuresis [PE]"
+      ],
+      "pharm_class_cs": [
+        "Thiazides [CS]"
+      ],
+      "unii": [
+        "80M03YXJ7I",
+        "0J48LPH2TH"
+      ]
+    },
+    "recalling_firm": "Mylan Laboratories Limited, (Nashik FDF)",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Product was distributed throughout the United States to several major distributors, including Puerto Rico.",
+    "recall_number": "D-0332-2019",
+    "product_description": "Valsartan and Hydrochlorothiazide Tablets, USP 320/25 mg, (a) 90-count bottle (NDC 0378-6325-77), (b) 500-count bottles (NDC 0378-6325-05), Rx Only, Made in India, Manufactured for: Mylan Pharmaceuticals, Inc., Morgantown, WV 26505 U.S.A.",
+    "product_quantity": "32,284 HDPE bottles",
+    "reason_for_recall": "GCMP Deviations: FDA analysis confirmed presence of trace amounts of an impurity, N-nitrosodiethylamine (NDEA) found in the API used to manufacture the product.",
+    "recall_initiation_date": "20181204",
+    "center_classification_date": "20181214",
+    "report_date": "20181219",
+    "code_info": "Lot numbers:    3084860  3084861    3084862    3093804    3084862    3084863"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Naples",
+    "state": "FL",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA078466"
+      ],
+      "brand_name": [
+        "AMLODIPINE BESYLATE AND BENAZEPRIL HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "AMLODIPINE BESYLATE AND BENAZEPRIL HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "Lupin Pharmaceuticals, Inc."
+      ],
+      "product_ndc": [
+        "68180-459",
+        "68180-755",
+        "68180-756",
+        "68180-472",
+        "68180-463",
+        "68180-473",
+        "68180-759",
+        "68180-760",
+        "68180-757",
+        "68180-758"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "AMLODIPINE BESYLATE",
+        "BENAZEPRIL HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "898342",
+        "898346",
+        "898350",
+        "898353",
+        "898356",
+        "898359"
+      ],
+      "spl_id": [
+        "53566d4f-ff40-4815-b922-3416cde56fb1"
+      ],
+      "spl_set_id": [
+        "968c611b-43a7-40f0-9ed3-aa67ee88364b"
+      ],
+      "package_ndc": [
+        "68180-755-01",
+        "68180-755-02",
+        "68180-755-03",
+        "68180-756-01",
+        "68180-756-02",
+        "68180-756-03",
+        "68180-459-01",
+        "68180-459-02",
+        "68180-459-03",
+        "68180-472-01",
+        "68180-472-02",
+        "68180-472-03",
+        "68180-463-01",
+        "68180-463-02",
+        "68180-463-03",
+        "68180-473-01",
+        "68180-473-02",
+        "68180-473-03",
+        "68180-759-01",
+        "68180-759-02",
+        "68180-759-03",
+        "68180-760-01",
+        "68180-760-02",
+        "68180-760-03",
+        "68180-757-01",
+        "68180-757-02",
+        "68180-757-03",
+        "68180-758-01",
+        "68180-758-02",
+        "68180-758-03"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "upc": [
+        "0368180459019"
+      ],
+      "unii": [
+        "864V2Q084H",
+        "N1SN99T69T"
+      ]
+    },
+    "recalling_firm": "Lupin Pharmaceuticals Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Nationwide in the US",
+    "recall_number": "D-0542-2025",
+    "product_description": "Amlodipine and Benazepril HCl Capsules USP 2.5 mg/10 mg, 100 Capsules bottle, Rx Only, Manufactured for: Lupin Pharmaceuticals, Inc., Naples, FL, 34108, United States, Manufactured by: Lupin Limited, Goa 103 722, INDIA, NDC 68180-755-01.",
+    "product_quantity": "7668 bottles",
+    "reason_for_recall": "Labeling: Incorrect or Missing Lot and/or Exp Date: released with wrong expiry date as Feb.2027 instead of Jan.2027",
+    "recall_initiation_date": "20250702",
+    "center_classification_date": "20250728",
+    "report_date": "20250806",
+    "code_info": "Lot GB01616, expiration 2/28/2027"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Earth City",
+    "state": "MO",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA077397"
+      ],
+      "brand_name": [
+        "SERTRALINE HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "SERTRALINE HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "Legacy Pharmaceutical Packaging, LLC"
+      ],
+      "product_ndc": [
+        "68645-521",
+        "68645-522",
+        "68645-523"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "SERTRALINE HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "312938",
+        "312940",
+        "312941"
+      ],
+      "spl_id": [
+        "4cc29310-2a31-9e2e-e063-6294a90a8e5d"
+      ],
+      "spl_set_id": [
+        "bd86b293-dab9-4d37-95eb-2bffca335d16"
+      ],
+      "package_ndc": [
+        "68645-521-54",
+        "68645-522-54",
+        "68645-523-54"
+      ],
+      "original_packager_product_ndc": [
+        "69097-833",
+        "69097-834",
+        "69097-835"
+      ],
+      "upc": [
+        "0368645522548",
+        "0368645521541",
+        "0368645523545"
+      ],
+      "unii": [
+        "UTI8907Y6X"
+      ]
+    },
+    "recalling_firm": "Legacy Pharmaceutical Packaging LLC",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "CA and AR",
+    "recall_number": "D-0205-2024",
+    "product_description": "Sertraline Tablets, USP 100 mg, 30 tablets per bottle, Distributed by: Wal-Mart, Bentonville, AR 72716, Manufactured for: Cipla USA, Inc., Warren, NJ 07059, Packaged by: Legacy Pharmaceutical Packaging LLC., Earth City, MO 63045, NDC# 68645-523-54",
+    "product_quantity": "161,664 bottles",
+    "reason_for_recall": "CGMP Deviations: Inadequate line clearance which may result in a potential comingling of product.",
+    "recall_initiation_date": "20231211",
+    "center_classification_date": "20231226",
+    "report_date": "20240103",
+    "code_info": "Lot #: 222033, exp. date 08/31/2024"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Anaheim",
+    "state": "CA",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Preferred Pharmaceuticals, Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "USA Nationwide",
+    "recall_number": "D-0518-2023",
+    "product_description": "Montelukast Sodium Tablets, USP, 10 mg, packaged in: a) 30-count bottle (NDC 68788-9438-3); b) 60-count bottle (NDC 68788-9438-6); c) 90-count bottle (NDC 68788-9438-9), Rx only, Manufactured: Accord Healthcare, Inc., Durham, NC 27703.",
+    "product_quantity": "a) 266 Bottles, b) not reported, c) 216 Bottles",
+    "reason_for_recall": "cGMP Deviations for the manufacturing Firm (Accord Healthcare) after their inspection.",
+    "recall_initiation_date": "20230323",
+    "center_classification_date": "20230406",
+    "report_date": "20230412",
+    "code_info": "a) Lot: F3021D, Exp 12/31/2023, Lot: L0722T, Exp 5/31/2025; b) Lot: F1021I, Exp 12/31/2023; c) Lot:H1721R, Exp 12/31/2023, Lot: L0722E, Exp 5/31/2025."
+  },
+  {
+    "status": "Ongoing",
+    "city": "Libertyville",
+    "state": "IL",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA201991"
+      ],
+      "brand_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ],
+      "generic_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ],
+      "manufacturer_name": [
+        "A-S Medication Solutions"
+      ],
+      "product_ndc": [
+        "50090-1494"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "METFORMIN HYDROCHLORIDE"
+      ],
+      "rxcui": [
+        "860975"
+      ],
+      "spl_id": [
+        "c83706bb-e844-4e62-b4f4-c48536ea707d"
+      ],
+      "spl_set_id": [
+        "0cd086d6-3ae2-476e-b93e-29055e67e8fc"
+      ],
+      "package_ndc": [
+        "50090-1494-3",
+        "50090-1494-4",
+        "50090-1494-0",
+        "50090-1494-1",
+        "50090-1494-2"
+      ],
+      "original_packager_product_ndc": [
+        "67877-159"
+      ],
+      "unii": [
+        "786Z46389E"
+      ]
+    },
+    "recalling_firm": "A-S Medication Solutions LLC",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Nationwide in U.S.",
+    "recall_number": "D-0292-2025",
+    "product_description": "METFORMIN HYDROCHLORIDE EXTENDED- RELEASE 500MG, 180 TABLETS, Packaged BY: A-S Medication Solutions, Libertyville, IL 60048 NDC 50090-1494-3.",
+    "product_quantity": "411 180-count bottles",
+    "reason_for_recall": "Presence of Foreign Tablets/Capsules.",
+    "recall_initiation_date": "20250225",
+    "center_classification_date": "20250321",
+    "report_date": "20250402",
+    "code_info": "Lot# 4260340; Exp.12/31/2025."
+  },
+  {
+    "status": "Ongoing",
+    "city": "Mahwah",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Glenmark Pharmaceuticals Inc., USA",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Natiowide",
+    "recall_number": "D-0643-2020",
+    "product_description": "Glenmark Ranitidine Tablets USP 300 mg Rx Only 250 Tablets Manufactured by: Glenmark Pharmaceuticals Ltd. Colvale-Bandez, Goa 403513, India Manufactured for: Glenmark Pharmaceuticals Inc., USA Mahwah, NJ   NDC 68462-249-20",
+    "product_quantity": "500,960 bottles",
+    "reason_for_recall": "CGMP Deviations: Presence of NDMA impurity detected in product.",
+    "recall_initiation_date": "20191217",
+    "center_classification_date": "20200105",
+    "report_date": "20200115",
+    "code_info": "7701069A  7701070A  7701084A  7701085A  7701087A  7701094A  7701095A  7701140A  7701141A  7701142A  7701157A  7701162A  7701182A  7701217A  7701218A  7701219A  7701236A  7701237A  7701220A  7701456A  7701470A  7701520A  7701671A  7701696A  7701697A  7701698A  7701797A  7701928A  7701929A  7701942A  7701943A  7702065A  7702066A  7702067A  7702095A  7702096A  7702097A  7702098A  7702188A  7702189A  7702190A  7702196A  7702197A  7702198A  7702199A  7702348A  7702338A  7702347A  7702349A  7702350A  7702391A  7702392A  7702546A  7702547A  7702548A  7702616A  7702617A  7702618A  7702619A  7702620A  7702763A  7702764A  7702851A  7702852A  7702853A  7702854A  7702855A  7702868A  7702869A  7702870A  7702871A  7702920A  7703054A  7703055A  7703056A  7703057A  7703058A  7703206A  7703208A  7703454A  7703455A  7703456A  7703486A  7703487A  7703488A  7703489A  7703490A  7703945A  7703946A  7703947A  7704111A  7704112A  7704113A  7704234A  7704235A  7704236A  7704237A  7704285A  7704286A  7704287A  7704288A  7704370A  7704371A  7704428A  7704429A  7704430A  7704431A  7704814A  7704838A  7704839A  7704840A  7704935A  7704936A  7704992A  7704996A  7704997A  7704998A  7704999A  7705037A  7705298A  7705299A  7705300A  7705301A  7705302A  7705303A  7705546A  7705584A  7705544A  7705545A  7705572A  7705585A  19190456  19190472  19190490  19191934  19191942  19191959  19192504"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Mahwah",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Glenmark Pharmaceuticals Inc., USA",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Natiowide",
+    "recall_number": "D-0642-2020",
+    "product_description": "Glenmark Ranitidine Tablets USP 300 mg Rx Only 100 Tablets Manufactured by: Glenmark Pharmaceuticals Ltd. Colvale-Bandez, Goa 403513, India   Manufactured for: Glenmark Pharmaceuticals Inc., USA Mahwah, NJ   NDC 68462-249-01",
+    "product_quantity": "1,309,536 bottles",
+    "reason_for_recall": "CGMP Deviations: Presence of NDMA impurity detected in product.",
+    "recall_initiation_date": "20191217",
+    "center_classification_date": "20200105",
+    "report_date": "20200115",
+    "code_info": "7701030A  7701031A  7701062A  7701063A  7701110A  7701111A  7701112A  7701185A  7701186A  7701187A  7701188A  7701189A  7701269A  7701270A  7701278A  7701279A  7701386A  7701400A  7701401A  7701406A  7701421A  7701434A  7701435A  7701436A  7701452A  7701453A  7701521A  7701522B  7701553A  7701554A  7701555A  7701556A  7701582A  7701817A  7701828A  7701829A  7702001A  7702002A  7702003A  7702012A  7702026A  7702027A  7702064A  7702140A  7702253A  7702254A  7702285A  7702286A  7702287A  7702288A  7702294A  7702413A  7702462A  7702491A  7702492A  7702504A  7702505A  7702515A  7702698A  7702699A  7702700A  7702714A  7702719A  7702720A  7702747A  7702748A  7702749A  7702750A  7702751A  7702872A  7702873A  7702874A  7702917A  7702918A  7702919A  7702921A  7702922A  7702923A  7702945A  7703205A  7703410A  7703411A  7703412A  7703413A  7703414A  7703415A  7703451A  7703452A  7703453A  7703578A  7703579A  7703580A  7703581A  7703591A  7703592A  7703593A  7704372A  7704373A  7704374A  7704426A  7704427A  7704432A  7704463A  7704464A  7704465A  7704466A  7704508A  7704509A  7704510A  7704511A  7704512A  7704513A  7704563A  7704564A  7704746A  7704747A  7704748A  7704813A  7704841A  7704989A  7704990A  7705106A  7705320A  7705321A  7705322A  7705323A  7705324A  7705325A  7705326A  7705694A  7705703A  7705704A  7705702A  19190456  19190472  19190490  7701809A  7704862A  7704863A  7704864A  7704865A  7704866A  7704933A  7704934A"
+  },
+  {
+    "status": "Completed",
+    "city": "Princeton",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {},
+    "recalling_firm": "Dr. Reddy's Laboratories, Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "Product was distributed to major distributors throughout the United States who may have further distributed the product.",
+    "recall_number": "D-0171-2020",
+    "product_description": "Ranitidine Tablets, USP 150 mg, a.) 65 count bottles (NDC 49035-404-61) b.) 130 count bottles (NDC 49035-404-13) c.) 220 count  bottles (NDC 49035-404-65)  (Walmart) OTC",
+    "product_quantity": "N/A",
+    "reason_for_recall": "CGMP Deviations: Presence of NDMA impurity detected in product.",
+    "recall_initiation_date": "20191001",
+    "center_classification_date": "20191105",
+    "report_date": "20191113",
+    "code_info": "Batch Numbers:  All lots within expiry."
+  },
+  {
+    "status": "Ongoing",
+    "city": "Princeton",
+    "state": "NJ",
+    "country": "United States",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA075576"
+      ],
+      "brand_name": [
+        "OMEPRAZOLE"
+      ],
+      "generic_name": [
+        "OMEPRAZOLE"
+      ],
+      "manufacturer_name": [
+        "Quallent Pharmaceuticals Health LLC"
+      ],
+      "product_ndc": [
+        "82009-022"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "OMEPRAZOLE"
+      ],
+      "rxcui": [
+        "198051"
+      ],
+      "spl_id": [
+        "17380ad5-9506-8e44-aa84-b6ce52ac7b9b"
+      ],
+      "spl_set_id": [
+        "665e9877-85ac-fdb6-54ac-1c47941ceab8"
+      ],
+      "package_ndc": [
+        "82009-022-10"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "nui": [
+        "N0000175525",
+        "N0000000147",
+        "N0000182140"
+      ],
+      "pharm_class_epc": [
+        "Proton Pump Inhibitor [EPC]"
+      ],
+      "pharm_class_moa": [
+        "Proton Pump Inhibitors [MoA]",
+        "Cytochrome P450 2C19 Inhibitors [MoA]"
+      ],
+      "unii": [
+        "KG60484QX9"
+      ]
+    },
+    "recalling_firm": "Dr. Reddy's Laboratories, Inc.",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Letter",
+    "distribution_pattern": "USA Nationwide",
+    "recall_number": "D-0525-2025",
+    "product_description": "Omeprazole Delayed-release Capsules, USP, 20mg, 1000-count bottle, Rx Only, Manufactured by: Dr. Reddy's Laboratories Limited, Bachupally - 500 090 INDIA, Manufactured for: Qualient Pharmaceuticals Health LLC, Grand Cayman, Cayman Islands, NDC 82009-022-10.  NDC 82009-022-10",
+    "product_quantity": "1476 bottles",
+    "reason_for_recall": "Presence of foreign tablets/capsules: presence of foreign Divalproex Sodium Extended-Release 250mg tablet in a bottle of omeprazole capsules.",
+    "recall_initiation_date": "20250630",
+    "center_classification_date": "20250714",
+    "report_date": "20250723",
+    "code_info": "Lot: C2403017, Exp 12/31/2026"
+  },
+  {
+    "status": "Ongoing",
+    "city": "Sinnar, Nashik District",
+    "state": "N/A",
+    "country": "India",
+    "classification": "Class II",
+    "openfda": {
+      "application_number": [
+        "ANDA078020"
+      ],
+      "brand_name": [
+        "VALSARTAN AND HYDROCHLOROTHIAZIDE"
+      ],
+      "generic_name": [
+        "VALSARTAN AND HYDROCHLOROTHIAZIDE"
+      ],
+      "manufacturer_name": [
+        "Mylan Pharmaceuticals Inc."
+      ],
+      "product_ndc": [
+        "0378-6321",
+        "0378-6322",
+        "0378-6323",
+        "0378-6324",
+        "0378-6325"
+      ],
+      "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+      ],
+      "route": [
+        "ORAL"
+      ],
+      "substance_name": [
+        "HYDROCHLOROTHIAZIDE",
+        "VALSARTAN"
+      ],
+      "rxcui": [
+        "200284",
+        "200285",
+        "349353",
+        "636042",
+        "636045"
+      ],
+      "spl_id": [
+        "16044239-373d-4b04-9a4d-fd4232a93b6c"
+      ],
+      "spl_set_id": [
+        "3ba1f9f9-0037-4522-8605-e27dc8552b5b"
+      ],
+      "package_ndc": [
+        "0378-6321-77",
+        "0378-6321-05",
+        "0378-6322-77",
+        "0378-6322-05",
+        "0378-6323-77",
+        "0378-6323-05",
+        "0378-6324-77",
+        "0378-6324-05",
+        "0378-6325-77",
+        "0378-6325-05"
+      ],
+      "is_original_packager": [
+        true
+      ],
+      "upc": [
+        "0303786323777"
+      ],
+      "nui": [
+        "N0000000070",
+        "N0000175561",
+        "N0000175359",
+        "N0000175419",
+        "M0471776"
+      ],
+      "pharm_class_moa": [
+        "Angiotensin 2 Receptor Antagonists [MoA]"
+      ],
+      "pharm_class_epc": [
+        "Angiotensin 2 Receptor Blocker [EPC]",
+        "Thiazide Diuretic [EPC]"
+      ],
+      "pharm_class_pe": [
+        "Increased Diuresis [PE]"
+      ],
+      "pharm_class_cs": [
+        "Thiazides [CS]"
+      ],
+      "unii": [
+        "80M03YXJ7I",
+        "0J48LPH2TH"
+      ]
+    },
+    "recalling_firm": "Mylan Laboratories Limited, (Nashik FDF)",
+    "voluntary_mandated": "Voluntary: Firm initiated",
+    "initial_firm_notification": "Press Release",
+    "distribution_pattern": "Product was distributed throughout the United States to several major distributors, including Puerto Rico.",
+    "recall_number": "D-0330-2019",
+    "product_description": "Valsartan and Hydrochlorothiazide Tablets, USP 160/25 mg, (a) 90-count bottle (NDC 0378-6323-77), (b) 500-count bottles (NDC 0378-6323-05), Rx Only, Made in India, Manufactured for: Mylan Pharmaceuticals, Inc., Morgantown, WV 26505 U.S.A.",
+    "product_quantity": "22,813 HDPE bottles",
+    "reason_for_recall": "GCMP Deviations: FDA analysis confirmed presence of trace amounts of an impurity, N-nitrosodiethylamine (NDEA) found in the API used to manufacture the product.",
+    "recall_initiation_date": "20181204",
+    "center_classification_date": "20181214",
+    "report_date": "20181219",
+    "code_info": "Lot numbers:  3084887    3093802    3084887    3084888    3093802"
+  }
+]

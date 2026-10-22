@@ -112,3 +112,30 @@ One practical distinction: the current HawkSign repository supports ingestion, b
 Final demo: Introduce one new FDA recall in the synthetic environment. Both sides independently detect it: the pharmacy dashboard highlights affected customers, while the patient dashboard receives its own medication safety alert. Neither workflow waits for the other.
 
 That's SuperShield: one FDA safety network, two independent experiences, continuous protection.
+
+## Patient workflow (Developer 2)
+
+Code: [`patient/`](patient/) — **SuperShield Patient**, built on FarmaWatcher. Branch `feat/patient`.
+Full docs: [`patient/README.md`](patient/README.md).
+
+```bash
+cd patient
+npm install
+cp .env.example .env        # openFDA needs no key; add ANTHROPIC_API_KEY for Claude bulletins
+npm run dashboard:build
+npm run dev                 # worker + dashboard → http://localhost:3000  (ops log: /events)
+```
+
+The worker polls live openFDA (`WORKER_INTERVAL_SEC=60`) and merges in the shared feed. When a
+recall matches a saved medication, the patient gets an in-app alert. External delivery is labeled
+`simulated` while `DRY_RUN=true`.
+
+### Shared FDA feed contract (for Developer 1 / Pharmacy)
+
+- File: [`shared/fda/demo-recalls.json`](shared/fda/) — openFDA `drug/enforcement` record shape, `[]` in production.
+- Common identifier: **`recall_number`**. Pharmacy should load this file alongside openFDA into
+  `safetynet.fda_recalls` keyed by `(product_ndc, recall_number)`.
+- Synthetic rows carry `"synthetic": true` (recall numbers `D-SS-####-2026`) and must be labeled as synthetic in any UI.
+- Inject a demo recall that both workflows will pick up independently:
+  `node shared/fda/inject-recall.mjs --drug Metformin [--ndc 00093-1048-01] [--class "Class I"]`; clean up with `--reset`.
+  See [`shared/fda/README.md`](shared/fda/README.md).

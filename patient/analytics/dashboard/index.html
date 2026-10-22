@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FarmacoVigía — Eventos</title>
+<style>
+  :root { --bg:#0b1020; --card:#141b32; --fg:#e6e9f2; --mut:#8b93b0; --line:#26304f; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--fg); }
+  header { padding:20px 24px; border-bottom:1px solid var(--line);
+           display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; font-weight:650; }
+  .pill { font-size:12px; padding:3px 10px; border-radius:999px; background:var(--card);
+          border:1px solid var(--line); color:var(--mut); }
+  main { padding:24px; max-width:1000px; margin:0 auto; }
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .stat .n { font-size:26px; font-weight:700; }
+  .stat .l { font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
+  .ev { background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:12px 16px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start; }
+  .k { font-size:12px; font-weight:600; padding:3px 9px; border-radius:8px; white-space:nowrap; }
+  .k.recall_detected { background:#3a1d22; color:#ff8a9a; }
+  .k.patient_matched { background:#1d2f3a; color:#7fd2ff; }
+  .k.bulletin_generated { background:#2a2438; color:#c9a8ff; }
+  .k.alert_sent { background:#1d3a2a; color:#7fffb0; }
+  .ev .body { flex:1; min-width:0; }
+  .ev .ts { font-size:11px; color:var(--mut); }
+  .ev pre { margin:6px 0 0; font-size:12px; color:var(--mut); white-space:pre-wrap;
+            word-break:break-word; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .empty { color:var(--mut); text-align:center; padding:40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛡️ FarmacoVigía</h1>
+  <span class="pill">Eventos en vivo</span>
+  <span class="pill" id="src">cargando…</span>
+  <span class="pill" id="updated"></span>
+</header>
+<main>
+  <div class="stats" id="stats"></div>
+  <div id="list"><div class="empty">Sin eventos todavía. Llama a <code>POST /check</code>.</div></div>
+</main>
+<script>
+const KINDS = ['recall_detected','patient_matched','bulletin_generated','alert_sent'];
+const LABEL = {
+  recall_detected:'Retiro detectado', patient_matched:'Paciente cruzado',
+  bulletin_generated:'Boletín generado', alert_sent:'Alerta enviada'
+};
+function fmt(ts){ try { return new Date(ts.replace(' ','T')+'Z').toLocaleString('es-MX'); } catch { return ts; } }
+async function tick(){
+  try {
+    const r = await fetch('/events?limit=100');
+    const evs = await r.json();
+    document.getElementById('src').textContent = 'ClickHouse';
+    render(evs);
+  } catch (e) {
+    document.getElementById('src').textContent = 'sin conexión';
+  }
+  document.getElementById('updated').textContent = 'act. ' + new Date().toLocaleTimeString('es-MX');
+}
+function render(evs){
+  const counts = Object.fromEntries(KINDS.map(k=>[k,0]));
+  evs.forEach(e=>{ if(counts[e.kind]!=null) counts[e.kind]++; });
+  document.getElementById('stats').innerHTML = KINDS.map(k=>
+    `<div class="stat"><div class="n">${counts[k]}</div><div class="l">${LABEL[k]}</div></div>`).join('');
+  const list = document.getElementById('list');
+  if(!evs.length){ list.innerHTML='<div class="empty">Sin eventos todavía.</div>'; return; }
+  list.innerHTML = evs.map(e=>{
+    let payload = e.payload;
+    try { payload = JSON.stringify(JSON.parse(e.payload), null, 2); } catch {}
+    return `<div class="ev">
+      <span class="k ${e.kind}">${LABEL[e.kind]||e.kind}</span>
+      <div class="body"><div class="ts">${fmt(e.ts)}</div><pre>${escapeHtml(payload)}</pre></div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){ return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+tick(); setInterval(tick, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Grupo de guardrails del AI Gateway de TrueFoundry (tenant: healthy).
+# Aplicado el 2026-06-12 vía PUT https://healthy.truefoundry.cloud/api/svc/v1/apply
+# Body: {"manifest": <este yaml como JSON>, "dryRun": false}
+# UI: AI Gateway -> Guardrails
+name: farmawatch-guardrails
+type: provider-account/guardrail-config-group
+collaborators:
+  - role_id: provider-account-manager
+    subject: user:carlos.quihuis.dev@gmail.com
+  - role_id: provider-account-access
+    subject: team:everyone
+integrations:
+  # Bloquea credenciales reales (API keys, JWTs, AWS keys) en prompts/respuestas.
+  # enforce_but_ignore_on_error: si el guardrail mismo falla, la request pasa.
+  - name: secret-leak-check
+    type: integration/guardrail-config/secret-detection
+    description: "Double check: bloquea credenciales (API keys, JWTs, AWS keys) que se cuelen en prompts o boletines"
+    operation: validate
+    enforcing_strategy: enforce_but_ignore_on_error
+  # Detecta prompt injection en los facts derivados de openFDA (texto externo).
+  # audit: solo registra en traces, nunca bloquea — cambiar a enforce si se quiere bloquear.
+  - name: injection-check
+    type: integration/guardrail-config/tfy-prompt-injection
+    description: "Double check: detecta prompt injection en los facts de openFDA (modo audit, nunca bloquea)"
+    operation: validate
+    enforcing_strategy: audit

@@ -1,0 +1,16 @@
+{
+  "name": "@farmavigia/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@farmavigia/notifier": "*",
+    "@farmavigia/shared": "*",
+    "@farmavigia/sources": "*"
+  }
+}
