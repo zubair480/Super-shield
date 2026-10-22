@@ -14,7 +14,7 @@ This file states plainly what is **real**, what is **synthetic/test**, and what 
 | Patient UI | **Real** | `npm --prefix patient run dev` → http://localhost:3000 (prod build) / http://localhost:5173 (live dev). Hero status, medication cards, alert list, 3-step "what to do" with lot numbers. |
 | Claude bulletins | **Partial** | Code calls Anthropic directly. Current key needs `ANTHROPIC_WORKSPACE_ID` → until set, a factual template is used. |
 | Slack/Gmail (Composio) | **Partial** | `COMPOSIO_API_KEY` set; needs `COMPOSIO_SLACK_CHANNEL` (or `NOTIFY_CHANNEL=gmail` + `COMPOSIO_GMAIL_TO`). UI labels it "Not configured" until then — never claims "sent". |
-| ClickHouse | **Partial** | Tables created in ClickHouse Cloud (see below). App writes `events` + `patient_notifications` once `CLICKHOUSE_PASSWORD` is set (`npm --prefix patient run ch:password`). Until then: local JSON. |
+| ClickHouse | **Real** | Connected to ClickHouse Cloud. Every new alert is written to `default.patient_notifications`, every pipeline event to `default.events`. History backfilled (`npm --prefix patient run ch:backfill`: 224 alerts, 468 events). Verified: recall injected 21:47:29Z → row in ClickHouse 21:47:37Z. |
 | Demo recall | **Synthetic, labeled** | `node shared/fda/inject-recall.mjs --drug Losartan --class "Class I"` adds one openFDA-shaped record with `"synthetic": true`. UI shows "Test recall". Reset with `--reset`. |
 
 Verified end to end: synthetic Class I Losartan recall injected 21:28:38Z → patient PX-001 alerted in-app 21:29:47Z, no pharmacist action.
@@ -33,6 +33,5 @@ All in `patient/.env` (gitignored). Template: `patient/.env.example`. Never comm
 
 ## Not done yet
 
-- ClickHouse password (owner must reset in console and run `ch:password`).
 - Anthropic workspace id, Slack channel for Composio.
 - Pharmacy side lives on Developer 1's branch.

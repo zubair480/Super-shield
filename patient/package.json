@@ -19,7 +19,8 @@
     "api:dev": "npm run dev -w @farmavigia/api",
     "notifier:demo": "npm run demo -w @farmavigia/notifier",
     "dev": "node scripts/dev.mjs",
-    "ch:password": "node scripts/set-clickhouse-password.mjs"
+    "ch:password": "node scripts/set-clickhouse-password.mjs",
+    "ch:backfill": "node scripts/ch-backfill.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
