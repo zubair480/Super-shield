@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FDA SafetyNet - Live Consumer Defense</title>
+<style>
+  :root {
+    --bg:#f4f7fb; --panel:#ffffff; --panel2:#f8fafc; --line:#e2e8f0;
+    --txt:#0f1a2e; --muted:#64748b; --soft:#94a3b8;
+    --lethal:#e5484d; --moderate:#d97706; --minor:#2563eb; --accent:#2563eb; --ok:#16a34a;
+    --shadow:0 4px 16px rgba(20,40,80,.07);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); overflow:hidden;
+         font-family:Inter,-apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+  .app { display:grid; grid-template-rows:auto auto 1fr; height:100vh; }
+
+  header { display:flex; align-items:center; gap:22px; padding:13px 24px;
+           background:var(--panel); border-bottom:1px solid var(--line); }
+  .logo { font-size:20px; font-weight:800; letter-spacing:-.01em; }
+  .logo .shield { color:var(--accent); }
+  .tagline { color:var(--muted); font-size:12px; margin-top:1px; }
+  .stats { display:flex; gap:26px; margin-left:auto; }
+  .stat .v { font-size:18px; font-weight:800; }
+  .stat .l { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .run-btn { background:linear-gradient(135deg,#2563eb,#4f46e5); color:#fff; border:none;
+             padding:12px 22px; border-radius:11px; font-weight:700; font-size:13.5px; cursor:pointer;
+             box-shadow:0 6px 18px rgba(37,99,235,.3); transition:transform .1s; }
+  .run-btn:hover:not(:disabled) { transform:translateY(-1px); }
+  .run-btn:disabled { opacity:.55; cursor:not-allowed; }
+
+  .stepper { display:flex; padding:13px 24px; background:var(--panel); border-bottom:1px solid var(--line); overflow-x:auto; }
+  .step { flex:1; display:flex; flex-direction:column; align-items:center; position:relative; min-width:104px; }
+  .step:not(:last-child)::after { content:""; position:absolute; top:18px; left:60%; right:-40%; height:2px; background:var(--line); }
+  .step.done:not(:last-child)::after { background:var(--ok); }
+  .step .bubble { width:38px; height:38px; border-radius:50%; background:#eef2f7; border:2px solid var(--line);
+          display:flex; align-items:center; justify-content:center; font-size:17px; z-index:1; transition:all .3s; color:var(--soft); }
+  .step.active .bubble { background:var(--accent); border-color:var(--accent); color:#fff; animation:pulse 1.2s infinite; }
+  .step.done .bubble { background:var(--ok); border-color:var(--ok); color:#fff; }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 5px rgba(37,99,235,.16);} 50%{box-shadow:0 0 0 10px rgba(37,99,235,.05);} }
+  .step .lbl { font-size:11px; font-weight:600; margin-top:7px; text-align:center; color:var(--muted); }
+  .step.active .lbl, .step.done .lbl { color:var(--txt); }
+  .step .val { font-size:10.5px; color:var(--accent); font-weight:700; margin-top:2px; height:13px; }
+
+  main { display:grid; grid-template-columns:1fr 0.96fr 0.72fr; gap:15px; padding:14px 24px; min-height:0; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+          display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .card > h3 { margin:0; padding:13px 18px; font-size:12px; text-transform:uppercase; letter-spacing:.07em;
+          color:var(--muted); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px; }
+
+  .mapwrap { position:relative; flex:1; min-height:0; }
+  svg { width:100%; height:100%; display:block; }
+  .state-path { stroke:#fff; stroke-width:.6px; cursor:pointer; transition:fill .4s, opacity .15s; }
+  .state-path:hover { opacity:.85; stroke:#0f1a2e; stroke-width:1.1px; }
+  .ph-net { fill:#94a3b8; opacity:.28; }
+  .ph-hit { stroke:#fff; stroke-width:.4px; }
+  .tooltip { position:absolute; pointer-events:none; background:#0f1a2e; color:#fff; padding:8px 11px; border-radius:9px;
+             font-size:12px; box-shadow:0 6px 20px rgba(0,0,0,.25); transform:translate(-50%,-115%); white-space:nowrap;
+             opacity:0; transition:opacity .12s; z-index:5; }
+  .tooltip.show { opacity:1; }
+  .tooltip .tr { color:#9fd0ff; }
+  .map-totals { position:absolute; top:14px; right:18px; display:flex; gap:20px; text-align:right; }
+  .map-totals .v { font-size:30px; font-weight:800; line-height:1; }
+  .map-totals .v.alert { color:var(--lethal); }
+  .map-totals .l { font-size:10px; color:var(--muted); text-transform:uppercase; margin-top:3px; }
+  .legend { position:absolute; bottom:13px; left:18px; background:rgba(255,255,255,.92); padding:9px 13px;
+            border-radius:10px; border:1px solid var(--line); font-size:11px; color:var(--muted); line-height:1.7; }
+  .legend .bar { display:inline-block; width:80px; height:8px; border-radius:4px; vertical-align:middle; margin:0 6px;
+            background:linear-gradient(90deg,#dbeafe,#3b82f6,#1e3a8a); }
+  .legend .ld { display:inline-block; width:9px; height:9px; border-radius:50%; vertical-align:middle; margin:0 5px 0 2px; }
+
+  /* detail stack */
+  .stack { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:11px; }
+  .rblock { border:1.5px solid var(--line); border-radius:13px; background:var(--panel2); overflow:hidden;
+            transition:border-color .3s, box-shadow .3s, background .3s; }
+  .rblock.active { border-color:var(--accent); background:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.08); }
+  .rhead { display:flex; align-items:center; gap:11px; padding:12px 14px; cursor:pointer; user-select:none; }
+  .rdot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .rhead-main { flex:1; min-width:0; }
+  .rfirm { font-size:13.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rmeta { font-size:11px; color:var(--muted); }
+  .rhead-right { display:flex; align-items:center; gap:9px; flex-shrink:0; }
+  .rsev { color:#fff; font-weight:800; font-size:10.5px; padding:3px 9px; border-radius:6px; letter-spacing:.03em; }
+  .rstat { font-size:12px; font-weight:800; color:var(--txt); }
+  .rchip { font-size:10.5px; color:var(--accent); font-weight:700; background:rgba(37,99,235,.1); padding:3px 9px; border-radius:6px; }
+  .rcaret { font-size:16px; color:var(--soft); width:14px; text-align:center; }
+  .rbody { padding:0 12px 12px; display:flex; flex-direction:column; gap:10px; }
+  .panel { scroll-margin:14px; }
+
+  /* fixed single-recall stage grid */
+  .stages { display:flex; flex-direction:column; gap:13px; min-height:0; overflow-y:auto; padding-right:4px; }
+  .stages > .stage { flex:0 0 auto; }
+  .alert-col { display:flex; flex-direction:column; min-height:0; }
+  .alert-col .stage { flex:1 1 auto; }
+  .srow { display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:0 0 auto; }
+  .stage { background:var(--panel); border:1.5px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+           display:flex; flex-direction:column; min-height:0; overflow:hidden; transition:border-color .3s, box-shadow .3s; }
+  .stage.active { border-color:var(--accent); box-shadow:0 0 0 4px rgba(37,99,235,.1); }
+  .stage.done { border-color:#bbf7d0; }
+  .stage-head { display:flex; align-items:center; gap:10px; padding:10px 13px; border-bottom:1px solid var(--line); flex-shrink:0; }
+  .stage-num { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+               font-size:13px; font-weight:800; flex-shrink:0; transition:background .3s; }
+  .stage-title { font-size:13px; font-weight:800; line-height:1.15; }
+  .stage-sub { font-size:10px; color:var(--muted); }
+  .stage-live { margin-left:auto; font-size:9.5px; font-weight:800; color:var(--accent); letter-spacing:.05em;
+                background:rgba(37,99,235,.1); padding:3px 8px; border-radius:20px; animation:blink 1.1s infinite; }
+  .stage-done-tag { margin-left:auto; font-size:9.5px; font-weight:800; color:#16a34a; letter-spacing:.04em; }
+  @keyframes blink { 50%{opacity:.4;} }
+  .stage-body { padding:11px 14px; overflow:visible; flex:1; min-height:0; }
+  .stage.tall { flex:1 1 auto; min-height:200px; }
+  .stage.tall .stage-body { overflow-y:auto; }
+  .stage-wait { font-size:12px; color:var(--soft); font-style:italic; margin-top:2px; }
+  .src-link { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:600; color:var(--accent);
+              text-decoration:none; margin-top:9px; }
+  .src-link:hover { text-decoration:underline; }
+  .tagline a { color:var(--accent); text-decoration:none; font-weight:600; }
+  .tagline a:hover { text-decoration:underline; }
+  .panel { border:1.5px solid var(--line); border-radius:13px; padding:14px 16px; background:var(--panel2);
+           transition:border-color .3s, box-shadow .3s, background .3s; }
+  .panel.active { border-color:var(--accent); background:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.08); }
+  .panel.idle { opacity:.55; }
+  .panel-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .panel-ic { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .panel-t { font-size:14px; font-weight:800; }
+  .panel-s { font-size:11px; color:var(--muted); }
+  .waiting { font-size:12.5px; color:var(--soft); font-style:italic; }
+  .explain { font-size:11px; color:var(--muted); margin:0 0 9px; padding:0 0 8px; border-bottom:1px dashed var(--line);
+             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .explain .ei { margin-right:5px; }
+  .proba { margin-top:9px; display:flex; flex-direction:column; gap:6px; }
+  .proba-row { display:flex; align-items:center; gap:9px; font-size:12px; }
+  .proba-row .pl { width:62px; font-weight:800; }
+  .proba-row .pt { flex:1; height:11px; background:#eef2f7; border-radius:6px; overflow:hidden; display:block; }
+  .proba-row .pf { display:block; height:100%; min-width:3px; border-radius:6px; transition:width .8s ease; }
+  .proba-row .pv { width:42px; text-align:right; font-variant-numeric:tabular-nums; color:var(--muted); font-weight:600; }
+  .input-quote { font-size:12px; color:#475569; background:var(--panel2); border:1px solid var(--line); border-left:3px solid var(--soft);
+                 border-radius:0 8px 8px 0; padding:7px 10px; margin:0 0 4px; line-height:1.4;
+                 display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+  .dispatch-stats { display:flex; gap:22px; margin-top:10px; }
+  .dispatch-stats .v { font-size:20px; font-weight:800; }
+  .dispatch-stats .l { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .privacy { display:flex; gap:7px; align-items:flex-start; background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d;
+             border-radius:9px; padding:8px 10px; font-size:11px; margin-top:10px; line-height:1.4; }
+  .livesms { display:flex; gap:7px; align-items:center; background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8;
+             border-radius:9px; padding:8px 10px; font-size:11px; margin-top:8px; font-weight:600; line-height:1.4; }
+  .howto-wrap { padding:26px 22px; }
+  .howto-title { font-size:14.5px; font-weight:800; margin-bottom:4px; }
+  .howto-sub { font-size:12px; color:var(--muted); margin-bottom:14px; }
+  ol.howto { margin:0; padding-left:20px; }
+  ol.howto li { font-size:12.5px; color:#475569; margin:8px 0; line-height:1.45; }
+  ol.howto li b { color:var(--txt); }
+  .howto-note { font-size:11.5px; color:var(--muted); margin-top:14px; padding-top:12px; border-top:1px solid var(--line); line-height:1.5; }
+  .kv { font-size:13px; color:var(--muted); margin:3px 0; }
+  .kv b { color:var(--txt); }
+  .reason-box { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:9px 11px; font-size:12.5px;
+                line-height:1.4; color:#334155; margin-top:8px; }
+  .sev-badge { display:inline-block; padding:5px 13px; border-radius:8px; color:#fff; font-weight:800; font-size:13px; letter-spacing:.04em; }
+  .conf-track { height:9px; background:#eef2f7; border-radius:6px; margin-top:10px; overflow:hidden; }
+  .conf-fill { height:100%; border-radius:6px; transition:width .7s ease; }
+  .bignum { font-size:38px; font-weight:800; line-height:1; }
+  .statrow { display:flex; gap:22px; margin-top:10px; }
+  .statrow .v { font-size:20px; font-weight:800; }
+  .statrow .l { font-size:10.5px; color:var(--muted); }
+  .sms { display:flex; gap:8px; align-items:flex-start; }
+  .sms .ic { width:26px; height:26px; border-radius:7px; background:#16a34a; color:#fff; flex-shrink:0;
+             display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .bubble-sms { background:#eef4ff; color:#1e293b; padding:8px 11px; border-radius:4px 12px 12px 12px; font-size:12px;
+                line-height:1.45; border:1px solid #dbe6fb; }
+  .rcpt { display:flex; justify-content:space-between; padding:7px 11px; background:#fff; border:1px solid var(--line);
+          border-radius:8px; margin-top:7px; font-size:12px; }
+  .rcpt .ph2 { color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  footer { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:0 24px 14px; min-height:0; }
+  .feed, .logbox { background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow);
+                   overflow:hidden; display:flex; flex-direction:column; max-height:150px; }
+  .feed h4, .logbox h4 { margin:0; padding:9px 16px; font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+                   color:var(--muted); border-bottom:1px solid var(--line); }
+  .feed-scroll, .log-scroll { overflow-y:auto; padding:7px 14px; }
+  .feed-item { padding:6px 0; border-bottom:1px solid var(--panel2); font-size:12px; }
+  .feed-item .firm { font-weight:700; }
+  .feed-item .meta { color:var(--muted); font-size:11px; }
+  .log-row { font-size:11.5px; padding:3px 0; display:flex; gap:8px; border-bottom:1px solid var(--panel2); }
+  .log-row .tag { color:var(--accent); font-weight:700; white-space:nowrap; min-width:130px; }
+  .log-row .rn { color:var(--soft); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3/dist/htm.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script>
+const { useState, useEffect, useRef } = React;
+const html = htm.bind(React.createElement);
+
+const STAGES = [
+  ["fda_alert","FDA recall","\uD83D\uDCE1"],["ingested","Ingested","\uD83D\uDCE5"],
+  ["severity_classified","Severity","\uD83E\uDDE0"],["cohort_identified","Cohort","\uD83C\uDFE5"],
+  ["message_drafted","Drafted","\u270D\uFE0F"],["dispatched","Dispatched","\uD83D\uDCE4"],
+  ["card_rendered","Alert card","\uD83C\uDFA8"],["cited","Cited","\u2705"],
+];
+const SEV = { Lethal:"#e5484d", Moderate:"#d97706", Minor:"#2563eb" };
+const CARD_OF = { fda_alert:"recall", ingested:"recall", severity_classified:"severity",
+  cohort_identified:"cohort", message_drafted:"outreach", dispatched:"outreach",
+  card_rendered:"alert", cited:"alert" };
+const PROBA_ORDER = ["Lethal","Moderate","Minor"];
+
+const FIPS_ABBR = {"01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY"};
+const ABBR_NAME = {AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+const fmt = n => (n||0).toLocaleString();
+
+function CountUp({ value, cls }) {
+  const [d,setD]=useState(value||0); const prev=useRef(value||0);
+  useEffect(()=>{ const from=prev.current,to=value||0,start=performance.now(),dur=800; let raf;
+    const tick=t=>{const p=Math.min(1,(t-start)/dur);const e=1-Math.pow(1-p,3);setD(Math.round(from+(to-from)*e));if(p<1)raf=requestAnimationFrame(tick);};
+    raf=requestAnimationFrame(tick); prev.current=to; return ()=>cancelAnimationFrame(raf);},[value]);
+  return html`<span class=${cls}>${fmt(d)}</span>`;
+}
+
+function USMap({ stateCust, statePharm, network, affected }) {
+  const ref=useRef(null), projRef=useRef(null);
+  const [ready,setReady]=useState(false);
+  const [tip,setTip]=useState({show:false,x:0,y:0,abbr:""});
+
+  useEffect(()=>{
+    fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(r=>r.json()).then(us=>{
+      const svg=d3.select(ref.current);
+      const fc=topojson.feature(us,us.objects.states);
+      const proj=d3.geoAlbersUsa().fitSize([760,470],fc); projRef.current=proj;
+      const path=d3.geoPath(proj);
+      svg.append("g").attr("class","states").selectAll("path").data(fc.features).join("path")
+        .attr("class","state-path").attr("d",path).attr("fill","#e8eef5")
+        .attr("data-abbr",d=>FIPS_ABBR[String(d.id).padStart(2,"0")]||"")
+        .on("mousemove",function(ev){const r=ref.current.getBoundingClientRect();
+          setTip({show:true,x:ev.clientX-r.left,y:ev.clientY-r.top,abbr:this.getAttribute("data-abbr")});})
+        .on("mouseleave",()=>setTip(t=>({...t,show:false})));
+      svg.append("g").attr("class","net");
+      svg.append("g").attr("class","hits");
+      setReady(true);
+    });
+  },[]);
+
+  useEffect(()=>{ if(!ready) return;
+    const max=Math.max(1,...Object.values(stateCust));
+    const scale=d3.scaleSequential(d3.interpolateBlues).domain([0,max*1.15]);
+    d3.select(ref.current).select("g.states").selectAll("path.state-path").transition().duration(450)
+      .attr("fill",function(){const v=stateCust[this.getAttribute("data-abbr")]||0; return v>0?scale(v):"#e8eef5";});
+  },[stateCust,ready]);
+
+  useEffect(()=>{ if(!ready||!network.length||!projRef.current) return;
+    const proj=projRef.current;
+    const pts=network.map(p=>proj(p)).filter(Boolean);
+    d3.select(ref.current).select("g.net").selectAll("circle").data(pts).join("circle")
+      .attr("class","ph-net").attr("cx",d=>d[0]).attr("cy",d=>d[1]).attr("r",1.1);
+  },[network,ready]);
+
+  useEffect(()=>{ if(!ready||!projRef.current) return;
+    const proj=projRef.current;
+    const rmax=Math.max(1,...affected.map(p=>p[2]));
+    const rs=d3.scaleSqrt().domain([1,rmax]).range([1.6,8]);
+    const data=affected.map(p=>{const xy=proj([p[0],p[1]]); return xy?{x:xy[0],y:xy[1],c:p[2],sev:p[3]}:null;}).filter(Boolean);
+    const sel=d3.select(ref.current).select("g.hits").selectAll("circle").data(data);
+    sel.enter().append("circle").attr("class","ph-hit")
+      .attr("cx",d=>d.x).attr("cy",d=>d.y).attr("fill",d=>SEV[d.sev]||"#2563eb")
+      .attr("fill-opacity",.85).attr("r",0)
+      .transition().duration(550).ease(d3.easeBackOut).attr("r",d=>rs(d.c));
+    sel.attr("fill",d=>SEV[d.sev]||"#2563eb").transition().duration(300).attr("r",d=>rs(d.c));
+  },[affected,ready]);
+
+  const a=tip.abbr;
+  return html`
+    <svg ref=${ref} viewBox="0 0 760 470" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="tooltip ${tip.show&&a?"show":""}" style=${{left:tip.x+"px",top:tip.y+"px"}}>
+      <b>${ABBR_NAME[a]||a}</b><br/><span class="tr">${fmt(stateCust[a]||0)}</span> customers alerted<br/>
+      ${fmt(statePharm[a]||0)} pharmacies</div>`;
+}
+
+function StageCard({ n, color, title, sub, status, tall, children }) {
+  // status: "active" | "done" | "waiting"
+  const numBg = status==="waiting" ? "#eef2f7" : color;
+  const numFg = status==="waiting" ? "#94a3b8" : "#fff";
+  return html`<div class="stage ${status} ${tall?"tall":""}">
+    <div class="stage-head">
+      <span class="stage-num" style=${{background:numBg,color:numFg}}>${status==="done"?"\u2713":n}</span>
+      <div><div class="stage-title">${title}</div><div class="stage-sub">${sub}</div></div>
+      ${status==="active"?html`<span class="stage-live">\u25CF LIVE</span>`:
+        status==="done"?html`<span class="stage-done-tag">\u2713 DONE</span>`:""}
+    </div>
+    <div class="stage-body">${children}</div>
+  </div>`;
+}
+
+function StageGrid({ rec, activeCard }) {
+  const r = rec || {};
+  const sev = SEV[r.severity] || "#94a3b8";
+  // status of a stage: active (current), done (data present + not active), waiting (no data yet)
+  const st = (id, filled) => activeCard===id ? "active" : (rec && filled) ? "done" : "waiting";
+
+  return html`<div class="stages">
+    <${StageCard} n="1" color="#e5484d" title="The FDA recall" sub="raw record from openFDA" status=${st("recall",r.firm)}>
+      <div class="explain"><span class="ei">\uD83D\uDCE1</span>The recall as the FDA published it.</div>
+      ${r.firm ? html`<div>
+        <div class="kv">Firm: <b>${r.firm}</b> \u00b7 NDC <b>${r.ndc}</b></div>
+        <div class="reason-box">${r.reason}</div>
+        ${r.sourceUrl?html`<a class="src-link" href=${r.sourceUrl} target="_blank" rel="noopener">\u2197 View this recall on openFDA</a>`:""}
+      </div>` : html`<div class="stage-wait">Waiting to pull the recall\u2026</div>`}
+    </${StageCard}>
+
+    <${StageCard} n="2" color="#e5484d" title="How dangerous is it?" sub="ML severity classifier" status=${st("severity",r.severity)}>
+      <div class="explain"><span class="ei">\uD83E\uDDE0</span>ML model rates the danger from the reason text.</div>
+      ${r.severity ? html`<div>
+        ${r.proba ? html`<div class="proba">
+          ${PROBA_ORDER.map(k=>{const v=(r.proba[k]||0); return html`<div class="proba-row" key=${k}>
+            <span class="pl" style=${{color:SEV[k]}}>${k}</span>
+            <span class="pt"><span class="pf" style=${{width:Math.round(v*100)+"%",background:SEV[k]}}></span></span>
+            <span class="pv">${Math.round(v*100)}%</span></div>`;})}
+        </div>` : ""}
+        <div style=${{marginTop:"9px"}}>
+          <span class="sev-badge" style=${{background:sev}}>\u2192 ${r.severity}</span>
+          <span class="kv" style=${{marginLeft:"8px"}}>via TF-IDF\u2192SVD\u2192LogReg</span>
+        </div>
+      </div>` : html`<div class="stage-wait">Awaiting the recall text to classify\u2026</div>`}
+    </${StageCard}>
+
+    <${StageCard} n="3" color="#7c3aed" title="Who is affected?" sub="cohort match nationwide" status=${st("cohort",r.cohort)}>
+      <div class="explain"><span class="ei">\uD83C\uDFE5</span>Matched against 1,000,000 patient prescriptions.</div>
+      ${r.cohort ? html`<div>
+        <span class="bignum" style=${{color:sev}}><${CountUp} value=${r.cohort.customers} /></span>
+        <span class="kv" style=${{marginLeft:"8px"}}>patients on this medication</span>
+        <div class="statrow">
+          <div><div class="v"><${CountUp} value=${r.cohort.states} /></div><div class="l">states</div></div>
+          <div><div class="v"><${CountUp} value=${r.cohort.pharmacies} /></div><div class="l">pharmacies</div></div>
+        </div></div>` : html`<div class="stage-wait">Awaiting cohort match\u2026</div>`}
+    </${StageCard}>
+
+    <${StageCard} n="4" color="#16a34a" title="Alert the patients" sub="severity-aware dispatch" status=${st("outreach",r.dispatch)}>
+      <div class="explain"><span class="ei">\uD83D\uDCE4</span>Severity-aware alert to every affected patient.</div>
+      ${r.message ? html`<div>
+        <div class="sms"><span class="ic">\uD83D\uDCAC</span><div class="bubble-sms">${r.message}</div></div>
+        ${r.dispatch ? html`<div>
+          <div class="dispatch-stats">
+            <div><div class="v" style=${{color:"#16a34a"}}><${CountUp} value=${r.dispatch.count} /></div><div class="l">alerts sent</div></div>
+            <div><div class="v"><${CountUp} value=${r.dispatch.pharmacies} /></div><div class="l">pharmacies</div></div>
+            <div><div class="v">${r.dispatch.states}</div><div class="l">states</div></div>
+          </div>
+          <div class="privacy"><span>\uD83D\uDD12</span><span>De-identified: patient names & numbers never leave the secure data layer.</span></div>
+          ${r.dispatch.demoAlert && r.dispatch.demoAlert.sent ? html`<div class="livesms">
+            <span>\uD83D\uDCF1</span><span>Live emergency alert delivered to demo device</span></div>` : ""}
+        </div>` : html`<div class="stage-wait">Dispatching\u2026</div>`}
+      </div>` : html`<div class="stage-wait">Awaiting severity to draft the alert\u2026</div>`}
+    </${StageCard}>
+  </div>`;
+}
+
+function AlertStage({ rec, activeCard }) {
+  const r = rec || {};
+  const status = activeCard==="alert" ? "active" : (rec && r.cardHtml) ? "done" : "waiting";
+  return html`<div class="alert-col">
+    <${StageCard} n="5" color="#2563eb" title="The alert each patient receives"
+        sub=${"patient-facing notification \u00b7 generated live by "+(r.cardBy||"OpenUI")} status=${status} tall=${true}>
+      ${r.cardHtml ? html`<div dangerouslySetInnerHTML=${{__html:r.cardHtml}}></div>`
+                   : html`<div class="stage-wait">The notification a patient receives appears here once the recall is processed\u2026</div>`}
+    </${StageCard}>
+  </div>`;
+}
+
+function App() {
+  const [stats,setStats]=useState(null);
+  const [running,setRunning]=useState(false);
+  const [curStage,setCurStage]=useState(null);
+  const [doneStages,setDoneStages]=useState({});
+  const [rec,setRec]=useState(null);
+  const [stepVals,setStepVals]=useState({});
+  const [stateCust,setStateCust]=useState({});
+  const [statePharm,setStatePharm]=useState({});
+  const [affected,setAffected]=useState([]);
+  const [network,setNetwork]=useState([]);
+  const [totals,setTotals]=useState({customers:0,pharmacies:0,states:new Set()});
+
+  useEffect(()=>{
+    fetch("/api/stats").then(r=>r.json()).then(setStats);
+    fetch("/api/pharmacies").then(r=>r.json()).then(setNetwork);
+    const proto=location.protocol==="https:"?"wss":"ws";
+    const ws=new WebSocket(`${proto}://${location.host}/stream`);
+    ws.onmessage=e=>handle(JSON.parse(e.data));
+    return ()=>ws.close();
+  },[]);
+
+  function handle(ev){
+    const {stage,recall_number,payload}=ev;
+    if (stage==="run_started"){ setRunning(true); setStateCust({}); setStatePharm({}); setAffected([]);
+      setDoneStages({}); setStepVals({}); setTotals({customers:0,pharmacies:0,states:new Set()});
+      setRec(null); setCurStage(null); return; }
+    if (stage==="run_complete"){ setRunning(false); setCurStage(null); return; }
+
+    setCurStage(stage);
+    const idx=STAGES.findIndex(s=>s[0]===stage);
+    setDoneStages(prev=>{const n=stage==="fda_alert"?{}:{...prev};STAGES.forEach((s,i)=>{if(i<idx)n[s[0]]=true;});return n;});
+
+    setRec(prev=>{
+      const r = stage==="fda_alert" ? {recall_number} : {...(prev||{}), recall_number};
+      r.stage=stage;
+      if(stage==="fda_alert"){r.firm=payload.recalling_firm;r.ndc=payload.product_ndc;r.reason=payload.reason_for_recall;r.sourceUrl=payload.source_url;}
+      if(stage==="severity_classified"){r.severity=payload.severity;r.confidence=payload.confidence;r.proba=payload.proba;}
+      if(stage==="cohort_identified")r.cohort={customers:payload.total_customers,states:payload.total_states,pharmacies:payload.total_pharmacies};
+      if(stage==="message_drafted")r.message=payload.message;
+      if(stage==="dispatched")r.dispatch={count:payload.dispatched,channel:payload.channel,states:payload.states,pharmacies:payload.pharmacies_notified,demoAlert:payload.demo_alert};
+      if(stage==="card_rendered"){r.cardHtml=payload.html;r.cardBy=payload.generated_by;}
+      return r;
+    });
+
+    setStepVals(prev=>{const v={...prev};
+      if(stage==="severity_classified")v[stage]=payload.severity;
+      if(stage==="cohort_identified")v[stage]=fmt(payload.total_customers);
+      if(stage==="dispatched")v[stage]=fmt(payload.dispatched)+" sent";
+      return v;});
+
+    if(stage==="cohort_identified"){
+      setStateCust(()=>{const n={};(payload.by_state||[]).forEach(s=>{n[s.state]=s.customers;});return n;});
+      setStatePharm(()=>{const n={};(payload.by_state||[]).forEach(s=>{n[s.state]=s.pharmacies;});return n;});
+      setTotals(prev=>{const st=new Set();(payload.by_state||[]).forEach(s=>st.add(s.state));return {...prev,states:st};});
+      const sev=payload.severity;
+      setAffected((payload.pharmacy_points||[]).map(p=>[p[0],p[1],p[2],sev]));
+    }
+    if(stage==="dispatched")
+      setTotals(prev=>({customers:payload.dispatched,pharmacies:payload.pharmacies_notified,states:prev.states}));
+  }
+
+  async function launch(){ setRunning(true); await fetch("/api/run?limit=1",{method:"POST"}); }
+  const activeCard=CARD_OF[curStage]||null;
+
+  return html`
+  <div class="app">
+    <header>
+      <div><div class="logo">FDA <span class="shield">SafetyNet</span></div>
+        <div class="tagline">Autonomous nationwide drug-recall defense \u00b7 Live data: <a href="https://open.fda.gov/apis/drug/enforcement/" target="_blank" rel="noopener">openFDA Drug Enforcement</a></div></div>
+      <div class="stats">${stats&&[["Recalls indexed",stats.total_recalls],["Patients indexed",stats.total_customers_indexed],
+        ["Pharmacies",stats.total_pharmacies],["Matches",stats.total_alerts]].map(([l,v])=>html`
+        <div class="stat" key=${l}><div class="v">${fmt(v)}</div><div class="l">${l}</div></div>`)}</div>
+      <button class="run-btn" onClick=${launch} disabled=${running}>
+        ${running?"\u25CF Defending\u2026":"\u25B6 Launch live defense"}</button>
+    </header>
+
+    <div class="stepper">${STAGES.map(([id,lbl,icon])=>{
+      const cls=curStage===id?"active":doneStages[id]?"done":"";
+      return html`<div class="step ${cls}" key=${id}>
+        <div class="bubble">${doneStages[id]&&curStage!==id?"\u2713":icon}</div>
+        <div class="lbl">${lbl}</div><div class="val">${stepVals[id]||""}</div></div>`;})}</div>
+
+    <main>
+      <div class="card">
+        <h3>\uD83D\uDDFA\uFE0F Nationwide alert fan-out${rec&&rec.recall_number?html` \u00b7 <span style=${{color:"#2563eb"}}>${rec.recall_number}</span>`:""}</h3>
+        <div class="mapwrap">
+          <${USMap} stateCust=${stateCust} statePharm=${statePharm} network=${network} affected=${affected} />
+          <div class="map-totals">
+            <div><div class="v alert"><${CountUp} value=${totals.customers} /></div><div class="l">Customers alerted</div></div>
+            <div><div class="v">${totals.states.size}</div><div class="l">States</div></div>
+            <div><div class="v"><${CountUp} value=${totals.pharmacies} /></div><div class="l">Pharmacies</div></div>
+          </div>
+          <div class="legend">
+            <div>State shade<span class="bar"></span>customers per state</div>
+            <div>Dots = affected pharmacies (size = customers reached)
+              <span class="ld" style=${{background:"#e5484d"}}></span>Lethal
+              <span class="ld" style=${{background:"#d97706"}}></span>Moderate
+              <span class="ld" style=${{background:"#2563eb"}}></span>Minor</div>
+          </div>
+        </div>
+      </div>
+
+      <${StageGrid} rec=${rec} activeCard=${activeCard} />
+      <${AlertStage} rec=${rec} activeCard=${activeCard} />
+    </main>
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>
+</body>
+</html>
