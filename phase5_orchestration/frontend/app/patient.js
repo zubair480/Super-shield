@@ -578,7 +578,12 @@
   function Portal({ route, navigate }) {
     const patients = usePoll(() => P.list(), 0, []);
     const all = patients.data || [];
-    const [pid, setPid] = useState(() => store.get(K_PATIENT, null));
+    // ?patient=PX-033 in the URL picks the patient (used by scripts/demo_reset.py's link).
+    const [pid, setPid] = useState(() => {
+      const fromUrl = new URLSearchParams(location.search).get("patient");
+      if (fromUrl) store.set(K_PATIENT, fromUrl);
+      return fromUrl || store.get(K_PATIENT, null);
+    });
     const patient = all.find((p) => p.id === pid) || null;
     useEffect(() => { // fall back to the first demo patient when nothing (valid) is stored
       if (all.length && !patient) setPid(all[0].id);
