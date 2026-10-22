@@ -2,7 +2,7 @@
   "name": "supershield-patient",
   "version": "0.1.0",
   "private": true,
-  "description": "SuperShield — agente de farmacovigilancia: vigila retiros FDA, cruza pacientes, alerta vía Slack/Gmail",
+  "description": "SuperShield — agente de pharmacovigilance: vigila retiros FDA, cruza pacientes, alerta vía Slack/Gmail",
   "type": "module",
   "workspaces": [
     "packages/*",
