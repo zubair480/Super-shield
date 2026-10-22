@@ -84,7 +84,7 @@ export async function anthropicComplete(
     body: JSON.stringify({
       model,
       max_tokens: opts.maxTokens ?? 600,
-      temperature: opts.temperature ?? 0.2,
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
       ...(opts.system ? { system: opts.system } : {}),
       messages: [{ role: "user", content: prompt }],
     }),
