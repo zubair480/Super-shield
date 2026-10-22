@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT))
-from settings import CLASSIFICATION_TO_SEVERITY, OPENFDA_ENFORCEMENT  # noqa: E402
+from settings import CLASSIFICATION_TO_SEVERITY, OPENFDA_ENFORCEMENT, SHARED_RECALLS_FILE  # noqa: E402
 from phase3_lakehouse.clickhouse_bootstrap import get_client  # noqa: E402
 
 COLUMNS = [
@@ -88,15 +88,8 @@ def fetch_direct(lookback_days: int = 120) -> list[dict]:
     return resp.json().get("results", [])
 
 
-def ingest_new() -> list[str]:
-    """Run one incremental sync; return the recall_numbers inserted this run."""
-    records = fetch_records()
-    print(f"Flattening {len(records)} recalls...")
-
-    rows: list[list] = []
-    for rec in records:
-        rows.extend(flatten(rec))
-
+def _insert_new(rows: list[list]) -> list[str]:
+    """Insert rows whose recall_number isn't ingested yet; return the new recall_numbers."""
     if not rows:
         print("No NDC-bearing recalls to load.")
         return []
@@ -129,6 +122,50 @@ def ingest_new() -> list[str]:
     print(f"  patient_alerts (auto-matched via MV): {n_alerts}")
     print(f"  states with alerts: {n_states}")
     return sorted({r[0] for r in new_rows})
+
+
+def ingest_new() -> list[str]:
+    """Run one incremental sync; return the recall_numbers inserted this run."""
+    records = fetch_records()
+    print(f"Flattening {len(records)} recalls...")
+
+    rows: list[list] = []
+    for rec in records:
+        rows.extend(flatten(rec))
+    return _insert_new(rows)
+
+
+def _product_ndc(ndc: str) -> str:
+    """Package NDC (labeler-product-package) -> product NDC, the form dispensing records use."""
+    parts = ndc.split("-")
+    return "-".join(parts[:2]) if len(parts) == 3 else ndc
+
+
+def read_shared_feed() -> list[dict]:
+    """Synthetic recalls from shared/fda/demo-recalls.json (the patient workflow's contract)."""
+    import json
+
+    if not SHARED_RECALLS_FILE.exists():
+        return []
+    try:
+        records = json.loads(SHARED_RECALLS_FILE.read_text(encoding="utf-8") or "[]")
+    except ValueError:
+        return []
+    return records if isinstance(records, list) else []
+
+
+def ingest_shared_feed() -> list[str]:
+    """Load new shared-feed recalls into fda_recalls, same path as live openFDA."""
+    rows: list[list] = []
+    for rec in read_shared_feed():
+        openfda = dict(rec.get("openfda") or {})
+        openfda["product_ndc"] = [_product_ndc(n) for n in openfda.get("product_ndc") or []]
+        for row in flatten({**rec, "openfda": openfda}):
+            row[COLUMNS.index("source_url")] = "shared/fda/demo-recalls.json (synthetic)"
+            rows.append(row)
+    if not rows:
+        return []
+    return _insert_new(rows)
 
 
 if __name__ == "__main__":

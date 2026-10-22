@@ -25,12 +25,9 @@ guildai>=0.9
 fastapi>=0.110
 uvicorn[standard]>=0.29
 websockets>=12.0
-openai>=1.30
-twilio>=9.0  # optional: one real demo SMS during dispatch (no-op if unconfigured)
+anthropic>=0.70  # Claude: runtime alert cards
+composio>=0.30   # optional: real pharmacist alert via Slack/Gmail (no-op if unconfigured)
 
 # --- Phase 6 (optional): OpenAI Agents SDK ---
 # openai-agents>=0.0.1
 
-# --- Phase 7 (optional): sponsor integrations ---
-# composio>=0.5
-# composio_openai_agents

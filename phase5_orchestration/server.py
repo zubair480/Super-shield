@@ -77,9 +77,11 @@ async def pharmacy_followup(recall_number: str, customer_id: str, body: StatusBo
 
 
 @app.post("/api/demo/recall")
-async def demo_recall():
-    """Final-demo trigger: one SYNTHETIC recall into the shared fda_recalls table."""
-    return await asyncio.to_thread(monitor.inject_demo_recall)
+async def demo_recall(drug: str = monitor.DEMO_DRUG, ndc: str = monitor.DEMO_NDC,
+                      classification: str = "Class I"):
+    """Final-demo trigger: one SYNTHETIC recall into the shared feed (shared/fda), which
+    both the pharmacy monitor and the patient worker read independently."""
+    return await asyncio.to_thread(monitor.inject_demo_recall, drug, ndc, classification)
 
 
 @app.get("/api/shared/recalls")

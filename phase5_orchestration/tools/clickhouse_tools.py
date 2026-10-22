@@ -167,6 +167,6 @@ def shared_recalls(limit: int = 100) -> list[dict]:
          "severity": r[3], "recalling_firm": r[4], "reason_for_recall": r[5],
          "generic_name": r[6], "product_description": r[7], "report_date": r[8],
          "source_url": r[9], "ingested_at": r[10].isoformat() + "Z",
-         "synthetic": r[0].startswith("DEMO-")}
+         "synthetic": r[0].startswith(("D-SS-", "DEMO-"))}
         for r in rows
     ]

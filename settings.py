@@ -20,6 +20,9 @@ DATA_DIR.mkdir(exist_ok=True)
 OPENFDA_BASE = "https://api.fda.gov"
 OPENFDA_ENFORCEMENT = f"{OPENFDA_BASE}/drug/enforcement.json"
 OPENFDA_API_KEY = os.getenv("OPENFDA_API_KEY", "").strip()
+# Shared synthetic feed owned by the patient workflow (shared/fda/README.md).
+SHARED_RECALLS_FILE = Path(os.getenv("SHARED_RECALLS_FILE", str(ROOT / "shared" / "fda" / "demo-recalls.json")))
+SHARED_INJECTOR = ROOT / "shared" / "fda" / "inject-recall.mjs"
 
 # ---------- ClickHouse ----------
 CLICKHOUSE = {
@@ -41,29 +44,20 @@ SEED_NDCS_PATH = DATA_DIR / "seed_ndcs.json"
 PHARMACIES_CSV = DATA_DIR / "pharmacies.csv"
 CUSTOMERS_CSV = DATA_DIR / "customers.csv"
 
-# ---------- Twilio (optional real demo SMS) ----------
-# When all four are set, the dispatch stage ALSO sends one real SMS to the
-# designated demo phone, while the full cohort stays simulated. Safe no-op otherwise.
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
-TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "").strip()
-DEMO_ALERT_TO = os.getenv("DEMO_ALERT_TO", "").strip()
-# Trial accounts can't send custom SMS text - they must pass a predefined template id
-# (e.g. sms_account_alerts). Set this to send a real SMS on a trial account; leave
-# empty on an UPGRADED account to send our full custom recall message.
-TWILIO_TRIAL_TEMPLATE = os.getenv("TWILIO_TRIAL_TEMPLATE", "").strip()
+# ---------- Composio (real pharmacist alert delivery) ----------
+# Same env contract as the patient workflow. Unset = alerts stay in-app only;
+# DRY_RUN=true = print instead of sending (labelled simulated).
+COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "").strip()
+COMPOSIO_USER_ID = os.getenv("COMPOSIO_USER_ID", "default").strip()
+NOTIFY_CHANNEL = os.getenv("NOTIFY_CHANNEL", "slack").strip().lower()  # slack | gmail
+COMPOSIO_SLACK_CHANNEL = os.getenv("COMPOSIO_SLACK_CHANNEL", "").strip()
+COMPOSIO_GMAIL_TO = os.getenv("COMPOSIO_GMAIL_TO", "").strip()
+DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 
-# Delivery channel for the real demo alert: "sms", "whatsapp", "callmebot", or "telegram".
-#  - sms/whatsapp  -> Twilio (trial = template only; upgraded = full custom text)
-#  - callmebot     -> free WhatsApp relay that sends our FULL custom text (no Twilio)
-#  - telegram      -> free Telegram bot that sends our FULL custom text (no Twilio)
-ALERT_CHANNEL = os.getenv("ALERT_CHANNEL", "sms").strip().lower()
-# Twilio WhatsApp Sandbox number (default is Twilio's shared sandbox).
-TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "+14155238886").strip()
-# CallMeBot WhatsApp API key (free; obtained via a one-time opt-in message). Sends to DEMO_ALERT_TO.
-CALLMEBOT_APIKEY = os.getenv("CALLMEBOT_APIKEY", "").strip()
-# Telegram bot (free, full custom text). Create a bot with @BotFather for the token,
-# then the recipient sends /start to the bot; TELEGRAM_CHAT_ID is their chat id.
+# ---------- Telegram (pharmacist phone push) ----------
+# ALERT_CHANNEL=telegram sends through a @BotFather bot to TELEGRAM_CHAT_ID (the chat
+# that sent the bot /start). Any other value falls through to NOTIFY_CHANNEL (Composio).
+ALERT_CHANNEL = os.getenv("ALERT_CHANNEL", NOTIFY_CHANNEL).strip().lower()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
 

@@ -28,11 +28,16 @@ sys.path.append(str(ROOT))
 from phase5_orchestration import orchestrator  # noqa: E402
 from phase5_orchestration.events import Event, bus  # noqa: E402
 from phase5_orchestration.tools import clickhouse_tools, real_alert  # noqa: E402
+from settings import SHARED_INJECTOR  # noqa: E402
 
 FDA_POLL_SEC = int(os.getenv("FDA_POLL_SEC", "300"))
 MONITOR_INTERVAL_SEC = int(os.getenv("MONITOR_INTERVAL_SEC", "15"))
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://127.0.0.1:8000")
-DEMO_PREFIX = "DEMO-"
+# Synthetic recalls from the shared feed (shared/fda/README.md) use D-SS-####-2026.
+SYNTHETIC_PREFIXES = ("D-SS-", "DEMO-")  # DEMO- = earlier pharmacy-only demo rows
+# Default demo recall hits both workflows: 238 pharmacy customers fill this NDC and
+# Levothyroxine is on the patient demo medication list.
+DEMO_DRUG, DEMO_NDC = "Levothyroxine", "16729-447"
 
 ALERT_COLUMNS = [
     "recall_number", "product_ndc", "severity", "classification", "recalling_firm",
@@ -64,7 +69,7 @@ def _now() -> datetime:
 
 
 def _origin(recall_number: str, ingested_at: datetime, started_at: datetime) -> str:
-    if recall_number.startswith(DEMO_PREFIX):
+    if recall_number.startswith(SYNTHETIC_PREFIXES):
         return "synthetic_demo"
     # Recalls already in the lakehouse when the monitor started are listed but
     # never paged, so restarts don't re-alert old recalls.
@@ -150,6 +155,11 @@ def poll_fda() -> list[str]:
     return ingest_new()
 
 
+def poll_shared_feed() -> list[str]:
+    from phase2_ingest.load_to_clickhouse import ingest_shared_feed
+    return ingest_shared_feed()
+
+
 async def run_forever() -> None:
     status["running"] = True
     started_at = _now()
@@ -164,6 +174,12 @@ async def run_forever() -> None:
                 except Exception as exc:  # noqa: BLE001
                     status["last_fda_error"] = str(exc)[:300]
                 status["last_fda_poll"] = _now().isoformat()
+
+            # Local file read, so every tick: a demo recall shows up within seconds.
+            try:
+                await asyncio.to_thread(poll_shared_feed)
+            except Exception as exc:  # noqa: BLE001
+                status["last_shared_error"] = str(exc)[:300]
 
             created = await asyncio.to_thread(create_alerts, started_at)
             status["last_check"] = _now().isoformat()
@@ -259,8 +275,30 @@ def set_followup(recall_number: str, customer_id: str, new_status: str) -> dict:
     return {"recall_number": recall_number, "customer_id": customer_id, "status": new_status}
 
 
-def inject_demo_recall() -> dict:
-    """Insert ONE synthetic recall for a commonly dispensed NDC (final-demo trigger).
+def inject_demo_recall(drug: str = DEMO_DRUG, ndc: str = DEMO_NDC,
+                       classification: str = "Class I") -> dict:
+    """Final-demo trigger: add ONE synthetic recall to the shared feed via the patient
+    workflow's injector, so the pharmacy monitor and the patient worker each pick it
+    up independently. Returns the new recall_number."""
+    import subprocess
+
+    if not SHARED_INJECTOR.exists():
+        # shared/fda/ lives on feat/patient until the branches merge.
+        return {"ok": True, "shared_feed": False, **_legacy_inject_demo_recall()}
+    proc = subprocess.run(
+        ["node", str(SHARED_INJECTOR), "--drug", drug, "--ndc", ndc, "--class", classification],
+        capture_output=True, text=True, timeout=30,
+    )
+    if proc.returncode != 0:
+        return {"ok": False, "reason": (proc.stderr or proc.stdout).strip()[:300]}
+    recall_number = proc.stdout.strip().split()[-1]
+    poll_shared_feed()
+    return {"ok": True, "recall_number": recall_number, "drug": drug, "product_ndc": ndc,
+            "classification": classification, "synthetic": True}
+
+
+def _legacy_inject_demo_recall() -> dict:
+    """Fallback until shared/fda/ is merged: insert ONE synthetic recall for a commonly dispensed NDC (final-demo trigger).
 
     Goes into the shared fda_recalls table like a real recall, so both the
     pharmacy MV and the patient worker can pick it up independently.
@@ -276,7 +314,7 @@ def inject_demo_recall() -> dict:
         parameters={"n": ndc},
     ).result_rows
     generic, description = (known[0] if known and known[0][0] else ("", ""))
-    rn = f"{DEMO_PREFIX}{_now().strftime('%Y%m%d%H%M%S')}"
+    rn = f"DEMO-{_now().strftime('%Y%m%d%H%M%S')}"
     row = {
         "recall_number": rn, "product_ndc": ndc,
         "reason_for_recall": "SYNTHETIC DEMO RECALL: potential microbial contamination "

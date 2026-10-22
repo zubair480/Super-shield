@@ -80,9 +80,9 @@ async def process_recall(recall: dict, demo_alert: bool = True) -> None:
     # Dispatch to the cohort. Only de-identified aggregates leave the data layer -
     # patient names / phone numbers never reach the event bus or the UI.
     result = sms_stub.dispatch_to_cohort(rn, severity, recall["recalling_firm"], recall["product_ndc"])
-    # Additionally fire ONE real SMS to a designated demo phone (no-op if unconfigured).
+    # Additionally send ONE real demo alert via Composio (no-op if unconfigured).
     # The SuperShield monitor sends its own pharmacist push, so it skips this one.
-    demo_alert = (real_alert.send_demo_sms(severity, recall["recalling_firm"],
+    demo_alert = (real_alert.send_demo_alert(severity, recall["recalling_firm"],
                                            recall["product_ndc"], rn)
                   if demo_alert else {"sent": False, "reason": "pharmacist_push_instead"})
     await _emit("dispatched", rn, {

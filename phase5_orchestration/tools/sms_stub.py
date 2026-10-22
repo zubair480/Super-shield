@@ -2,7 +2,7 @@
 
 Resolves the affected cohort at the data layer and "sends" alerts. Returns only
 aggregates + masked samples - the orchestrator/LLM never sees raw PII. Swappable
-for a real Composio/Twilio executor in Phase 7 via the same signature.
+for a real Composio executor via the same signature.
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def dispatch_to_cohort(recall_number: str, severity: str, recalling_firm: str,
     message = build_message(severity, recalling_firm, product_ndc)
     summary = clickhouse_tools.cohort_summary(recall_number)
     samples = clickhouse_tools.sample_masked_recipients(recall_number, k=3)
-    channel = "sms_simulated"  # Phase 7: swap for Composio/Twilio
+    channel = "sms_simulated"  # cohort fan-out stays simulated; pharmacist push is real (real_alert)
     return {
         "channel": channel,
         "dispatched": summary["total_customers"],

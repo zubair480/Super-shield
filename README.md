@@ -122,7 +122,7 @@ Shared data contract with the patient workflow: [docs/INTEGRATION.md](docs/INTEG
 
 ```bash
 python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
-cp .env.example .env    # ClickHouse Cloud host/password; optional Telegram bot for phone push
+cp .env.example .env    # ClickHouse Cloud host/password; optional Composio (Slack/Gmail) push
 .venv/Scripts/python phase1_data/fetch_seed_ndcs.py
 .venv/Scripts/python phase1_data/generate_pharmacies.py
 .venv/Scripts/python phase1_data/generate_customers.py
@@ -133,8 +133,8 @@ cp .env.example .env    # ClickHouse Cloud host/password; optional Telegram bot 
 
 The server starts the always-on monitor (`phase7_monitor/monitor.py`): it polls openFDA every
 `FDA_POLL_SEC` (300s), and every `MONITOR_INTERVAL_SEC` (15s) turns each newly matched recall
-into a pharmacist alert, pushes it to Telegram (`ALERT_CHANNEL=telegram`, `TELEGRAM_BOT_TOKEN`,
-`TELEGRAM_CHAT_ID`) and replays it on the US map. No button press needed.
+into a pharmacist alert, pushes it via Composio to Slack or Gmail (`COMPOSIO_API_KEY`,
+`NOTIFY_CHANNEL`, `COMPOSIO_SLACK_CHANNEL` / `COMPOSIO_GMAIL_TO`) and replays it on the US map. No button press needed.
 Recalls already present when the monitor starts are listed as "Earlier" and never paged.
 Matches are **NDC candidates** — the pharmacist verifies the lot per customer.
 Customer SMS fan-out remains simulated and is labelled so.
