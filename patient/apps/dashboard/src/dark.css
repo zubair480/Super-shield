@@ -1,0 +1,231 @@
+/* Night theme carried through the whole page, so the hero and the content read as one product. */
+
+.ss.dark {
+  color-scheme: dark;
+  --paper: #06130f;
+  --paper-2: #0c201a;
+  --card: #0b1d18;
+  --ink: #eef5f1;
+  --ink-2: rgb(238 245 241 / 0.74);
+  --ink-3: rgb(238 245 241 / 0.52);
+  --rule: rgb(255 255 255 / 0.08);
+  --rule-2: rgb(255 255 255 / 0.16);
+  --green: #5fd3a8;
+  --green-2: #5fd3a8;
+  --green-soft: rgb(95 211 168 / 0.12);
+  --serious: #ff8a77;
+  --serious-soft: rgb(255 106 85 / 0.14);
+  --moderate: #f2b84b;
+  --moderate-soft: rgb(242 184 75 / 0.14);
+  --minor: #b3c4d6;
+  --minor-soft: rgb(159 180 200 / 0.14);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 20px 50px -30px rgb(0 0 0 / 0.8);
+  --shadow-lift: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 30px 70px -30px rgb(0 0 0 / 0.9);
+  background:
+    radial-gradient(60% 40% at 85% 0%, rgb(47 122 99 / 0.18), transparent 70%),
+    radial-gradient(50% 50% at 0% 60%, rgb(31 92 74 / 0.14), transparent 70%),
+    #06130f;
+}
+
+.ss.dark:has(.nh) {
+  background:
+    radial-gradient(60% 40% at 85% 900px, rgb(47 122 99 / 0.16), transparent 70%),
+    radial-gradient(50% 50% at 0% 1400px, rgb(31 92 74 / 0.12), transparent 70%),
+    #06130f;
+}
+
+.ss.dark .nh {
+  border-radius: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 0.06);
+}
+
+/* Glass cards */
+.ss.dark .ss-med,
+.ss.dark .ss-row,
+.ss.dark .ss-detail,
+.ss.dark .ss-sheet {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.02));
+  border-color: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ss.dark .ss-med-new {
+  background: transparent;
+  border-color: rgb(255 255 255 / 0.18);
+}
+
+.ss.dark .ss-med-new span {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.ss.dark .ss-row:hover {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03));
+}
+
+.ss.dark .ss-row.on,
+.ss.dark .ss-med.on {
+  border-color: rgb(95 211 168 / 0.6);
+  box-shadow: 0 0 0 1px rgb(95 211 168 / 0.4), 0 20px 50px -30px rgb(95 211 168 / 0.5);
+}
+
+.ss.dark .ss-row.sI .ss-row-bar {
+  box-shadow: 0 0 16px var(--serious);
+}
+
+/* Buttons and badges flip to light-on-dark */
+.ss.dark .ss-btn {
+  background: rgb(255 255 255 / 0.06);
+  border-color: rgb(255 255 255 / 0.16);
+  color: var(--ink);
+}
+
+.ss.dark .ss-btn.primary {
+  background: #fff;
+  border-color: #fff;
+  color: #06130f !important;
+}
+
+.ss.dark .ss-btn.primary:hover {
+  background: #dff7ec;
+}
+
+.ss.dark .ss-steps {
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.ss.dark .ss-steps li::before {
+  background: #5fd3a8;
+  color: #06130f;
+}
+
+.ss.dark .ss-lots code {
+  background: rgb(95 211 168 / 0.1);
+  border-color: rgb(95 211 168 / 0.3);
+  color: #b8f0d9;
+}
+
+.ss.dark .ss-raw pre,
+.ss.dark .ss-med-add input,
+.ss.dark .ss-sheet input {
+  background: rgb(0 0 0 / 0.3);
+  border-color: rgb(255 255 255 / 0.14);
+  color: var(--ink);
+}
+
+.ss.dark .ss-bulletin {
+  background: linear-gradient(135deg, rgb(95 211 168 / 0.14), rgb(95 211 168 / 0.05));
+  border: 1px solid rgb(95 211 168 / 0.2);
+}
+
+.ss.dark .ss-tag {
+  border-color: rgb(255 255 255 / 0.3);
+}
+
+.ss.dark .ss-scrim {
+  background: rgb(0 0 0 / 0.55);
+}
+
+/* Section heads: bigger and calmer on dark */
+.ss.dark .ss-section {
+  margin-top: 72px;
+}
+
+.ss.dark .ss-section-head {
+  margin-bottom: 24px;
+}
+
+.ss.dark .ss-section-head h2 {
+  font-size: 30px;
+  letter-spacing: -0.03em;
+}
+
+.ss.dark .ss-detail-head h3 {
+  font-size: 40px;
+}
+
+.ss.dark .ss-detail {
+  padding: 36px;
+}
+
+/* "Show all" */
+.ss-list-col {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.ss-more {
+  height: 48px;
+  border-radius: var(--r-md);
+  border: 1px dashed var(--rule-2);
+  background: transparent;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink-2) !important;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.ss-more:hover {
+  border-color: var(--green);
+  color: var(--green) !important;
+}
+
+/* Footer as a real closing band */
+.ss.dark .ss-foot {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 32px;
+  margin-top: 96px;
+  padding: 32px 0 48px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.ss-foot-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ss-foot-brand svg {
+  width: 36px;
+  height: 36px;
+}
+
+.ss-foot-brand div {
+  display: grid;
+  gap: 2px;
+}
+
+.ss-foot-brand b {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.ss-foot-brand span {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.ss.dark .ss-foot a {
+  color: var(--green);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .ss.dark .ss-foot {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .ss.dark .ss-detail {
+    padding: 24px 20px;
+  }
+  .ss.dark .ss-section-head h2 {
+    font-size: 24px;
+  }
+}

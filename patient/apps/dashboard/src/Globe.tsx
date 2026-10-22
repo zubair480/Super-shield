@@ -12,10 +12,10 @@ import type { GlobeMarker } from "./globeData";
 // los marcadores se resaltan al pasar y al hacer clic el globo vuela hacia ellos.
 
 const TONE: Record<GlobeMarker["tone"], number> = {
-  I: 0xff6a55,
-  II: 0xf2b84b,
-  III: 0x9fb4c8,
-  bg: 0x5fd3a8,
+  I: 0xe5484d,
+  II: 0xf59e0b,
+  III: 0x64748b,
+  bg: 0x1f6feb,
 };
 
 const HOME = { lat: 39.5, lon: -98.35 };
@@ -146,12 +146,12 @@ export default function Globe({ markers, arcs, focus, onPick, shift = 0, control
     spin.add(
       new THREE.Mesh(
         new THREE.SphereGeometry(R * 0.995, 64, 64),
-        new THREE.MeshBasicMaterial({ color: 0x0a2620 }),
+        new THREE.MeshBasicMaterial({ color: 0xf4f8fd }),
       ),
     );
 
     // Graticula tenue (meridianos y paralelos).
-    const gratMat = new THREE.LineBasicMaterial({ color: 0x5fd3a8, transparent: true, opacity: 0.07 });
+    const gratMat = new THREE.LineBasicMaterial({ color: 0x1f6feb, transparent: true, opacity: 0.08 });
     const gratGeos: THREE.BufferGeometry[] = [];
     const addLine = (pts: THREE.Vector3[]) => {
       const g = new THREE.BufferGeometry().setFromPoints(pts);
@@ -174,10 +174,10 @@ export default function Globe({ markers, arcs, focus, onPick, shift = 0, control
       new THREE.ShaderMaterial({
         transparent: true,
         side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
         depthWrite: false,
         vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);} `,
-        fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(0.0, 0.62 - dot(vN, vec3(0.0,0.0,1.0))), 2.6); gl_FragColor = vec4(0.27,0.78,0.58,1.0)*i*0.85; }`,
+        fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(0.0, 0.62 - dot(vN, vec3(0.0,0.0,1.0))), 2.6); gl_FragColor = vec4(0.40,0.62,1.0,1.0)*i*0.55; }`,
       }),
     );
     world.add(atmo);
@@ -189,11 +189,11 @@ export default function Globe({ markers, arcs, focus, onPick, shift = 0, control
       orbitPts.push(new THREE.Vector3(Math.cos(a) * 1.42, 0, Math.sin(a) * 1.42));
     const orbitLine = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(orbitPts),
-      new THREE.LineDashedMaterial({ color: 0x5fd3a8, dashSize: 0.025, gapSize: 0.04, transparent: true, opacity: 0.35 }),
+      new THREE.LineDashedMaterial({ color: 0x1f6feb, dashSize: 0.025, gapSize: 0.04, transparent: true, opacity: 0.35 }),
     );
     orbitLine.computeLineDistances();
     orbit.add(orbitLine);
-    const sat = new THREE.Mesh(new THREE.SphereGeometry(0.02, 16, 16), new THREE.MeshBasicMaterial({ color: 0xb8f0d9 }));
+    const sat = new THREE.Mesh(new THREE.SphereGeometry(0.02, 16, 16), new THREE.MeshBasicMaterial({ color: 0x1f6feb }));
     orbit.add(sat);
     orbit.rotation.set(1.15, 0, 0.35);
     world.add(orbit);
@@ -217,7 +217,7 @@ export default function Globe({ markers, arcs, focus, onPick, shift = 0, control
     spin.add(
       new THREE.Points(
         landGeo,
-        new THREE.PointsMaterial({ size: 0.03, map: tex, color: 0x9ff0d0, transparent: true, opacity: 0.95, depthWrite: false }),
+        new THREE.PointsMaterial({ size: 0.03, map: tex, color: 0x3b82f6, transparent: true, opacity: 0.75, depthWrite: false }),
       ),
     );
 
@@ -274,7 +274,7 @@ export default function Globe({ markers, arcs, focus, onPick, shift = 0, control
         }
       });
       const home = toVec(HOME.lat, HOME.lon, R * 1.004);
-      const homeDot = new THREE.Mesh(new THREE.CircleGeometry(0.022, 24), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+      const homeDot = new THREE.Mesh(new THREE.CircleGeometry(0.022, 24), new THREE.MeshBasicMaterial({ color: 0x0f2747 }));
       homeDot.position.copy(home);
       homeDot.lookAt(home.clone().multiplyScalar(2));
       layer.add(homeDot);

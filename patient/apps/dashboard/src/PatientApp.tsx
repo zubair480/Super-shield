@@ -27,6 +27,7 @@ import {
 import "./patient.css";
 import "./patient-sections.css";
 import "./motion.css";
+import "./light.css";
 import { useReveal } from "./reveal";
 import NightHero from "./NightHero";
 
@@ -240,6 +241,13 @@ export default function PatientApp() {
         {patient && <Home key={patient.id} patient={patient} onUpdated={onUpdated} />}
 
         <footer className="ss-foot">
+          <div className="ss-foot-brand">
+            <ShieldMark />
+            <div>
+              <b>SuperShield</b>
+              <span>Watching every FDA drug recall, so you don’t have to.</span>
+            </div>
+          </div>
           <span>
             Recall data from the U.S. FDA enforcement reports via openFDA. SuperShield is not a substitute
             for advice from your pharmacist or doctor.
@@ -387,6 +395,7 @@ function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient
     return m;
   }, [sorted]);
 
+  const [showAll, setShowAll] = useState(false);
   const visible = filter ? sorted.filter((n) => n.drug.toLowerCase() === filter) : sorted;
 
   useEffect(() => {
@@ -470,11 +479,18 @@ function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient
           </div>
         ) : (
           <div className="ss-split">
-            <ul className="ss-list">
-              {visible.map((n) => (
-                <AlertRow key={n.id} n={n} on={n.id === selectedId} onClick={() => setSelectedId(n.id)} />
-              ))}
-            </ul>
+            <div className="ss-list-col">
+              <ul className="ss-list">
+                {(showAll ? visible : visible.slice(0, 6)).map((n) => (
+                  <AlertRow key={n.id} n={n} on={n.id === selectedId} onClick={() => setSelectedId(n.id)} />
+                ))}
+              </ul>
+              {visible.length > 6 && (
+                <button className="ss-more" onClick={() => setShowAll((v) => !v)}>
+                  {showAll ? "Show fewer" : `Show all ${visible.length} alerts`}
+                </button>
+              )}
+            </div>
             {selected && <Detail key={selected.id} n={selected} />}
           </div>
         )}
@@ -721,9 +737,9 @@ function PillGlyph() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
       <g transform="rotate(-40 12 12)">
-        <rect x="4" y="8" width="16" height="8" rx="4" />
-        <path d="M12 8v8" />
-        <path d="M12 8h4a4 4 0 0 1 0 8h-4z" fill="currentColor" fillOpacity="0.22" />
+        <rect x="3" y="7.5" width="18" height="9" rx="4.5" />
+        <path d="M12 7.5v9" />
+        <path d="M12 7.5h4.5a4.5 4.5 0 0 1 0 9H12z" fill="currentColor" fillOpacity="0.3" />
       </g>
     </svg>
   );
