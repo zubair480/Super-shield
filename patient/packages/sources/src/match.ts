@@ -41,6 +41,8 @@ export function toRecallHit(r: OpenFdaRecall): RecallHit {
     product: r.product_description,
     lotInfo: r.code_info,
     firm: r.recalling_firm,
+    state: r.state,
+    country: r.country,
     reportDate: r.report_date,
     initiationDate: r.recall_initiation_date,
     ...(r.synthetic ? { synthetic: true } : {}),

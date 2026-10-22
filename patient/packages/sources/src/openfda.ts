@@ -13,6 +13,8 @@ export interface OpenFdaRecall {
   report_date?: string; // "YYYYMMDD"
   synthetic?: boolean; // solo en el feed compartido de pruebas (shared/fda)
   recalling_firm?: string;
+  state?: string;
+  country?: string;
   code_info?: string; // lote(s) afectados
   distribution_pattern?: string;
   openfda?: {

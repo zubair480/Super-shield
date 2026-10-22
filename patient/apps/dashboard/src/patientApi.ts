@@ -42,6 +42,8 @@ export interface PatientNotification {
   product?: string;
   lotInfo?: string;
   firm?: string;
+  state?: string;
+  country?: string;
   reportDate?: string;
   initiationDate?: string;
   sourceUrl: string;

@@ -43,8 +43,8 @@
   background: var(--paper);
   color: var(--ink);
   font-family: var(--text);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 17px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -85,7 +85,7 @@
   gap: 10px;
   font-family: var(--display);
   font-weight: 600;
-  font-size: 18px;
+  font-size: 19.5px;
   letter-spacing: -0.02em;
   text-decoration: none;
 }
@@ -111,7 +111,7 @@
   border-radius: 999px;
   background: var(--card);
   border: 1px solid var(--rule);
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--ink-2);
   white-space: nowrap;
 }
@@ -183,7 +183,7 @@
   background: var(--green);
   color: #fff;
   font-family: var(--display);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -261,7 +261,7 @@
 
 .ss-greet {
   margin: 0 0 14px;
-  font-size: 15px;
+  font-size: 16.5px;
   color: var(--ink-2);
 }
 
@@ -292,7 +292,7 @@
 .ss-sub {
   margin: 16px 0 0;
   max-width: 58ch;
-  font-size: 17px;
+  font-size: 18.5px;
   color: var(--ink-2);
   text-wrap: pretty;
 }
@@ -316,7 +316,7 @@
   border: 1px solid var(--rule-2);
   background: var(--card);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 16px;
   transition: transform 0.15s var(--ease), background 0.15s, border-color 0.15s;
 }
 
@@ -346,11 +346,11 @@
 .ss-btn.sm {
   height: 36px;
   padding: 0 14px;
-  font-size: 13.5px;
+  font-size: 15px;
 }
 
 .ss-hero-meta {
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--ink-3);
 }
 
@@ -389,7 +389,7 @@
 .ss-section-head p {
   margin: 0;
   color: var(--ink-3);
-  font-size: 14px;
+  font-size: 15.5px;
 }
 
 .ss-section-head .ss-right {
@@ -402,7 +402,7 @@
 
 .ss-err {
   color: var(--serious);
-  font-size: 14px;
+  font-size: 15.5px;
   margin: 10px 0 0;
 }
 
@@ -428,6 +428,6 @@
     padding: 32px 24px 28px;
   }
   .ss-sub {
-    font-size: 16px;
+    font-size: 17.5px;
   }
 }

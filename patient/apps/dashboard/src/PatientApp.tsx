@@ -26,6 +26,9 @@ import {
 } from "./patientApi";
 import "./patient.css";
 import "./patient-sections.css";
+import "./motion.css";
+import { useReveal } from "./reveal";
+import NightHero from "./NightHero";
 
 // SuperShield — experiencia del paciente. Responde primero "¿estoy bien?",
 // luego qué medicamento está afectado y qué hacer, paso a paso.
@@ -165,8 +168,11 @@ export default function PatientApp() {
     setPatientId(p.id);
   };
 
+  useReveal();
+
   return (
     <div className="ss">
+      <div className="ss-night">
       <div className="ss-shell">
         <header className="ss-top">
           <a className="ss-brand" href="/">
@@ -198,6 +204,9 @@ export default function PatientApp() {
             </button>
           </div>
         </header>
+      </div>
+      </div>
+      <div className="ss-shell">
 
         {loadError && !patients && (
           <div className="ss-hero attention">
@@ -422,14 +431,7 @@ function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient
         </div>
       )}
 
-      <Hero
-        name={patient.name}
-        medCount={patient.drugs.length}
-        affected={affectedDrugs.map((k) => patient.drugs.find((d) => d.toLowerCase() === k) ?? k)}
-        topSev={topSev}
-        loading={!notifs}
-        onReview={() => top && open(top.id)}
-      />
+      <NightHero patient={patient} sorted={sorted} loading={!notifs} onReview={() => top && open(top.id)} />
 
       <Medications
         patient={patient}

@@ -18,6 +18,8 @@ export interface RecallHit {
   product?: string;
   lotInfo?: string;
   firm?: string;
+  state?: string; // estado/país del fabricante (para el mapa)
+  country?: string;
   reportDate?: string;
   initiationDate?: string;
   synthetic?: boolean; // registro de prueba del feed compartido, no un recall real
