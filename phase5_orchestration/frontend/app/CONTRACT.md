@@ -67,5 +67,5 @@ Existing (patient, via proxy): `GET /api/patient/patients`, `POST /api/patient/p
 
 - `GET /api/pharmacy/summary` → `{active_recalls, affected_customers, affected_pharmacies, affected_states, lots_pending_verification, followups: {contacted, lot_verified, not_affected, pending}, notifications_prepared_pct, network: {pharmacies, customers}}`, computed over alerts whose status isn't `resolved`.
 - `code_info` (FDA lot list) on each pharmacy alert in `GET /api/pharmacy/alerts` (add the column to `fda_recalls`, backfill it from openFDA and the shared feed).
-- `GET /api/search?q=` → `{recalls:[{recall_number, generic_name, product_ndcs, classification, recalling_firm}]}` matching recall number, NDC, drug or firm.
+- `GET /api/search?q=` → `{recalls:[{recall_number, generic_name, product_ndcs, classification, recalling_firm, synthetic}]}` matching recall number, NDC, drug or firm.
 - `GET /api/pharmacy/alerts/{rn}/customers.csv` → CSV download of the affected-customer list.
