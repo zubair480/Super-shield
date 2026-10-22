@@ -2,7 +2,7 @@ import { createClient, type ClickHouseClient } from '@clickhouse/client';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import type { EventKind } from '@farmavigia/shared';
+import type { EventKind } from '@supershield/shared';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // apps/api/src -> raíz del repo

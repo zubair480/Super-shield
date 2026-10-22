@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, '../../../.env') });
 
 import { postAlert } from './index.js';
-import type { Alert } from '@farmavigia/shared';
+import type { Alert } from '@supershield/shared';
 
 const alert: Alert = {
   title: '⚠️ Retiro FDA Clase I — Losartán 50mg',

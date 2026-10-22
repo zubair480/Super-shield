@@ -1,4 +1,4 @@
-"""Shared, env-driven configuration for FDA SafetyNet.
+"""Shared, env-driven configuration for SuperShield.
 
 Everything that differs between local and cloud (ClickHouse host, API keys,
 scale knobs) is read here so migration is a config swap, not a code change.
@@ -30,7 +30,7 @@ CLICKHOUSE = {
     "port": int(os.getenv("CLICKHOUSE_PORT", "8123")),
     "username": os.getenv("CLICKHOUSE_USER", "default"),
     "password": os.getenv("CLICKHOUSE_PASSWORD", ""),
-    "database": os.getenv("CLICKHOUSE_DATABASE", "safetynet"),
+    "database": os.getenv("CLICKHOUSE_DATABASE", "supershield"),
     "secure": os.getenv("CLICKHOUSE_SECURE", "false").lower() == "true",
 }
 

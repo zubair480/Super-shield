@@ -7,8 +7,8 @@
 -- (A ClickHouse MV sees only the newly inserted block of its FROM table, so
 --  each recall insert emits just that recall's matches.)
 -- ---------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS safetynet.mv_patient_matches
-TO safetynet.patient_alerts
+CREATE MATERIALIZED VIEW IF NOT EXISTS supershield.mv_patient_matches
+TO supershield.patient_alerts
 AS
 SELECT
     r.recall_number       AS recall_number,
@@ -22,8 +22,8 @@ SELECT
     r.reason_for_recall   AS reason_for_recall,
     r.source_url          AS source_url,
     now()                 AS matched_at
-FROM safetynet.fda_recalls AS r
-INNER JOIN safetynet.patient_ehr AS p
+FROM supershield.fda_recalls AS r
+INNER JOIN supershield.patient_ehr AS p
     ON r.product_ndc = p.prescribed_ndc_code;
 
 -- ---------------------------------------------------------------------------
@@ -31,8 +31,8 @@ INNER JOIN safetynet.patient_ehr AS p
 -- produced by mv_patient_matches). Maintains per-recall, per-state aggregate
 -- counts with NO PII - powers the live US map + scale metrics.
 -- ---------------------------------------------------------------------------
-CREATE MATERIALIZED VIEW IF NOT EXISTS safetynet.mv_alert_geo_rollup
-TO safetynet.alert_geo_rollup
+CREATE MATERIALIZED VIEW IF NOT EXISTS supershield.mv_alert_geo_rollup
+TO supershield.alert_geo_rollup
 AS
 SELECT
     recall_number,
@@ -40,5 +40,5 @@ SELECT
     state,
     countState()                AS affected_customers,
     uniqState(pharmacy_id)      AS affected_pharmacies
-FROM safetynet.patient_alerts
+FROM supershield.patient_alerts
 GROUP BY recall_number, severity, state;

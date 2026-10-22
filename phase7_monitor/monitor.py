@@ -1,6 +1,6 @@
 """Phase 7 (SuperShield Pharmacy): always-on recall monitor.
 
-HawkSign's orchestration only ran from the "Launch live defense" button. This
+the pharmacy workflow's orchestration only ran from the "Launch live defense" button. This
 loop makes it continuous:
 
   1. every FDA_POLL_SEC   pull new openFDA recalls into fda_recalls
@@ -84,10 +84,10 @@ def unalerted_recalls() -> list[dict]:
                any(a.product_ndc), any(a.severity), any(a.reason_for_recall), any(a.source_url),
                count(), uniqExact(a.pharmacy_id), uniqExact(a.state),
                any(r.recalling_firm), any(r.classification), max(r.ingested_at)
-        FROM safetynet.patient_alerts AS a
-        LEFT JOIN safetynet.fda_recalls AS r
+        FROM supershield.patient_alerts AS a
+        LEFT JOIN supershield.fda_recalls AS r
             ON a.recall_number = r.recall_number AND a.product_ndc = r.product_ndc
-        WHERE a.recall_number NOT IN (SELECT recall_number FROM safetynet.pharmacist_alerts)
+        WHERE a.recall_number NOT IN (SELECT recall_number FROM supershield.pharmacist_alerts)
         GROUP BY a.recall_number
         """
     ).result_rows
@@ -101,7 +101,7 @@ def unalerted_recalls() -> list[dict]:
 
 
 def _insert_alert(*alerts: dict) -> None:
-    _client().insert("safetynet.pharmacist_alerts",
+    _client().insert("supershield.pharmacist_alerts",
                      [[a[c] for c in ALERT_COLUMNS] for a in alerts], column_names=ALERT_COLUMNS)
 
 
@@ -138,7 +138,7 @@ def create_alerts(started_at: datetime) -> list[dict]:
 
 
 async def _announce(a: dict) -> None:
-    """Notify dashboards, then replay the recall through HawkSign's pipeline (map)."""
+    """Notify dashboards, then replay the recall through the pharmacy workflow's pipeline (map)."""
     await bus.publish(Event(stage="run_started", recall_number=a["recall_number"],
                             payload={"recalls": 1, "trigger": "monitor"}, actor="monitor"))
     await bus.publish(Event(stage="pharmacist_alert", recall_number=a["recall_number"], payload={
@@ -197,7 +197,7 @@ def list_alerts(limit: int = 50) -> list[dict]:
     rows = _client().query(
         f"""
         SELECT {", ".join(ALERT_COLUMNS)}
-        FROM safetynet.pharmacist_alerts FINAL
+        FROM supershield.pharmacist_alerts FINAL
         ORDER BY origin = 'backfill', detected_at DESC,
                  multiIf(severity = 'Lethal', 3, severity = 'Moderate', 2, 1) DESC, customers DESC
         LIMIT %(n)s
@@ -230,17 +230,17 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
     where = "a.recall_number = %(r)s" + (" AND a.state = %(s)s" if state else "")
     params = {"r": recall_number, "s": state, "n": limit, "o": offset}
     client = _client()
-    total = int(client.query(f"SELECT count() FROM safetynet.patient_alerts a WHERE {where}",
+    total = int(client.query(f"SELECT count() FROM supershield.patient_alerts a WHERE {where}",
                              parameters=params).result_rows[0][0])
     rows = client.query(
         f"""
         SELECT a.customer_id, a.name, a.phone_number, a.pharmacy_id, p.name, p.chain,
                a.state, a.product_ndc, f.status
-        FROM safetynet.patient_alerts AS a
-        LEFT JOIN safetynet.pharmacies AS p ON a.pharmacy_id = p.pharmacy_id
+        FROM supershield.patient_alerts AS a
+        LEFT JOIN supershield.pharmacies AS p ON a.pharmacy_id = p.pharmacy_id
         LEFT JOIN (
             SELECT customer_id, argMax(status, updated_at) AS status
-            FROM safetynet.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id
+            FROM supershield.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id
         ) AS f ON a.customer_id = f.customer_id
         WHERE {where}
         ORDER BY a.state, a.pharmacy_id, a.customer_id
@@ -251,7 +251,7 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
     followed = client.query(
         "SELECT latest, count() FROM "
         "(SELECT customer_id, argMax(status, updated_at) AS latest "
-        " FROM safetynet.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id) "
+        " FROM supershield.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id) "
         "GROUP BY latest",
         parameters=params,
     ).result_rows
@@ -269,7 +269,7 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
 
 
 def set_followup(recall_number: str, customer_id: str, new_status: str) -> dict:
-    _client().insert("safetynet.customer_followups",
+    _client().insert("supershield.customer_followups",
                      [[recall_number, customer_id, new_status, _now()]],
                      column_names=["recall_number", "customer_id", "status", "updated_at"])
     return {"recall_number": recall_number, "customer_id": customer_id, "status": new_status}
@@ -305,11 +305,11 @@ def _legacy_inject_demo_recall() -> dict:
     """
     client = _client()
     ndc = client.query(
-        "SELECT prescribed_ndc_code, count() c FROM safetynet.patient_ehr "
+        "SELECT prescribed_ndc_code, count() c FROM supershield.patient_ehr "
         "GROUP BY prescribed_ndc_code ORDER BY c DESC LIMIT 1"
     ).result_rows[0][0]
     known = client.query(
-        "SELECT any(generic_name), any(product_description) FROM safetynet.fda_recalls "
+        "SELECT any(generic_name), any(product_description) FROM supershield.fda_recalls "
         "WHERE product_ndc = %(n)s AND generic_name != ''",
         parameters={"n": ndc},
     ).result_rows
@@ -325,5 +325,5 @@ def _legacy_inject_demo_recall() -> dict:
         "product_description": description or f"Synthetic demo product, NDC {ndc}",
         "generic_name": generic,
     }
-    client.insert("safetynet.fda_recalls", [list(row.values())], column_names=list(row.keys()))
+    client.insert("supershield.fda_recalls", [list(row.values())], column_names=list(row.keys()))
     return row

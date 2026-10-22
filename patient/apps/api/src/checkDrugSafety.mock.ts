@@ -1,4 +1,4 @@
-import type { CheckDrugSafety, RecallHit, SafetyReport } from '@farmavigia/shared';
+import type { CheckDrugSafety, RecallHit, SafetyReport } from '@supershield/shared';
 
 // MOCK determinista que B usa hasta M2.
 // En M2 se reemplaza por el checkDrugSafety real de A (packages/sources).

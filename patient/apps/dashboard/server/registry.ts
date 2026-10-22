@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { IncomingMessage } from "node:http";
-import { loadSharedRecalls } from "@farmavigia/sources";
+import { loadSharedRecalls } from "@supershield/sources";
 
 // Alta de pacientes + verificación FDA previa ("Add a patient" del dashboard).
 // El worker relee patients.json en cada pasada, así que lo que se agrega aquí

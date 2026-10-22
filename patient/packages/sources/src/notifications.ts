@@ -5,7 +5,7 @@ import type {
   MonitorStatus,
   PatientNotification,
   PostAlert,
-} from "@farmavigia/shared";
+} from "@supershield/shared";
 import { checkDrugSafety } from "./checkDrugSafety";
 
 // SuperShield Patient: notificaciones in-app por paciente+recall.

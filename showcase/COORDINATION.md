@@ -9,8 +9,8 @@ Deadline: first impressive working version by **3:30 PM local**, then keep polis
 ## Shared facts (read only)
 
 - Product: SuperShield. Two independent FDA recall workflows on one public data source.
-  - Pharmacy (Developer 1, HawkSign, branch `feat/pharmacy`): NDC matching against 1M synthetic customers in ClickHouse, live US map, pharmacist alert + affected-customer list.
-  - Patient (Developer 2, FarmaWatcher, branch `feat/patient`, folder `patient/`): saved medications, worker checks openFDA every 60s, Claude-written plain-language alert, lot-number check, ClickHouse log.
+  - Pharmacy (Developer 1, SuperShield Pharmacy, branch `feat/pharmacy`): NDC matching against 1M synthetic customers in ClickHouse, live US map, pharmacist alert + affected-customer list.
+  - Patient (Developer 2, SuperShield Patient, branch `feat/patient`, folder `patient/`): saved medications, worker checks openFDA every 60s, Claude-written plain-language alert, lot-number check, ClickHouse log.
   - Demo: one new FDA recall, both sides detect it independently, neither waits for the other.
 - Live data you can use from the browser:
   - openFDA (CORS ok, no key): `https://api.fda.gov/drug/enforcement.json?sort=report_date:desc&limit=100`

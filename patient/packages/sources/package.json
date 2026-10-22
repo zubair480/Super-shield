@@ -1,5 +1,5 @@
 {
-  "name": "@farmavigia/sources",
+  "name": "@supershield/sources",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,6 +13,6 @@
     }
   },
   "dependencies": {
-    "@farmavigia/shared": "*"
+    "@supershield/shared": "*"
   }
 }

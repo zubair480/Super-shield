@@ -1,4 +1,4 @@
-# @farmavigia/dashboard
+# @supershield/dashboard
 
 Frontend en **React + Vite** con un mini-servidor Node que sirve el build y expone:
 
@@ -19,8 +19,8 @@ npm run dashboard:build      # vite build -> apps/dashboard/dist
 npm run dashboard            # server Node en http://localhost:3000
 
 # Opción dev (hot reload de React en :5173, proxya /api al server :3000)
-npm run dev:server -w @farmavigia/dashboard   # terminal 1
-npm run dev:web    -w @farmavigia/dashboard   # terminal 2  -> http://localhost:5173
+npm run dev:server -w @supershield/dashboard   # terminal 1
+npm run dev:web    -w @supershield/dashboard   # terminal 2  -> http://localhost:5173
 ```
 
 Sin `CLICKHOUSE_URL` configurado, el dashboard muestra el respaldo (badge "Respaldo").
@@ -28,8 +28,8 @@ Con `CLICKHOUSE_URL` (la que comparte Persona B), lee datos reales (badge "Click
 
 ## Deploy en Render (Web Service)
 
-- **Build Command:** `npm install && npm run build -w @farmavigia/dashboard`
-- **Start Command:** `npm run start -w @farmavigia/dashboard`
+- **Build Command:** `npm install && npm run build -w @supershield/dashboard`
+- **Start Command:** `npm run start -w @supershield/dashboard`
 - **Env vars:** `CLICKHOUSE_URL` (Render inyecta `PORT` automáticamente)
 - **Health check path:** `/healthz`
 

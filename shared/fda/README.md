@@ -24,11 +24,11 @@ One FDA data contract for both SuperShield workflows.
 
 ## Consumers
 
-- **Patient (Developer 2, FarmaWatcher)** — the worker reads this file (path from
+- **Patient (Developer 2, SuperShield Patient)** — the worker reads this file (path from
   `SHARED_RECALLS_FILE`, default `../shared/fda/demo-recalls.json` relative to `patient/`) and merges
   it with openFDA results before drug-name matching.
-- **Pharmacy (Developer 1, HawkSign)** — load this file alongside the openFDA ingestion into
-  `safetynet.fda_recalls`, keyed by `(product_ndc, recall_number)` (one row per NDC in
+- **Pharmacy (Developer 1, SuperShield Pharmacy)** — load this file alongside the openFDA ingestion into
+  `supershield.fda_recalls`, keyed by `(product_ndc, recall_number)` (one row per NDC in
   `openfda.product_ndc`). Matching against dispensing records by NDC then works unchanged.
 
 ## Usage

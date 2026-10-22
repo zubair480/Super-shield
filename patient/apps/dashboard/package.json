@@ -1,5 +1,5 @@
 {
-  "name": "@farmavigia/dashboard",
+  "name": "@supershield/dashboard",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@farmavigia/notifier": "*",
-    "@farmavigia/shared": "*",
-    "@farmavigia/sources": "*",
+    "@supershield/notifier": "*",
+    "@supershield/shared": "*",
+    "@supershield/sources": "*",
     "@fontsource-variable/schibsted-grotesk": "^5.2.8",
     "@fontsource-variable/sora": "^5.2.8",
     "@fontsource/fragment-mono": "^5.2.8",

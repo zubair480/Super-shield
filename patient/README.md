@@ -1,14 +1,13 @@
-# SuperShield Patient (built on FarmaWatcher)
+# SuperShield Patient
 
 The patient side of SuperShield. A patient saves their medication list once. After that, a
 background worker keeps checking FDA drug recalls (live openFDA plus the shared SuperShield feed).
 When a recall matches a saved medication, the patient gets an in-app safety alert with a
 plain-language bulletin written by Claude. No Scan button and no pharmacist action are needed.
 
-This app does not depend on the Pharmacy workflow (HawkSign). Both read the same FDA data and use
+This app does not depend on the Pharmacy workflow. Both read the same FDA data and use
 the same `recall_number`, but each one detects recalls and alerts on its own.
 
-Original FarmaWatcher team plan: [farmacovigia-TEAMPLAN.md](farmacovigia-TEAMPLAN.md).
 
 ## What it does
 
@@ -87,7 +86,7 @@ packages/sources/    openFDA client, shared-feed reader, drug matching, checkDru
 packages/notifier/   Composio delivery (Slack/Gmail), DRY_RUN aware
 apps/worker/         Continuous monitoring worker
 apps/dashboard/      React patient screen + server (HTTP API on port 3000)
-apps/api/            Original FarmaWatcher /check API (Render deploy)
+apps/api/            Original /check API (Render deploy)
 demo/seed-data/      Demo patients, offline fixture, runtime notifications (gitignored)
 ../shared/fda/       Shared FDA feed used by Patient and Pharmacy (see its README)
 ```

@@ -1,8 +1,8 @@
-# Deploy del backend FarmacoVigía (Persona B) en Render.
+# Deploy del backend SuperShield (Persona B) en Render.
 # Un solo web service: corre el API y sirve el dashboard estático.
 services:
   - type: web
-    name: farmacovigia-api
+    name: supershield-patient-api
     runtime: node
     plan: free
     buildCommand: npm install

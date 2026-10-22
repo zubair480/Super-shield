@@ -2,12 +2,12 @@
 -- Same ClickHouse database as the lakehouse - no new datastore.
 
 -- Older lakehouses predate these shared columns (patient workflow uses them).
-ALTER TABLE safetynet.fda_recalls ADD COLUMN IF NOT EXISTS product_description String DEFAULT '';
-ALTER TABLE safetynet.fda_recalls ADD COLUMN IF NOT EXISTS generic_name String DEFAULT '';
+ALTER TABLE supershield.fda_recalls ADD COLUMN IF NOT EXISTS product_description String DEFAULT '';
+ALTER TABLE supershield.fda_recalls ADD COLUMN IF NOT EXISTS generic_name String DEFAULT '';
 
 -- One row per recall that matched pharmacy dispensing records by NDC.
 -- ReplacingMergeTree on updated_at so status changes are plain inserts.
-CREATE TABLE IF NOT EXISTS safetynet.pharmacist_alerts
+CREATE TABLE IF NOT EXISTS supershield.pharmacist_alerts
 (
     recall_number   String,
     product_ndc     String,
@@ -29,7 +29,7 @@ ENGINE = ReplacingMergeTree(updated_at)
 ORDER BY recall_number;
 
 -- Pharmacist follow-up per affected customer. Absence of a row = not yet reviewed.
-CREATE TABLE IF NOT EXISTS safetynet.customer_followups
+CREATE TABLE IF NOT EXISTS supershield.customer_followups
 (
     recall_number String,
     customer_id   String,
@@ -40,4 +40,4 @@ ENGINE = ReplacingMergeTree(updated_at)
 ORDER BY (recall_number, customer_id);
 
 -- Result of the real phone push for this alert (sent / not_configured / error text).
-ALTER TABLE safetynet.pharmacist_alerts ADD COLUMN IF NOT EXISTS push_status String DEFAULT '';
+ALTER TABLE supershield.pharmacist_alerts ADD COLUMN IF NOT EXISTS push_status String DEFAULT '';

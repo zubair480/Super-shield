@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Minimal local ClickHouse server config for FDA SafetyNet.
+<!-- Minimal local ClickHouse server config for SuperShield.
      Data lives under ./clickhouse-data (gitignored). Listens on localhost. -->
 <clickhouse>
     <logger>

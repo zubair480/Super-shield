@@ -1,5 +1,5 @@
 {
-  "name": "@farmavigia/worker",
+  "name": "@supershield/worker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,8 +9,8 @@
     "build": "tsc --noEmit"
   },
   "dependencies": {
-    "@farmavigia/notifier": "*",
-    "@farmavigia/shared": "*",
-    "@farmavigia/sources": "*"
+    "@supershield/notifier": "*",
+    "@supershield/shared": "*",
+    "@supershield/sources": "*"
   }
 }

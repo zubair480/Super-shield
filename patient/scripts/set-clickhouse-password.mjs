@@ -29,7 +29,7 @@ if (!url) {
   console.log("Saved password. CLICKHOUSE_URL is not set yet.");
   process.exit(0);
 }
-const res = await fetch(`${url}/?query=${encodeURIComponent("SELECT count() FROM system.tables WHERE database IN ('default','safetynet')")}`, {
+const res = await fetch(`${url}/?query=${encodeURIComponent("SELECT count() FROM system.tables WHERE database IN ('default','supershield')")}`, {
   headers: { Authorization: `Basic ${Buffer.from(`${user}:${pw}`).toString("base64")}` },
 }).catch((e) => ({ ok: false, status: 0, text: async () => e.message }));
 console.log(res.ok ? `✅ ClickHouse connected — ${(await res.text()).trim()} tables visible.` : `❌ ClickHouse rejected the login (${res.status}).`);

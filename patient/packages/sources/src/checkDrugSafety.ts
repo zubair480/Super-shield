@@ -2,7 +2,7 @@ import type {
   CheckDrugSafety,
   SafetyCheckRequest,
   SafetyReport,
-} from "@farmavigia/shared";
+} from "@supershield/shared";
 import { fetchRecalls, matchSeed, matchShared, type OpenFdaRecall } from "./openfda";
 import { isActive, toRecallHit, severityRank, dedupeByRecall } from "./match";
 import { mapClassification } from "./match";

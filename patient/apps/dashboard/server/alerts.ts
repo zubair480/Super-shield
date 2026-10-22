@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { monitorPatient } from "@farmavigia/sources";
-import { postAlert } from "@farmavigia/notifier";
+import { monitorPatient } from "@supershield/sources";
+import { postAlert } from "@supershield/notifier";
 import { chTarget } from "./clickhouse";
 import type { Patient } from "./registry";
 

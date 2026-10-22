@@ -425,7 +425,7 @@ export default function App() {
           <div className="brand">
             <span className="mark" aria-hidden="true" />
             <div>
-              <h1>FarmaWatcher</h1>
+              <h1>SuperShield Patient</h1>
               <p>Event center · Pharmacovigilance</p>
             </div>
           </div>

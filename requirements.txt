@@ -1,4 +1,4 @@
-# FDA SafetyNet - Python dependencies (Python 3.12)
+# SuperShield - Python dependencies (Python 3.12)
 # Installed incrementally per phase to keep the build fast and debuggable.
 
 # --- Phase 1: synthetic data + openFDA seed fetch ---

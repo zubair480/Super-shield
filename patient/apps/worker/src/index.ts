@@ -4,12 +4,12 @@ import {
   monitorPatient,
   readMonitorStatus,
   writeMonitorStatus,
-} from "@farmavigia/sources";
+} from "@supershield/sources";
 import { loadPatients } from "./patients";
 import { recordEvent } from "./eventlog";
 import { postAlert } from "./notify";
 
-// El agente de SuperShield Patient (sobre FarmaWatcher):
+// El agente de SuperShield Patient (sobre SuperShield Patient):
 //   registro de pacientes -> checkDrugSafety (openFDA + feed compartido + boletín Claude)
 //   -> notificación in-app (siempre) + entrega externa vía Composio (estado real)
 //   -> eventos en ClickHouse + espejo local. Sin botón de "Scan": corre en bucle.

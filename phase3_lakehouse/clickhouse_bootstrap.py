@@ -50,7 +50,7 @@ def run_sql_file(client, path: Path) -> None:
 
 def load_pharmacies(client) -> None:
     df = pd.read_csv(PHARMACIES_CSV, dtype={"zip": str})
-    client.insert_df("safetynet.pharmacies", df)
+    client.insert_df("supershield.pharmacies", df)
     print(f"  loaded {len(df)} pharmacies")
 
 
@@ -61,7 +61,7 @@ def load_customers(client) -> None:
     for chunk in pd.read_csv(
         CUSTOMERS_CSV, dtype={"prescribed_ndc_code": str, "phone_number": str}, chunksize=INSERT_BATCH
     ):
-        client.insert_df("safetynet.patient_ehr", chunk[cols])
+        client.insert_df("supershield.patient_ehr", chunk[cols])
         total += len(chunk)
         print(f"    ...{total:,} customers", end="\r")
     print(f"\n  loaded {total:,} customers in {time.time()-t0:.1f}s")
@@ -70,7 +70,7 @@ def load_customers(client) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--schema-only", action="store_true", help="apply SQL only, skip data load")
-    ap.add_argument("--reset", action="store_true", help="drop the safetynet database first")
+    ap.add_argument("--reset", action="store_true", help="drop the supershield database first")
     args = ap.parse_args()
 
     print(f"Connecting to ClickHouse at {CLICKHOUSE['host']}:{CLICKHOUSE['port']} "
@@ -78,8 +78,8 @@ def main() -> None:
     admin = get_client(database="default")
 
     if args.reset:
-        admin.command("DROP DATABASE IF EXISTS safetynet")
-        print("  dropped database safetynet")
+        admin.command("DROP DATABASE IF EXISTS supershield")
+        print("  dropped database supershield")
 
     print("Applying schema...")
     run_sql_file(admin, SQL_DIR / "01_create_tables.sql")
@@ -95,8 +95,8 @@ def main() -> None:
     load_pharmacies(client)
     load_customers(client)
 
-    n_ph = client.command("SELECT count() FROM safetynet.pharmacies")
-    n_cust = client.command("SELECT count() FROM safetynet.patient_ehr")
+    n_ph = client.command("SELECT count() FROM supershield.pharmacies")
+    n_cust = client.command("SELECT count() FROM supershield.patient_ehr")
     print(f"\nBootstrap complete: {n_ph} pharmacies, {n_cust} customers.")
 
 

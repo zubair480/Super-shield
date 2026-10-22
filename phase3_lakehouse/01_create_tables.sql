@@ -1,13 +1,13 @@
--- Phase 3: Base tables for the FDA SafetyNet lakehouse.
--- Run against the `safetynet` database.
+-- Phase 3: Base tables for the SuperShield lakehouse.
+-- Run against the `supershield` database.
 
-CREATE DATABASE IF NOT EXISTS safetynet;
+CREATE DATABASE IF NOT EXISTS supershield;
 
 -- ---------------------------------------------------------------------------
 -- fda_recalls: fed by the ingestion pipeline (PyAirbyte -> loader, or Airbyte
 -- Cloud -> ClickHouse destination). One row per recalled product NDC.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS safetynet.fda_recalls
+CREATE TABLE IF NOT EXISTS supershield.fda_recalls
 (
     recall_number      String,
     product_ndc        String,
@@ -29,7 +29,7 @@ ORDER BY (product_ndc, recall_number);
 -- ---------------------------------------------------------------------------
 -- pharmacies: static reference data (~5k rows), carries geography.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS safetynet.pharmacies
+CREATE TABLE IF NOT EXISTS supershield.pharmacies
 (
     pharmacy_id  String,
     name         String,
@@ -47,7 +47,7 @@ ORDER BY pharmacy_id;
 -- patient_ehr: ~1M synthetic customer-prescription rows. Keyed by NDC so the
 -- recall join is fast.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS safetynet.patient_ehr
+CREATE TABLE IF NOT EXISTS supershield.patient_ehr
 (
     customer_id          String,
     name                 String,
@@ -63,7 +63,7 @@ ORDER BY (prescribed_ndc_code, pharmacy_id);
 -- patient_alerts: target table fed by the materialized view when a recall
 -- intersects a customer's prescription. This is the high-velocity trigger.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS safetynet.patient_alerts
+CREATE TABLE IF NOT EXISTS supershield.patient_alerts
 (
     recall_number  String,
     product_ndc    String,
@@ -84,7 +84,7 @@ ORDER BY (severity, state, recall_number);
 -- alert_geo_rollup: per-recall, per-state aggregate counts (no PII). Powers
 -- the live US map + scale metrics.
 -- ---------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS safetynet.alert_geo_rollup
+CREATE TABLE IF NOT EXISTS supershield.alert_geo_rollup
 (
     recall_number       String,
     severity            String,

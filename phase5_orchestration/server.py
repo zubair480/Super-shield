@@ -33,7 +33,7 @@ class StatusBody(BaseModel):
 
 FRONTEND = Path(__file__).resolve().parent / "frontend"
 
-app = FastAPI(title="FDA SafetyNet")
+app = FastAPI(title="SuperShield")
 
 _run_lock = asyncio.Lock()
 

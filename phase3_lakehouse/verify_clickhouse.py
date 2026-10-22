@@ -25,7 +25,7 @@ def main() -> int:
     test_ndc = None
     for ndc in seed["ndcs"]:
         n = client.command(
-            "SELECT count() FROM safetynet.patient_ehr WHERE prescribed_ndc_code = %(n)s",
+            "SELECT count() FROM supershield.patient_ehr WHERE prescribed_ndc_code = %(n)s",
             parameters={"n": ndc},
         )
         if int(n) > 0:
@@ -38,17 +38,17 @@ def main() -> int:
     print(f"Test NDC {test_ndc}: {expected} customers prescribed it nationwide.")
 
     # Clean any prior test rows for idempotency.
-    client.command("TRUNCATE TABLE safetynet.patient_alerts")
-    client.command("TRUNCATE TABLE safetynet.alert_geo_rollup")
+    client.command("TRUNCATE TABLE supershield.patient_alerts")
+    client.command("TRUNCATE TABLE supershield.alert_geo_rollup")
     client.command(
-        "ALTER TABLE safetynet.fda_recalls DELETE WHERE recall_number = 'TEST-RECALL-001'"
+        "ALTER TABLE supershield.fda_recalls DELETE WHERE recall_number = 'TEST-RECALL-001'"
     )
     time.sleep(0.5)
 
     severity = CLASSIFICATION_TO_SEVERITY["Class I"]
     t0 = time.time()
     client.insert(
-        "safetynet.fda_recalls",
+        "supershield.fda_recalls",
         [[
             "TEST-RECALL-001", test_ndc,
             "Products may contain a life-threatening contaminant.",
@@ -65,7 +65,7 @@ def main() -> int:
     elapsed = time.time() - t0
 
     n_alerts = int(client.command(
-        "SELECT count() FROM safetynet.patient_alerts WHERE recall_number = 'TEST-RECALL-001'"
+        "SELECT count() FROM supershield.patient_alerts WHERE recall_number = 'TEST-RECALL-001'"
     ))
     print(f"\nMV trigger: inserted 1 recall -> {n_alerts} patient_alerts in {elapsed:.3f}s")
 
@@ -74,16 +74,16 @@ def main() -> int:
         SELECT state,
                countMerge(affected_customers)  AS customers,
                uniqMerge(affected_pharmacies)  AS pharmacies
-        FROM safetynet.alert_geo_rollup
+        FROM supershield.alert_geo_rollup
         WHERE recall_number = 'TEST-RECALL-001'
         GROUP BY state ORDER BY customers DESC LIMIT 5
         """
     )
     total_states = int(client.command(
-        "SELECT uniqExact(state) FROM safetynet.alert_geo_rollup WHERE recall_number='TEST-RECALL-001'"
+        "SELECT uniqExact(state) FROM supershield.alert_geo_rollup WHERE recall_number='TEST-RECALL-001'"
     ))
     total_pharm = int(client.command(
-        "SELECT uniqMerge(affected_pharmacies) FROM safetynet.alert_geo_rollup WHERE recall_number='TEST-RECALL-001'"
+        "SELECT uniqMerge(affected_pharmacies) FROM supershield.alert_geo_rollup WHERE recall_number='TEST-RECALL-001'"
     ))
 
     print(f"Geo rollup: {total_states} states, {total_pharm} pharmacies affected.")

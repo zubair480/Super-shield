@@ -8,7 +8,7 @@ Both workflows read the **same FDA recall records** from the **same ClickHouse C
 **`recall_number`** — the openFDA recall number (e.g. `D-0788-2026`). Synthetic demo recalls
 use `DEMO-YYYYMMDDHHMMSS` and must be labelled as synthetic in any UI or notification.
 
-## Shared table: `safetynet.fda_recalls`
+## Shared table: `supershield.fda_recalls`
 
 Written by the pharmacy ingest (direct openFDA HTTP, `fetch_direct()`, polled every `FDA_POLL_SEC`, default 300s).
 One row per (recall_number, product_ndc).
@@ -34,16 +34,16 @@ source_url, ingested_at, synthetic}]`.
 > Open item: switch this to the shared `shared/fda/demo-recalls.json` feed on `feat/patient`
 > (`D-SS-####-2026`) so both dashboards show the same demo recall.
 
-`POST /api/demo/recall` inserts ONE synthetic Class I recall into `safetynet.fda_recalls`
+`POST /api/demo/recall` inserts ONE synthetic Class I recall into `supershield.fda_recalls`
 for the most-dispensed NDC (with its generic name when openFDA knows it).
 
 - Pharmacy side: ClickHouse MV matches it by NDC → monitor creates the pharmacist alert
   within `MONITOR_INTERVAL_SEC` (default 15s) and pushes to the pharmacist's phone.
-- Patient side: the FarmaWatcher worker should pick up the same row (by `generic_name` /
+- Patient side: the SuperShield Patient worker should pick up the same row (by `generic_name` /
   `product_description`) on its own interval and alert the patient — independently.
 
 ## What stays private to each side
 
 - Pharmacy: `patient_ehr`, `patient_alerts`, `pharmacist_alerts`, `customer_followups`
   (contain synthetic customer names/phones — never in LLM prompts or map events).
-- Patient: FarmaWatcher's `default.events` / `default.patient_notifications`.
+- Patient: the patient workflow's `default.events` / `default.patient_notifications`.

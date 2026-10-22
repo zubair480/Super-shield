@@ -1,5 +1,5 @@
 {
-  "name": "@farmavigia/api",
+  "name": "@supershield/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@clickhouse/client": "^1.7.0",
-    "@farmavigia/notifier": "*",
-    "@farmavigia/shared": "*",
-    "@farmavigia/sources": "*",
+    "@supershield/notifier": "*",
+    "@supershield/shared": "*",
+    "@supershield/sources": "*",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "tsx": "^4.19.2"

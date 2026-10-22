@@ -122,7 +122,7 @@ def build_emergency_alert(severity: str, recalling_firm: str, product_ndc: str,
         "Minor": "DRUG RECALL NOTICE",
     }.get(severity, "DRUG RECALL NOTICE")
     return (
-        f"{_SIREN} FDA SAFETYNET ALERT {_SIREN}\n"
+        f"{_SIREN} SUPERSHIELD ALERT {_SIREN}\n"
         f"{headline}\n"
         f"A medication you filled (NDC {product_ndc}, {recalling_firm}) was recalled "
         f"by the U.S. FDA. Do not take another dose - contact your pharmacy now.\n"

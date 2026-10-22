@@ -6,10 +6,10 @@ import { dirname, resolve } from 'node:path';
 const __dirnameEnv = dirname(fileURLToPath(import.meta.url));
 // Carga .env de la raíz del repo (funciona en dev tsx y en dist compilado).
 config({ path: resolve(__dirnameEnv, '../../../.env') });
-import type { Alert, SafetyCheckRequest } from '@farmavigia/shared';
-import { postAlert } from '@farmavigia/notifier';
+import type { Alert, SafetyCheckRequest } from '@supershield/shared';
+import { postAlert } from '@supershield/notifier';
 // M2: checkDrugSafety real de A (openFDA + seed fallback + boletín vía LLM).
-import { checkDrugSafety } from '@farmavigia/sources';
+import { checkDrugSafety } from '@supershield/sources';
 import {
   initSchema,
   writeEvent,
@@ -108,7 +108,7 @@ initSchema()
   .catch((e) => console.error('[init] schema falló (sigo de todas formas):', e))
   .finally(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 FarmacoVigía API en http://localhost:${PORT}`);
+      console.log(`🚀 SuperShield API en http://localhost:${PORT}`);
       console.log(`   Dashboard: http://localhost:${PORT}/`);
       console.log(`   ClickHouse: ${clickhouseEnabled() ? 'on' : 'off (respaldo en memoria)'}`);
       console.log(`   DRY_RUN: ${process.env.DRY_RUN === 'true'}`);

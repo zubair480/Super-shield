@@ -2,7 +2,7 @@
 # Aplicado el 2026-06-12 vía PUT https://healthy.truefoundry.cloud/api/svc/v1/apply
 # Body: {"manifest": <este yaml como JSON>, "dryRun": false}
 # UI: AI Gateway -> Guardrails
-name: farmawatch-guardrails
+name: supershield-guardrails
 type: provider-account/guardrail-config-group
 collaborators:
   - role_id: provider-account-manager

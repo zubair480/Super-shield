@@ -1,4 +1,4 @@
-import type { RecallHit } from "@farmavigia/shared";
+import type { RecallHit } from "@supershield/shared";
 import { recallSourceUrl, type OpenFdaRecall } from "./openfda";
 
 /** "Class III" -> 'III', "Class II" -> 'II', resto -> 'I'. */

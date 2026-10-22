@@ -15,7 +15,7 @@ import {
   validateDrugs,
   validateNewPatient,
 } from "./registry";
-import { listNotifications, readMonitorStatus, dataSource } from "@farmavigia/sources";
+import { listNotifications, readMonitorStatus, dataSource } from "@supershield/sources";
 import { alertNewPatient, type InstantAlertResult } from "./alerts";
 
 loadEnv();
@@ -64,7 +64,7 @@ async function serveStatic(res: import("node:http").ServerResponse, urlPath: str
     } catch {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
       res.end(
-        "Dashboard not built yet. Run:  npm run build -w @farmavigia/dashboard",
+        "Dashboard not built yet. Run:  npm run build -w @supershield/dashboard",
       );
     }
   }
@@ -237,5 +237,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`📊 FarmaWatcher dashboard at http://localhost:${PORT}`);
+  console.log(`📊 SuperShield Patient dashboard at http://localhost:${PORT}`);
 });

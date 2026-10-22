@@ -3,10 +3,10 @@
 # Aplicado el 2026-06-12 vía PUT https://healthy.truefoundry.cloud/api/svc/v1/apply
 # Body: {"manifest": <este yaml como JSON>, "dryRun": false}
 # UI: AI Gateway -> Controls -> Guardrails
-name: farmawatch-double-check
+name: supershield-double-check
 type: gateway-guardrails-config
 rules:
-  - id: farmawatch-llm-double-check
+  - id: supershield-llm-double-check
     # Acotada al único modelo del gateway; si se agregan modelos, ampliar values.
     when:
       target:
@@ -17,9 +17,9 @@ rules:
               - anthropic/claude-sonnet-4-6
             condition: in
     llm_input_guardrails:
-      - farmawatch-guardrails/secret-leak-check
-      - farmawatch-guardrails/injection-check
+      - supershield-guardrails/secret-leak-check
+      - supershield-guardrails/injection-check
     llm_output_guardrails:
-      - farmawatch-guardrails/secret-leak-check
+      - supershield-guardrails/secret-leak-check
     mcp_tool_pre_invoke_guardrails: []
     mcp_tool_post_invoke_guardrails: []

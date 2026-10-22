@@ -30,7 +30,7 @@ from sklearn.metrics import accuracy_score, classification_report, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-ROOT = Path(os.environ.get("SAFETYNET_ROOT", Path(__file__).resolve().parents[1]))
+ROOT = Path(os.environ.get("SUPERSHIELD_ROOT", Path(__file__).resolve().parents[1]))
 TRAIN_CSV = ROOT / "data" / "training_recalls.csv"
 CANONICAL_MODEL = ROOT / "phase4_ml" / "models" / "severity_model.joblib"
 

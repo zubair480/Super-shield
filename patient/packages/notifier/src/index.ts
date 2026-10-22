@@ -1,5 +1,5 @@
 import { Composio } from '@composio/core';
-import type { Alert, PostAlert } from '@farmavigia/shared';
+import type { Alert, PostAlert } from '@supershield/shared';
 
 // === Contrato B → A: postAlert ===
 // Publica una alerta vía Composio. Enruta por alert.channel:

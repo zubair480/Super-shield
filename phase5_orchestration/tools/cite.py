@@ -24,7 +24,7 @@ def cite(recall_number: str, severity: str, source_url: str, summary: str) -> st
     with _lock:
         if not CITED_PATH.exists():
             CITED_PATH.write_text(
-                "# FDA SafetyNet - Grounded Action Log\n\n"
+                "# SuperShield - Grounded Action Log\n\n"
                 "Every alert below is traceable to an openFDA enforcement record.\n\n"
             )
         with CITED_PATH.open("a") as fh:

@@ -36,7 +36,7 @@ def get_client():
 @lru_cache(maxsize=1)
 def _firm_map() -> dict[str, str]:
     rows = get_client().query(
-        "SELECT recall_number, any(recalling_firm) FROM safetynet.fda_recalls GROUP BY recall_number"
+        "SELECT recall_number, any(recalling_firm) FROM supershield.fda_recalls GROUP BY recall_number"
     ).result_rows
     return {r[0]: r[1] for r in rows}
 
@@ -53,7 +53,7 @@ def list_match_recalls(limit: int = 12) -> list[dict]:
                count()                  AS customers,
                uniqExact(state)         AS states,
                uniqExact(pharmacy_id)   AS pharmacies
-        FROM safetynet.patient_alerts
+        FROM supershield.patient_alerts
         GROUP BY recall_number
         ORDER BY {SEVERITY_RANK} DESC, customers DESC
         LIMIT {int(limit)}
@@ -79,7 +79,7 @@ def cohort_summary(recall_number: str) -> dict:
         SELECT state,
                countMerge(affected_customers) AS customers,
                uniqMerge(affected_pharmacies) AS pharmacies
-        FROM safetynet.alert_geo_rollup
+        FROM supershield.alert_geo_rollup
         WHERE recall_number = %(r)s
         GROUP BY state ORDER BY customers DESC
         """,
@@ -99,7 +99,7 @@ def cohort_summary(recall_number: str) -> dict:
 def pharmacy_network(sample: int = 1400) -> list[list[float]]:
     """A sampled set of [lon, lat] for ALL pharmacies - the base network layer."""
     rows = get_client().query(
-        "SELECT lon, lat FROM safetynet.pharmacies ORDER BY rand() LIMIT %(n)s",
+        "SELECT lon, lat FROM supershield.pharmacies ORDER BY rand() LIMIT %(n)s",
         parameters={"n": sample},
     ).result_rows
     return [[round(float(r[0]), 3), round(float(r[1]), 3)] for r in rows]
@@ -110,8 +110,8 @@ def affected_pharmacy_points(recall_number: str, limit: int = 350) -> list[list[
     rows = get_client().query(
         """
         SELECT p.lon, p.lat, count() AS c
-        FROM safetynet.patient_alerts a
-        INNER JOIN safetynet.pharmacies p ON a.pharmacy_id = p.pharmacy_id
+        FROM supershield.patient_alerts a
+        INNER JOIN supershield.pharmacies p ON a.pharmacy_id = p.pharmacy_id
         WHERE a.recall_number = %(r)s
         GROUP BY p.pharmacy_id, p.lon, p.lat
         ORDER BY c DESC LIMIT %(n)s
@@ -125,7 +125,7 @@ def sample_masked_recipients(recall_number: str, k: int = 3) -> list[dict]:
     """A few masked recipients purely for the dispatch log (phones masked)."""
     rows = get_client().query(
         """
-        SELECT name, phone_number, state FROM safetynet.patient_alerts
+        SELECT name, phone_number, state FROM supershield.patient_alerts
         WHERE recall_number = %(r)s LIMIT %(k)s
         """,
         parameters={"r": recall_number, "k": k},
@@ -142,10 +142,10 @@ def global_stats() -> dict:
     """Top-line numbers for the dashboard header."""
     client = get_client()
     return {
-        "total_recalls": int(client.command("SELECT uniqExact(recall_number) FROM safetynet.fda_recalls")),
-        "total_customers_indexed": int(client.command("SELECT count() FROM safetynet.patient_ehr")),
-        "total_pharmacies": int(client.command("SELECT count() FROM safetynet.pharmacies")),
-        "total_alerts": int(client.command("SELECT count() FROM safetynet.patient_alerts")),
+        "total_recalls": int(client.command("SELECT uniqExact(recall_number) FROM supershield.fda_recalls")),
+        "total_customers_indexed": int(client.command("SELECT count() FROM supershield.patient_ehr")),
+        "total_pharmacies": int(client.command("SELECT count() FROM supershield.pharmacies")),
+        "total_alerts": int(client.command("SELECT count() FROM supershield.patient_alerts")),
     }
 
 
@@ -156,7 +156,7 @@ def shared_recalls(limit: int = 100) -> list[dict]:
         SELECT recall_number, groupUniqArray(product_ndc), any(classification), any(severity),
                any(recalling_firm), any(reason_for_recall), any(generic_name),
                any(product_description), any(report_date), any(source_url), max(ingested_at)
-        FROM safetynet.fda_recalls
+        FROM supershield.fda_recalls
         GROUP BY recall_number ORDER BY max(ingested_at) DESC, any(report_date) DESC
         LIMIT %(n)s
         """,

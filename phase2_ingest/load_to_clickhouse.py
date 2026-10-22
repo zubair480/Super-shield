@@ -96,7 +96,7 @@ def _insert_new(rows: list[list]) -> list[str]:
     # fanning out duplicate patient alerts.
     existing = {
         r[0] for r in client.query(
-            "SELECT DISTINCT recall_number FROM safetynet.fda_recalls"
+            "SELECT DISTINCT recall_number FROM supershield.fda_recalls"
         ).result_rows
     }
     new_rows = [r for r in rows if r[0] not in existing]
@@ -106,13 +106,13 @@ def _insert_new(rows: list[list]) -> list[str]:
         print(f"No new recalls (skipped {skipped} already-ingested rows). Up to date.")
         return []
 
-    client.insert("safetynet.fda_recalls", new_rows, column_names=COLUMNS)
+    client.insert("supershield.fda_recalls", new_rows, column_names=COLUMNS)
     print(f"Inserted {len(new_rows)} NEW recall-NDC rows "
           f"(skipped {skipped} already-ingested).")
 
-    n_recalls = client.command("SELECT count() FROM safetynet.fda_recalls")
-    n_alerts = client.command("SELECT count() FROM safetynet.patient_alerts")
-    n_states = client.command("SELECT uniqExact(state) FROM safetynet.patient_alerts")
+    n_recalls = client.command("SELECT count() FROM supershield.fda_recalls")
+    n_alerts = client.command("SELECT count() FROM supershield.patient_alerts")
+    n_states = client.command("SELECT uniqExact(state) FROM supershield.patient_alerts")
     print(f"  fda_recalls rows: {n_recalls}")
     print(f"  patient_alerts (auto-matched via MV): {n_alerts}")
     print(f"  states with alerts: {n_states}")

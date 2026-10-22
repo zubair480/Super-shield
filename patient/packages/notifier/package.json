@@ -1,5 +1,5 @@
 {
-  "name": "@farmavigia/notifier",
+  "name": "@supershield/notifier",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@composio/core": "^0.1.0",
-    "@farmavigia/shared": "*",
+    "@supershield/shared": "*",
     "dotenv": "^16.4.5"
   }
 }
