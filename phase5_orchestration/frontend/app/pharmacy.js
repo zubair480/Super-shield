@@ -769,6 +769,14 @@
     const meta = useMemo(() => Object.fromEntries((metaQ.data || []).map((r) => [r.recall_number, r])), [metaQ.data]);
     // Alerts without a recall number can't be routed or updated; openFDA sometimes omits it before classification.
     const alerts = useMemo(() => (alertsQ.data || []).filter((a) => a.recall_number), [alertsQ.data]);
+    // A brand-new recall reaches the alerts before the 2-minute recall-metadata poll; refetch
+    // right away so the card shows the drug name instead of falling back to the NDC.
+    const reloadMeta = metaQ.reload, metaTried = useRef(new Set());
+    useEffect(() => {
+      if (!metaQ.data) return;
+      const missing = alerts.filter((a) => !meta[a.recall_number] && !metaTried.current.has(a.recall_number));
+      if (missing.length) { missing.forEach((a) => metaTried.current.add(a.recall_number)); reloadMeta(); }
+    }, [alerts, meta]);
     const ctx = { alerts, meta, monitor: monitorQ.data, stats: statsQ.data, summary: summaryQ.data,
       events, reloadAlerts: reload };
     const page = NAV.some(([p]) => p === route.page) ? route.page : "";
