@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SuperShield Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: fixed 1920x1080 stage scaled to the window; one live scene per slide, HUD on top. Single light look from the SuperShield app. */
+:root{
+  color-scheme:light;
+  --bg:#f4f7fb; --card:#ffffff; --line:#e3e8f0; --hair:rgba(15,23,42,.08);
+  --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8;
+  --navy:#0b1a33; --navy-2:#12264a; --navy-text:#c9d4e8;
+  --blue:#1f6feb; --blue-soft:#e8f0fe;
+  --red:#d92d20; --red-soft:#fdecea; --red-line:#f7c4bf;
+  --amber:#b54708; --amber-soft:#fef3e2;
+  --green:#067647; --green-soft:#e7f6ec;
+  --violet:#6941c6; --violet-soft:#f1ecfd;
+  --frame:#e6eaf1;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 18px 40px -18px rgba(15,23,42,.22);
+  --display:'Inter Tight',Inter,system-ui,sans-serif;
+  --sans:Inter,system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+#ctrl{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:6px;padding:4px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 18px -10px rgba(15,23,42,.3);max-width:calc(100vw - 32px)}
+#ctrl button{font:600 13px var(--sans);color:var(--ink-2);background:transparent;border:0;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+#ctrl button:hover{background:var(--bg);color:var(--ink)}
+#ctrl button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+#dots{display:flex;gap:2px}
+#dots button b{font-family:var(--mono);font-weight:600;color:var(--ink-3);margin-right:6px}
+#dots button.on{background:var(--navy);color:#fff}
+#dots button.on b{color:#8fb4ff}
+#count{font:600 12px var(--mono);color:var(--ink-3);padding:0 8px}
+#barwrap{position:fixed;left:0;right:0;top:0;height:3px;z-index:21;background:transparent}
+#bar{height:100%;width:0;background:var(--blue);transition:width .6s var(--ease)}
+#viewport{position:fixed;top:56px;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;flex:none;background:var(--bg);overflow:hidden;box-shadow:0 40px 120px rgba(15,23,42,.18);transform-origin:center center}
+@media (max-width:700px){#dots button span{display:none}}
+
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transform:scale(1.015);transition:opacity .7s var(--ease),transform .9s var(--ease),visibility 0s .7s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.in{opacity:0;transform:translateY(24px);filter:blur(8px)}
+.slide.active .in{animation:rise .95s var(--ease) forwards;animation-delay:calc(var(--d,0) * 1s + .15s)}
+@keyframes rise{to{opacity:1;transform:none;filter:none}}
+@keyframes dash{to{stroke-dashoffset:-36}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(217,45,32,.55)}100%{box-shadow:0 0 0 18px rgba(217,45,32,0)}}
+@keyframes bping{0%{box-shadow:0 0 0 0 rgba(31,111,235,.45)}100%{box-shadow:0 0 0 14px rgba(31,111,235,0)}}
+@keyframes blink{50%{opacity:0}}
+
+.eyebrow{position:absolute;top:64px;left:120px;z-index:5;display:inline-flex;align-items:center;gap:12px;padding:10px 18px;border-radius:999px;background:rgba(255,255,255,.8);border:1px solid var(--line);font:600 20px var(--mono);color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase}
+.eyebrow i{width:9px;height:9px;border-radius:50%;background:var(--red);animation:ping 1.6s infinite}
+.brand{position:absolute;top:72px;right:120px;z-index:5;font:800 26px/1 var(--display);letter-spacing:-.02em;color:var(--navy);display:flex;align-items:center;gap:10px}
+.brand svg{width:28px;height:28px}
+.h{position:absolute;left:120px;top:150px;margin:0;font-family:var(--display);font-weight:800;font-size:104px;letter-spacing:-.04em;line-height:1.0;color:var(--navy);text-wrap:balance}
+.hl{color:var(--red)}
+.hb{color:var(--blue)}
+.src{position:absolute;left:120px;bottom:34px;font:500 17px var(--mono);color:var(--ink-3)}
+.card{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}
+.cbar{display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--line)}
+.cbar .t{font:700 22px var(--display);color:var(--ink)}
+.cbar .s{font:500 17px var(--mono);color:var(--ink-3)}
+.live{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font:700 15px var(--mono);letter-spacing:.08em;color:var(--green);background:var(--green-soft);padding:6px 12px;border-radius:999px}
+.live b{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.2s steps(1) infinite}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;font:700 15px var(--mono);letter-spacing:.04em;white-space:nowrap}
+.p1{background:var(--red-soft);color:var(--red)} .p2{background:var(--amber-soft);color:var(--amber)} .p3{background:var(--blue-soft);color:var(--blue)}
+.num{font-variant-numeric:tabular-nums}
+
+/* S1 */
+.s1stat{position:absolute;right:120px;top:140px;width:620px;text-align:right}
+.s1stat .val{font:800 220px/0.9 var(--display);letter-spacing:-.06em;color:var(--navy)}
+.s1stat .lab{font:500 28px/1.35 var(--sans);color:var(--ink-2);margin-top:10px}
+.s1stat .lab b{color:var(--ink)}
+#s1feed{left:120px;top:470px;width:1020px;height:520px}
+.feed{position:relative;height:440px;overflow:hidden}
+.row{position:absolute;left:0;right:0;height:72px;display:grid;grid-template-columns:200px 120px 1fr;align-items:center;gap:18px;padding:0 26px;border-bottom:1px solid var(--line);transition:transform .6s var(--ease),opacity .6s;font-size:20px}
+.row .rn{font:600 18px var(--mono);color:var(--ink-2)}
+.row .fm{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .rs{display:block;font-weight:400;font-size:17px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.noalert{position:absolute;right:20px;bottom:16px;display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:14px;background:var(--bg);border:1px dashed var(--ink-3);font:600 19px var(--sans);color:var(--ink-2)}
+#s1story{left:1180px;top:470px;width:620px;height:520px;background:var(--red-soft);border-color:var(--red-line)}
+#s1story .cbar{border-color:var(--red-line)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:26px}
+.sg{padding:16px 10px}
+.sg .v{font:800 84px/1 var(--display);letter-spacing:-.04em;color:var(--navy)}
+.sg .l{font:500 20px var(--sans);color:var(--ink-2);margin-top:6px}
+.sg.r .v{color:var(--red)}
+.gapline{padding:0 36px;font:500 20px/1.45 var(--sans);color:var(--ink-2)}
+.gapline b{color:var(--ink)}
+
+/* S2 */
+.s2clock{position:absolute;right:120px;top:150px;text-align:right}
+.s2clock .v{font:800 160px/0.9 var(--display);letter-spacing:-.05em;color:var(--blue)}
+.s2clock .v small{font-size:64px;letter-spacing:-.02em}
+.s2clock .l{font:500 24px var(--sans);color:var(--ink-2)}
+#s2recall{left:50%;top:388px;width:900px;margin-left:-450px;height:96px;display:flex;align-items:center;gap:20px;padding:0 28px;border-color:var(--red-line);transform:translateY(-40px);opacity:0;transition:transform .6s var(--ease),opacity .5s}
+#s2recall.show{transform:none;opacity:1;animation:ping 1.6s 2}
+#s2recall .tt{font:700 26px var(--display)} #s2recall .ss{font:500 18px var(--mono);color:var(--ink-3)}
+#s2ph{left:120px;top:520px;width:960px;height:480px}
+#s2pt{left:1120px;top:520px;width:680px;height:480px}
+.split{display:grid;grid-template-columns:280px 1fr;height:410px}
+.kpis{padding:24px 26px;display:flex;flex-direction:column;gap:18px;border-right:1px solid var(--line)}
+.kpi .v{font:800 64px/1 var(--display);letter-spacing:-.04em;color:var(--navy)}
+.kpi .l{font:500 18px var(--sans);color:var(--ink-2)}
+.dotsgrid{display:grid;grid-template-columns:repeat(23,1fr);gap:7px;padding:26px 26px 12px}
+.dotsgrid i{aspect-ratio:1;border-radius:50%;background:var(--line);transition:background .25s,transform .25s}
+.dotsgrid i.on{background:var(--red);transform:scale(1.15)}
+.dotcap{padding:0 26px;font:500 17px var(--mono);color:var(--ink-3)}
+.cand{margin:14px 26px 0;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--amber-soft);color:var(--amber);font:600 19px var(--sans);opacity:0;transition:opacity .5s}
+.cand.show{opacity:1}
+.toast{position:absolute;right:22px;top:84px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 18px 40px -16px rgba(31,111,235,.45);font:600 20px var(--sans);transform:translateX(130%);opacity:0;transition:transform .55s var(--ease),opacity .4s;z-index:3}
+.toast.show{transform:none;opacity:1}
+.toast .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--blue);color:#fff;font-size:22px}
+.toast small{display:block;font:500 16px var(--mono);color:var(--ink-3)}
+.meds{padding:18px 26px;display:flex;flex-direction:column;gap:10px}
+.med{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;border:1px solid var(--line);font:600 22px var(--sans);transition:all .4s}
+.med small{margin-left:auto;font:500 16px var(--mono);color:var(--ink-3)}
+.med.hit{border-color:var(--red-line);background:var(--red-soft);color:var(--red)}
+.med.hit small{color:var(--red)}
+.bulletin{margin:6px 26px 0;padding:16px 18px;border-radius:14px;background:var(--bg);font:500 19px/1.45 var(--sans);color:var(--ink-2);min-height:120px}
+.bulletin b{color:var(--ink)}
+.caret{display:inline-block;width:2px;height:20px;background:var(--blue);vertical-align:-3px;animation:blink 1s steps(1) infinite}
+
+/* S3 */
+#s3map{position:absolute;left:120px;top:330px;width:1680px;height:560px}
+.node{position:absolute;width:300px;padding:20px 22px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.node .k{font:600 15px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.node .n{font:700 26px/1.15 var(--display);color:var(--ink);margin-top:6px}
+.node .d{font:500 18px/1.35 var(--sans);color:var(--ink-2);margin-top:6px}
+.node .m{display:inline-block;margin-top:10px;font:700 18px var(--mono);color:var(--blue);background:var(--blue-soft);padding:4px 10px;border-radius:8px}
+.node.src{background:var(--blue-soft);border-color:#c7d8fb}
+.node.src .k{color:var(--blue)}
+.node.src .m{background:var(--card)}
+.node.out{border-color:var(--red-line)}
+.node.out .m{background:var(--red-soft);color:var(--red)}
+.lane{position:absolute;font:700 16px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.wire{fill:none;stroke-width:3;stroke-dasharray:10 8;animation:dash 1s linear infinite}
+.shared{position:absolute;left:120px;right:120px;bottom:70px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 28px;border-radius:18px;background:var(--blue-soft);border:1px solid #c7d8fb;color:var(--ink)}
+.shared .k{font:600 17px var(--mono);color:var(--blue);letter-spacing:.06em;text-transform:uppercase}
+.shared .v{font:700 26px var(--display);color:var(--navy)}
+.shared .grp{display:flex;flex-direction:column;gap:4px}
+
+/* S4 */
+.s4cols{position:absolute;left:120px;right:120px;top:400px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.vc{position:relative;padding:30px 30px 28px;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.vc .who{font:600 17px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.vc .big{font:800 96px/0.95 var(--display);letter-spacing:-.05em;color:var(--navy)}
+.vc .big small{font-size:44px;letter-spacing:-.02em}
+.vc .bl{font:500 21px/1.4 var(--sans);color:var(--ink-2)}
+.vc ul{margin:6px 0 0;padding:16px 0 0;border-top:1px solid var(--line);list-style:none;display:flex;flex-direction:column;gap:10px}
+.vc li{font:500 20px/1.35 var(--sans);color:var(--ink);display:flex;gap:10px}
+.vc li::before{content:"";flex:none;width:8px;height:8px;margin-top:9px;border-radius:2px;background:var(--blue)}
+.vc .cite{font:500 15px var(--mono);color:var(--ink-3)}
+.model{position:absolute;left:120px;right:120px;bottom:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:32px;padding:22px 30px;border-radius:20px;background:var(--blue-soft);border:1px solid #c7d8fb;color:var(--navy)}
+.model .k{font:600 17px var(--mono);color:var(--blue);letter-spacing:.06em;text-transform:uppercase}
+.model .eq{font:700 34px var(--display);letter-spacing:-.01em}
+.model .fr{display:flex;gap:28px}
+.model .fr div{text-align:right}
+.model .fr .v{font:800 40px/1 var(--display)}
+.model .fr .l{font:500 15px var(--mono);color:var(--ink-2)}
+
+/* S5 data */
+.dtable{position:absolute;left:120px;right:120px;top:290px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.dr{position:relative;display:grid;grid-template-columns:300px 250px 1fr 230px;align-items:center;gap:20px;height:54px;padding:0 28px;border-top:1px solid var(--line);font:500 21px var(--sans);color:var(--ink);transition:background .35s}
+.dr:first-child{border-top:0}
+.dr.hd{height:50px;background:var(--blue-soft);font:600 16px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.dr .sc{color:var(--ink-2)}
+.dr .us{color:var(--ink-2)}
+.dr.hot{background:#f5f9ff}
+.dr.hot::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--blue)}
+.ty{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;font:700 16px var(--mono);letter-spacing:.04em;white-space:nowrap}
+.ty.real{background:var(--green-soft);color:var(--green)}
+.ty.real b{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.2s steps(1) infinite}
+.ty.syn{background:var(--amber-soft);color:var(--amber)}
+.proof{position:absolute;left:120px;right:120px;top:850px;display:grid;grid-template-columns:auto repeat(4,1fr);align-items:center;gap:16px;padding:20px 24px;border-radius:18px;background:var(--blue-soft);border:1px solid #c7d8fb}
+.proof .k{font:700 20px var(--display);color:var(--navy);padding-right:8px}
+.chip{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;background:var(--card);border:1px solid #c7d8fb;font:600 20px var(--sans);color:var(--navy);white-space:nowrap}
+.chip .ck{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:#fff;background:var(--ink-3);transform:scale(.6);transition:transform .35s cubic-bezier(.3,1.6,.5,1),background .3s}
+.chip.ok .ck{background:var(--green);transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .slide,.slide.active{transition:none}
+  .in,.slide.active .in{animation:none;opacity:1;transform:none;filter:none}
+  .wire,.eyebrow i,.live b,.caret{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="barwrap"><div id="bar"></div></div>
+<nav id="ctrl" aria-label="Slides">
+  <button type="button" id="prev" aria-label="Previous slide">&#8592;</button>
+  <div id="dots"></div>
+  <span id="count" aria-live="polite">1 / 4</span>
+  <button type="button" id="next" aria-label="Next slide">&#8594;</button>
+</nav>
+
+<div id="viewport"><div id="stage">
+
+<!-- ============ 1 PROBLEM ============ -->
+<section class="slide" id="s1" aria-label="Problem">
+  <div class="eyebrow"><i></i>Problem</div>
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
+  <h1 class="h in" style="--d:.1">Recalls go public.<br>Nobody tells <span class="hl">you.</span></h1>
+  <div class="s1stat in" style="--d:.35">
+    <div class="val num" data-count="765">765</div>
+    <div class="lab">FDA drug recall reports in <b>2025</b>.<br><b>84</b> Class I in 2025–26: serious harm or death.</div>
+  </div>
+  <div class="card in" id="s1feed" style="--d:.55">
+    <div class="cbar"><span class="t">openFDA · drug enforcement</span><span class="s">real recalls, Sep–Oct 2026</span><span class="live"><b></b>LIVE</span></div>
+    <div class="feed" id="s1rows"></div>
+    <div class="noalert" id="s1no">📵 Patient notified: <span style="color:var(--red)">no</span></div>
+  </div>
+  <div class="card in" id="s1story" style="--d:.75">
+    <div class="cbar"><span class="t">2023 · recalled artificial tears</span><span class="s">CDC</span></div>
+    <div class="sgrid">
+      <div class="sg"><div class="v num" data-count="81">81</div><div class="l">infections, 18 states</div></div>
+      <div class="sg r"><div class="v num" data-count="4">4</div><div class="l">deaths</div></div>
+      <div class="sg"><div class="v num" data-count="14">14</div><div class="l">lost their vision</div></div>
+      <div class="sg"><div class="v num" data-count="4">4</div><div class="l">eye removals</div></div>
+    </div>
+    <p class="gapline"><b>1 in 5</b> serious recalls reach providers with no FDA notice, and prescription labels carry <b>no lot number</b>.</p>
+  </div>
+  <div class="src">Sources: openFDA (queried Oct 22, 2026) · CDC outbreak totals, May 2023 · Pharmacy Times · GoodRx</div>
+</section>
+
+<!-- ============ 2 SOLUTION ============ -->
+<section class="slide" id="s2" aria-label="Solution">
+  <div class="eyebrow"><i></i>Solution</div>
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
+  <h1 class="h in" style="--d:.1;font-size:88px">One recall. Two shields.<br><span class="hb">No Scan button.</span></h1>
+  <div class="s2clock in" style="--d:.3"><div class="v num"><span id="s2t">13</span><small> s</small></div><div class="l">FDA recall → pharmacist’s phone</div></div>
+  <div class="card" id="s2recall"><span class="pill p1">CLASS I</span><div><div class="tt">Levothyroxine · NDC 16729-447</div><div class="ss">D-SS-7458-2026 · synthetic demo recall · ingested from the FDA feed</div></div></div>
+  <div class="card in" id="s2ph" style="--d:.5">
+    <div class="cbar"><span class="t">💊 Pharmacy</span><span class="s">NDC match over 1,000,000 prescriptions</span><span class="live"><b></b>MONITORING</span></div>
+    <div class="split">
+      <div class="kpis">
+        <div class="kpi"><div class="v num" id="s2c">257</div><div class="l">customers to review</div></div>
+        <div class="kpi"><div class="v num" id="s2p">253</div><div class="l">pharmacies</div></div>
+        <div class="kpi"><div class="v num" id="s2s">43</div><div class="l">states</div></div>
+      </div>
+      <div>
+        <div class="dotsgrid" id="s2dots" aria-hidden="true"></div>
+        <div class="dotcap">each dot = 1 affected pharmacy</div>
+        <div class="cand show" id="s2cand">⚠ NDC candidate: verify lot before contacting</div>
+      </div>
+    </div>
+    <div class="toast show" id="s2toast"><span class="ic">✈</span><div>Pharmacist alerted on Telegram<small>T+13 s · counts only, no names</small></div></div>
+  </div>
+  <div class="card in" id="s2pt" style="--d:.7">
+    <div class="cbar"><span class="t">🧑‍⚕️ Patient</span><span class="s">re-checks every 60 s</span><span class="live"><b></b>WATCHING</span></div>
+    <div class="meds">
+      <div class="med" id="s2m1">Levothyroxine<small id="s2m1s">recall match</small></div>
+      <div class="med">Metformin<small>no recall</small></div>
+      <div class="med">Lisinopril<small>no recall</small></div>
+    </div>
+    <div class="bulletin" id="s2bul"><b>Claude:</b> A batch of levothyroxine was recalled (Class I). Compare the lot and NDC on your bottle with the recall before your next dose, and call your pharmacist.</div>
+  </div>
+  <div class="src">Measured live on our build: recall → Telegram in 13 s; patient alert within one 60 s worker cycle. Recall shown is a labelled synthetic test.</div>
+</section>
+
+<!-- ============ 3 ARCHITECTURE ============ -->
+<section class="slide" id="s3" aria-label="Architecture">
+  <div class="eyebrow"><i></i>Architecture</div>
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
+  <h1 class="h in" style="--d:.1;font-size:96px">Public APIs, <span class="hb">end to end.</span></h1>
+  <div id="s3map" class="in" style="--d:.35">
+    <svg width="1680" height="560" viewBox="0 0 1680 560" style="position:absolute;inset:0" aria-hidden="true">
+      <path class="wire" stroke="#1f6feb" d="M300 270 C 360 270 360 130 420 130"/>
+      <path class="wire" stroke="#6941c6" d="M300 290 C 360 290 360 450 420 450"/>
+      <path class="wire" stroke="#1f6feb" d="M720 130 L 800 130"/>
+      <path class="wire" stroke="#1f6feb" d="M1100 130 L 1180 130"/>
+      <path class="wire" stroke="#6941c6" d="M720 450 L 800 450"/>
+      <path class="wire" stroke="#6941c6" d="M1100 450 L 1180 450"/>
+      <circle r="9" fill="#1f6feb"><animateMotion dur="2.4s" repeatCount="indefinite" path="M300 270 C 360 270 360 130 420 130 L 720 130 L 800 130 L 1100 130 L 1180 130"/></circle>
+      <circle r="9" fill="#6941c6"><animateMotion dur="2.8s" begin=".6s" repeatCount="indefinite" path="M300 290 C 360 290 360 450 420 450 L 720 450 L 800 450 L 1100 450 L 1180 450"/></circle>
+    </svg>
+    <div class="node src" style="left:0;top:160px"><div class="k">Public API · free</div><div class="n">openFDA drug enforcement</div><div class="d">Live recalls, polled every 5 min. No key.</div><span class="m">765 reports in 2025</span></div>
+    <div class="lane" style="left:420px;top:0;color:var(--blue)">Pharmacy lane</div>
+    <div class="node" style="left:420px;top:36px"><div class="k">ClickHouse Cloud</div><div class="n">Materialized-view NDC match</div><div class="d">Fires on insert, no app code.</div><span class="m">1M rx in &lt;1 s</span></div>
+    <div class="node" style="left:800px;top:36px"><div class="k">Monitor · every 15 s</div><div class="n">Pharmacist alert + US map</div><div class="d">Review list, Claude alert card.</div><span class="m">136,209 matches</span></div>
+    <div class="node out" style="left:1180px;top:36px"><div class="k">Telegram Bot API · free</div><div class="n">Phone push</div><div class="d">Counts only. No customer names.</div><span class="m">13 s end to end</span></div>
+    <div class="lane" style="left:420px;top:322px;color:var(--violet)">Patient lane</div>
+    <div class="node" style="left:420px;top:356px"><div class="k">Worker · every 60 s</div><div class="n">Drug-name + synonym match</div><div class="d">Against saved medications.</div><span class="m" style="background:var(--violet-soft);color:var(--violet)">1 alert per recall</span></div>
+    <div class="node" style="left:800px;top:356px"><div class="k">Anthropic Claude API</div><div class="n">Plain-language bulletin</div><div class="d">Recall facts + patient ID only.</div><span class="m" style="background:var(--violet-soft);color:var(--violet)">template fallback</span></div>
+    <div class="node out" style="left:1180px;top:356px"><div class="k">Patient app</div><div class="n">In-app safety alert</div><div class="d">“Compare the lot on your package.”</div><span class="m">no pharmacist needed</span></div>
+  </div>
+  <div class="shared in" style="--d:.6">
+    <div class="grp"><span class="k">Shared contract</span><span class="v">openFDA recall_number</span></div>
+    <div class="grp"><span class="k">One store</span><span class="v">ClickHouse Cloud</span></div>
+    <div class="grp"><span class="k">Data cost</span><span class="v">$0 openFDA + Telegram</span></div>
+    <div class="grp"><span class="k">Stack</span><span class="v">FastAPI · React · scikit-learn</span></div>
+  </div>
+</section>
+
+<!-- ============ 4 OUR DATA ============ -->
+<section class="slide" id="s5" aria-label="Our data">
+  <div class="eyebrow"><i></i>Our data</div>
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
+  <h1 class="h in" style="--d:.1;font-size:80px">Where it comes from, <span class="hb">how we use it</span></h1>
+  <div class="dtable" id="s5t">
+    <div class="dr hd in" style="--d:.25"><span>Data point</span><span>Source</span><span>How we use it</span><span>Type</span></div>
+    <div class="dr in" style="--d:.32"><span>Recall ID</span><span class="sc">openFDA API</span><span class="us">Shared ID linking pharmacy and patient alerts</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.39"><span>Drug code (NDC)</span><span class="sc">openFDA API</span><span class="us">Matched against 1M prescriptions: 136,209 hits</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.46"><span>Drug names</span><span class="sc">openFDA API</span><span class="us">Matched against each patient’s saved medications</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.53"><span>Class I / II / III</span><span class="sc">openFDA API</span><span class="us">Severity label: Lethal, Moderate or Minor</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.6"><span>Recall reason</span><span class="sc">openFDA API</span><span class="us">Trains our ML severity model; quoted in alerts</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.67"><span>Lot, firm, date</span><span class="sc">openFDA API</span><span class="us">Tells people what to check on their bottle</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.74"><span>5,000 pharmacies</span><span class="sc">Generated</span><span class="us">Real chain names, all 50 states + DC; drives the map</span><span><span class="ty syn">Synthetic</span></span></div>
+    <div class="dr in" style="--d:.81"><span>1M prescriptions</span><span class="sc">Generated</span><span class="us">18% seeded with real recalled drug codes</span><span><span class="ty syn">Synthetic</span></span></div>
+    <div class="dr in" style="--d:.88"><span>32 patients</span><span class="sc">Generated</span><span class="us">Saved medication lists that trigger patient alerts</span><span><span class="ty syn">Synthetic</span></span></div>
+  </div>
+  <div class="proof in" style="--d:1">
+    <span class="k">Not mocked: real API calls</span>
+    <div class="chip ok" id="s5c0"><span class="ck">✓</span>openFDA: <span class="num" data-count="290">290</span> recalls</div>
+    <div class="chip ok" id="s5c1"><span class="ck">✓</span>ClickHouse: 1M in &lt;1 s</div>
+    <div class="chip ok" id="s5c2"><span class="ck">✓</span>Claude: alert cards</div>
+    <div class="chip ok" id="s5c3"><span class="ck">✓</span>Telegram: push in 13 s</div>
+  </div>
+  <div class="src">Live openFDA call, 22 Oct 2026: 290 recalls in the last 120 days, 671 in 2026, latest D-0689-2026. All people data is synthetic.</div>
+</section>
+
+<!-- ============ 5 BUSINESS VALUE ============ -->
+<section class="slide" id="s4" aria-label="Business value">
+  <div class="eyebrow"><i></i>Business value</div>
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
+  <h1 class="h in" style="--d:.1;font-size:96px">Recall response,<br><span class="hb">as a service.</span></h1>
+  <div class="s4cols">
+    <div class="vc in" style="--d:.3">
+      <div class="who">Pharmacies</div>
+      <div class="big num">≈<span data-count="51000">51,000</span></div>
+      <div class="bl">U.S. retail pharmacies, each facing ≈2 drug recalls a day</div>
+      <ul><li>Affected customers in 13 s, not a manual records search</li><li>Per-customer follow-up: contacted, lot verified, not affected</li><li>An audit trail for every recall</li></ul>
+      <div class="cite">NCPA 2026: 18,988 independents = 37%</div>
+    </div>
+    <div class="vc in" style="--d:.45">
+      <div class="who">Patients &amp; caregivers</div>
+      <div class="big num"><span data-count="4">4</span><small> / 1,000</small></div>
+      <div class="bl">people visit the ER for adverse drug events every year; 27% are hospitalized</div>
+      <ul><li>Warned even before their pharmacy acts</li><li>Plain language, with the lot to check</li><li>Free tier builds trust in the pharmacy brand</li></ul>
+      <div class="cite">CDC / JAMA, NEISS-CADES</div>
+    </div>
+    <div class="vc in" style="--d:.6">
+      <div class="who">Why now</div>
+      <div class="big num"><span data-count="84">84</span></div>
+      <div class="bl">Class I recalls since Jan 2025: nearly one a week</div>
+      <ul><li>Live public data, zero data cost</li><li>Runs on one cloud database</li><li>Works for devices and food recalls next</li></ul>
+      <div class="cite">openFDA, queried Oct 22, 2026</div>
+    </div>
+  </div>
+  <div class="model in" style="--d:.8">
+    <div class="k">Model</div>
+    <div class="eq">≈51,000 pharmacies × <span style="color:#8fb4ff">$49</span> / month</div>
+    <div class="fr"><div><div class="v">≈$30M</div><div class="l">a year, every U.S. pharmacy</div></div><div><div class="v">$0</div><div class="l">data cost</div></div></div>
+  </div>
+</section>
+
+</div></div>
+
+<script>
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
+var $=function(i){return document.getElementById(i)};
+var A={};
+
+/* S1: real recalls stream into the feed; the patient never hears about them */
+(function(){
+  var R=[["D-0866-2026","I","Vitruvias Therapeutics","Superpotent drug"],
+    ["D-0865-2026","I","American Regent","Particulate matter, lack of sterility assurance"],
+    ["D-0869-2026","I","B. Braun Medical","Presence of particulate matter"],
+    ["D-0849-2026","I","Baxter Healthcare","Presence of particulate matter"],
+    ["D-0016-2027","II","J&J Innovative Medicine","Presence of particulate matter"],
+    ["D-0014-2027","II","Cipla USA","Failed impurity specifications"],
+    ["D-0732-2026","I","JB Chemicals & Pharmaceuticals","Cross contamination with other products"],
+    ["D-0827-2026","I","Fresenius Kabi USA","Presence of particulate matter"],
+    ["D-0035-2027","III","Sun Pharmaceutical","Failed impurity specifications"]];
+  var box=$('s1rows'),rows=[];
+  R.forEach(function(r){var d=document.createElement('div');d.className='row';
+    d.innerHTML='<span class="rn">'+r[0]+'</span><span><span class="pill p'+r[1].length+'">CLASS '+r[1]+'</span></span><span class="fm">'+r[2]+'<span class="rs">'+r[3]+'</span></span>';
+    box.appendChild(d);rows.push(d);});
+  var STEP=1.3,VIS=6;
+  function place(t){var k=Math.floor(t/STEP);
+    rows.forEach(function(el,i){var pos=(k-i)%R.length;if(pos<0)pos+=R.length;
+      if(pos<VIS){el.style.opacity=1;el.style.transform='translateY('+(pos*72)+'px)';}
+      else{el.style.opacity=0;el.style.transform='translateY(-72px)';}});}
+  if(reduce){place(VIS*STEP);return;}
+  A.s1=function(t){place(t+VIS*STEP);};
+  place(VIS*STEP);
+})();
+
+/* S2: recall drops in, pharmacy cohort lights up, Telegram push, patient alert */
+(function(){
+  var dots=$('s2dots'),D=[];for(var i=0;i<253;i++){var e=document.createElement('i');dots.appendChild(e);D.push(e);}
+  var order=D.map(function(_,i){return i}).sort(function(a,b){return ((a*7919)%253)-((b*7919)%253)});
+  var bulTxt='A batch of levothyroxine was recalled (Class I). Compare the lot and NDC on your bottle with the recall before your next dose, and call your pharmacist.';
+  function final(){$('s2recall').classList.add('show');D.forEach(function(d){d.classList.add('on')});}
+  if(reduce){final();return;}
+  var LOOP=16;
+  A.s2=function(t){t=t%LOOP;
+    var rc=$('s2recall');rc.classList.toggle('show',t>.6&&t<15.4);
+    var m=clamp((t-1.6)/4,0,1),e=1-Math.pow(1-m,3);
+    $('s2c').textContent=Math.round(257*e);$('s2p').textContent=Math.round(253*e);$('s2s').textContent=Math.round(43*e);
+    var n=Math.round(253*e);for(var i=0;i<253;i++)D[order[i]].classList.toggle('on',i<n&&t<15.4);
+    $('s2cand').classList.toggle('show',t>5.8&&t<15.4);
+    $('s2t').textContent=Math.min(13,Math.max(0,Math.floor((t-.6)*13/7))).toString();
+    $('s2toast').classList.toggle('show',t>7.6&&t<15.2);
+    var hit=t>8.6&&t<15.4;$('s2m1').classList.toggle('hit',hit);$('s2m1s').textContent=hit?'recall match · check lot':'checking…';
+    var ch=hit?Math.floor(clamp((t-9)/3.6,0,1)*bulTxt.length):0;
+    $('s2bul').innerHTML=hit?'<b>Claude:</b> '+bulTxt.slice(0,ch)+(ch<bulTxt.length?'<span class="caret"></span>':''):'<span style="color:var(--ink-3)">No alerts. Watching 3 medications.</span>';
+  };
+})();
+
+/* S5: a highlight sweeps the rows; the four API proofs check off in order */
+(function(){
+  if(reduce)return;
+  var rows=[].slice.call(document.querySelectorAll('#s5t .dr:not(.hd)')),chips=[0,1,2,3].map(function(i){return $('s5c'+i)});
+  A.s5=function(t){
+    var k=Math.floor(Math.max(0,t-1.4)/1.1)%rows.length;
+    rows.forEach(function(r,i){r.classList.toggle('hot',t>1.4&&i===k)});
+    var c=t%12;chips.forEach(function(ch,i){ch.classList.toggle('ok',c>1.6+i*.5&&c<11.4)});
+  };
+})();
+
+/* deck engine */
+var stage=$('stage'),slides=[].slice.call(document.querySelectorAll('.slide')),bar=$('bar'),cnt=$('count');
+var idx=-1,t0=0,timers=[];
+function fit(){var c=$('ctrl'),h=c.offsetHeight+c.offsetTop+10;$('viewport').style.top=h+'px';
+  var s=Math.min(innerWidth/1920,(innerHeight-h)/1080);stage.style.transform='scale('+s+')';}
+addEventListener('resize',fit);fit();
+function countUp(sl){if(reduce)return;sl.querySelectorAll('[data-count]').forEach(function(el){var to=+el.dataset.count;el.textContent='0';
+  timers.push(setTimeout(function(){var s=null;(function st(n){if(!s)s=n;var p=Math.min((n-s)/1400,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3))).toLocaleString('en-US');if(p<1)requestAnimationFrame(st);})(performance.now());},600));});}
+function go(n){n=(n+slides.length)%slides.length;if(n===idx)return;timers.forEach(clearTimeout);timers=[];
+  slides.forEach(function(s,i){s.classList.toggle('active',i===n);s.setAttribute('aria-hidden',i===n?'false':'true')});idx=n;t0=performance.now();
+  bar.style.width=((n+1)/slides.length*100)+'%';cnt.textContent=(n+1)+' / '+slides.length;
+  [].forEach.call(document.querySelectorAll('#dots button'),function(b,i){b.classList.toggle('on',i===n);b.setAttribute('aria-current',i===n?'true':'false')});
+  countUp(slides[n]);try{history.replaceState(null,'','#'+(n+1));}catch(e){}}
+function frame(now){var s=slides[idx];if(s&&A[s.id])A[s.id]((now-t0)/1000);requestAnimationFrame(frame);}
+if(!reduce)requestAnimationFrame(frame);
+$('prev').onclick=function(){go(idx-1)};$('next').onclick=function(){go(idx+1)};
+var dots=$('dots');slides.forEach(function(sl,i){var b=document.createElement('button');b.type='button';
+  b.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b><span>'+sl.getAttribute('aria-label')+'</span>';b.onclick=function(){go(i)};dots.appendChild(b);});
+addEventListener('keydown',function(e){if(e.key===' '||e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(idx+1);}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(idx-1);}});
+var tx=null;stage.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+stage.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)go(idx+(dx<0?1:-1));tx=null});
+var h=parseInt(location.hash.slice(1),10);
+go(h>=1&&h<=slides.length?h-1:0);
+})();
+</script>
+</body>
+</html>
