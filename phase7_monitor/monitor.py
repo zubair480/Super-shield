@@ -164,12 +164,6 @@ async def run_forever() -> None:
     status["running"] = True
     started_at = _now()
     last_fda = 0.0
-    try:
-        # Lot lists for recalls ingested before code_info existed (re-run safe, update only).
-        from phase2_ingest.load_to_clickhouse import backfill_code_info
-        await asyncio.to_thread(backfill_code_info)
-    except Exception as exc:  # noqa: BLE001
-        status["last_backfill_error"] = str(exc)[:300]
     while True:
         try:
             if time.time() - last_fda >= FDA_POLL_SEC:
@@ -227,14 +221,17 @@ def code_info_for(recall_numbers: list[str]) -> dict[str, str]:
     """FDA lot list (openFDA code_info) per recall number; '' when FDA gave none."""
     if not recall_numbers:
         return {}
-    rows = _client().query(
-        """
-        SELECT recall_number, anyIf(code_info, code_info != '')
-        FROM supershield.fda_recalls WHERE has(%(r)s, recall_number)
-        GROUP BY recall_number
-        """,
-        parameters={"r": list(set(recall_numbers))},
-    ).result_rows
+    try:
+        rows = _client().query(
+            """
+            SELECT recall_number, anyIf(code_info, code_info != '')
+            FROM supershield.fda_recalls WHERE has(%(r)s, recall_number)
+            GROUP BY recall_number
+            """,
+            parameters={"r": list(set(recall_numbers))},
+        ).result_rows
+    except Exception:  # noqa: BLE001 - lot lists are extra; never break the alert list
+        return {}
     return {r[0]: r[1] for r in rows}
 
 
@@ -268,7 +265,7 @@ def affected_customers(recall_number: str, state: str = "", limit: int = 100,
             FROM supershield.customer_followups WHERE recall_number = %(r)s GROUP BY customer_id
         ) AS f ON a.customer_id = f.customer_id
         WHERE {where}
-        ORDER BY a.state, a.pharmacy_id, a.customer_id
+        ORDER BY a.state, a.pharmacy_id, a.customer_id, a.product_ndc
         LIMIT %(n)s OFFSET %(o)s
         """,
         parameters=params,

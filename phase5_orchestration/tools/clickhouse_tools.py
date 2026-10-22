@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 import threading
+import time
 from functools import lru_cache
 from pathlib import Path
 
@@ -230,36 +231,40 @@ def pharmacy_summary() -> dict:
       `pending` or `contacted`, i.e. not `lot_verified` / `not_affected`).
     - notifications_prepared_pct: share (0-100, one decimal) of pairs whose follow-up
       isn't `pending`, i.e. the pharmacist has acted on that customer. 0 when no pairs.
-    - network: the whole pharmacy network (all pharmacies, distinct customers on file).
+    - network: the whole pharmacy network (distinct pharmacies, distinct customers on file).
+
+    Cached for ~10 s per process.
     """
-    client = get_client()
+    cached = _summary_cache.get("value")
+    if cached and time.time() - _summary_cache["at"] < 10:
+        return cached
     active = ("SELECT recall_number FROM supershield.pharmacist_alerts FINAL "
               "WHERE status != 'resolved'")
-    active_recalls = int(client.command(f"SELECT count() FROM ({active})"))
-    customers, pharmacies, states = client.query(
+    # One pass over the active recalls' matches, follow-ups joined per (recall, customer).
+    row = get_client().query(
         f"""
-        SELECT uniqExact(customer_id), uniqExact(pharmacy_id), uniqExact(state)
-        FROM supershield.patient_alerts WHERE recall_number IN ({active})
-        """
-    ).result_rows[0]
-    followups = {s: 0 for s in ("contacted", "lot_verified", "not_affected", "pending")}
-    for st, n in client.query(
-        f"""
-        SELECT if(f.latest = '', 'pending', f.latest) AS st, count()
-        FROM (SELECT DISTINCT recall_number, customer_id FROM supershield.patient_alerts
-              WHERE recall_number IN ({active})) AS a
+        SELECT (SELECT count() FROM ({active})),
+               uniqExact(a.customer_id), uniqExact(a.pharmacy_id), uniqExact(a.state),
+               uniqExactIf((a.recall_number, a.customer_id), f.latest = 'contacted'),
+               uniqExactIf((a.recall_number, a.customer_id), f.latest = 'lot_verified'),
+               uniqExactIf((a.recall_number, a.customer_id), f.latest = 'not_affected'),
+               uniqExactIf((a.recall_number, a.customer_id),
+                           f.latest NOT IN ('contacted', 'lot_verified', 'not_affected'))
+        FROM supershield.patient_alerts AS a
         LEFT JOIN (
             SELECT recall_number, customer_id, argMax(status, updated_at) AS latest
             FROM supershield.customer_followups WHERE recall_number IN ({active})
             GROUP BY recall_number, customer_id
         ) AS f ON a.recall_number = f.recall_number AND a.customer_id = f.customer_id
-        GROUP BY st
+        WHERE a.recall_number IN ({active})
         """,
         settings={"join_use_nulls": 0},
-    ).result_rows:
-        followups[st] = followups.get(st, 0) + int(n)
+    ).result_rows[0]
+    active_recalls, customers, pharmacies, states = (int(v) for v in row[:4])
+    followups = dict(zip(("contacted", "lot_verified", "not_affected", "pending"),
+                         (int(v) for v in row[4:])))
     pairs = sum(followups.values())
-    return {
+    result = {
         "active_recalls": active_recalls,
         "affected_customers": int(customers),
         "affected_pharmacies": int(pharmacies),
@@ -270,6 +275,11 @@ def pharmacy_summary() -> dict:
         if pairs else 0.0,
         "network": _network_size(),
     }
+    _summary_cache.update(value=result, at=time.time())
+    return result
+
+
+_summary_cache: dict = {}  # ~10 s cache: the home page polls this
 
 
 @lru_cache(maxsize=1)

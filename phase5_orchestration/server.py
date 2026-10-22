@@ -41,6 +41,12 @@ _run_lock = asyncio.Lock()
 
 @app.on_event("startup")
 async def _start_monitor():
+    # code_info must exist before the monitor's fda_recalls inserts (they name the column).
+    from phase2_ingest.load_to_clickhouse import ensure_schema
+    try:
+        await asyncio.to_thread(ensure_schema)
+    except Exception as exc:  # noqa: BLE001
+        print(f"ensure_schema failed: {exc}")
     # SuperShield: continuous monitoring - no button press needed.
     if os.getenv("MONITOR_ENABLED", "true").lower() != "false":
         asyncio.create_task(monitor.run_forever())

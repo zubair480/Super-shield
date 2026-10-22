@@ -167,6 +167,12 @@ def ingest_shared_feed() -> list[str]:
     return _insert_new(rows)
 
 
+def ensure_schema() -> None:
+    """Additive, idempotent columns the loader writes; run before any insert."""
+    get_client().command("ALTER TABLE supershield.fda_recalls "
+                         "ADD COLUMN IF NOT EXISTS code_info String DEFAULT ''")
+
+
 def fetch_by_recall_numbers(recall_numbers: list[str], batch: int = 40) -> list[dict]:
     """openFDA records for specific recall numbers (OR-search in batches)."""
     import requests
@@ -194,6 +200,7 @@ def backfill_code_info() -> dict:
     mv_patient_matches and duplicate patient_alerts. Only rows with an empty
     code_info are touched, so this is safe to re-run.
     """
+    ensure_schema()
     client = get_client()
     missing = [r[0] for r in client.query(
         "SELECT DISTINCT recall_number FROM supershield.fda_recalls WHERE code_info = ''"
