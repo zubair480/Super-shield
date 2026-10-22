@@ -227,7 +227,7 @@ export default function PatientApp() {
             </h1>
             <p className="ss-sub">
               Add your medications once. SuperShield watches the FDA’s recall reports around the clock
-              and tells you — in plain language — if one of them is affected.
+              and tells you in plain language if one of them is affected.
             </p>
             <div className="ss-hero-actions">
               <button className="ss-btn primary" onClick={() => setShowNew(true)}>
@@ -303,16 +303,13 @@ function Pulse() {
     <span className={`ss-pulse ${live ? "" : "off"}`} title={title}>
       <span className="ss-pulse-dot" aria-hidden="true" />
       <span className="ss-pulse-text">
-        {err ? (
-          "Monitor unreachable"
-        ) : !st ? (
-          "Connecting…"
-        ) : live ? (
+        {err ? "Offline" : !st ? "Connecting" : live ? (
           <>
-            <b>Watching FDA</b> · checked {last ? rel(last) : "just now"}
+            <b>Live</b>
+            <span className="ss-pulse-sub">{last ? `synced ${rel(last)}` : "syncing"}</span>
           </>
         ) : (
-          "Monitoring paused"
+          "Paused"
         )}
       </span>
     </span>
@@ -349,7 +346,7 @@ function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient
             for (const n of added) {
               try {
                 new Notification(`Recall alert: ${n.drug}`, {
-                  body: `${SEV_WORD[classOf(n.classification)]} FDA recall — ${n.reason}`.slice(0, 200),
+                  body: `${SEV_WORD[classOf(n.classification)]} FDA recall: ${n.reason}`.slice(0, 200),
                   tag: n.id,
                 });
               } catch {
@@ -431,7 +428,7 @@ function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient
         </div>
       )}
 
-      <NightHero patient={patient} sorted={sorted} loading={!notifs} onReview={() => top && open(top.id)} />
+      <NightHero patient={patient} sorted={sorted} loading={!notifs} onReview={(id) => { const t = id ?? top?.id; if (t) open(t); }} />
 
       <Medications
         patient={patient}
@@ -544,7 +541,7 @@ function Hero({
           </h1>
           <p className="ss-sub">
             None of your {medCount} medication{medCount === 1 ? "" : "s"} appear in an active FDA recall.
-            We keep checking automatically — you don’t need to do anything.
+            We keep checking automatically, so you don’t need to do anything.
           </p>
         </>
       ) : (
@@ -555,7 +552,7 @@ function Hero({
           </h1>
           <p className="ss-sub">
             {list} {affected.length === 1 ? "matches" : "match"} FDA recall reports. That doesn’t mean
-            your bottle is affected — checking the lot number takes about a minute.
+            your bottle is affected. Checking the lot number takes about a minute.
           </p>
           <div className="ss-hero-actions">
             <button className="ss-btn primary" onClick={onReview}>
@@ -624,7 +621,7 @@ function Medications({
         note = `${titleCase(d)} has ${res.recalls.length} active FDA recall${res.recalls.length > 1 ? "s" : ""}. Details will appear below in a moment.`;
       }
     } catch {
-      note = `Couldn’t reach openFDA to pre-check ${titleCase(d)} — it’s still being monitored.`;
+      note = `Couldn’t reach openFDA to pre-check ${titleCase(d)}, but it’s still being monitored.`;
     }
     if (await save([...patient.drugs, d])) {
       setInput("");
@@ -833,13 +830,13 @@ function Detail({ n }: { n: PatientNotification }) {
             <span>
               {detail.status === "loading"
                 ? "Loading the FDA record…"
-                : "The FDA record doesn’t list lot numbers — ask your pharmacist to check."}
+                : "The FDA record doesn’t list lot numbers, so ask your pharmacist to check."}
             </span>
           )}
         </li>
         <li>
           <b>If it matches, call your pharmacist</b>
-          <span>Don’t stop taking it on your own — they’ll arrange a replacement.</span>
+          <span>Don’t stop taking it on your own. They’ll arrange a replacement.</span>
         </li>
       </ol>
 
@@ -870,11 +867,11 @@ function Detail({ n }: { n: PatientNotification }) {
         <div className="ss-facts-row">
           <div>
             <dt>Status</dt>
-            <dd>{statusLabel(n.status || rec?.status) ?? "—"}</dd>
+            <dd>{statusLabel(n.status || rec?.status) ?? "Not listed"}</dd>
           </div>
           <div>
             <dt>Started</dt>
-            <dd>{fmtFdaDate(n.initiationDate ?? rec?.recall_initiation_date) ?? "—"}</dd>
+            <dd>{fmtFdaDate(n.initiationDate ?? rec?.recall_initiation_date) ?? "Not listed"}</dd>
           </div>
           <div>
             <dt>FDA recall no.</dt>
@@ -966,7 +963,7 @@ function NewProfileSheet({ onClose, onCreated }: { onClose: () => void; onCreate
     <div className="ss-scrim" onClick={onClose}>
       <form className="ss-sheet" onSubmit={submit} onClick={(e) => e.stopPropagation()}>
         <h2>Start watching your medications</h2>
-        <p className="ss-muted">We check them against every new FDA recall — no need to come back and scan.</p>
+        <p className="ss-muted">We check them against every new FDA recall, so there’s no need to come back and scan.</p>
         <label>
           <span>Your name</span>
           <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Maria Lopez" />

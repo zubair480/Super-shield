@@ -252,7 +252,7 @@ function buildAlert(
     title: `⚠️ SuperShield: medication safety alert (${patient.id})`,
     body:
       `${lines.join("\n")}\n\n${bulletin}\n\n` +
-      `This alert matched a medication by name. It does not confirm your specific package or lot is recalled — compare the lot number on your label.\n\n${disclaimer}`,
+      `This alert matched a medication by name. It does not confirm your specific package or lot is recalled. Compare the lot number on your label.\n\n${disclaimer}`,
     channel,
     provenance: fresh.map((n) => ({ url: n.sourceUrl })),
   };

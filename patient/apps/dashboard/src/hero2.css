@@ -1,0 +1,600 @@
+/* Night hero v2: full-bleed globe stage, overlay copy, stats, floating recall cards. */
+
+.nh {
+  position: relative;
+  min-height: 760px;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+
+/* Background layers: grid + concentric rings + grain, so the canvas is never empty */
+.nh-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nh-gridlines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(95 211 168 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(95 211 168 / 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(70% 80% at 70% 45%, #000 20%, transparent 75%);
+  animation: nh-grid-drift 40s linear infinite;
+}
+
+@keyframes nh-grid-drift {
+  to {
+    background-position: 64px 64px;
+  }
+}
+
+.nh-rings {
+  position: absolute;
+  left: 70%;
+  top: 46%;
+}
+
+.nh-rings i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  border: 1px solid rgb(95 211 168 / 0.1);
+  transform: translate(-50%, -50%);
+  animation: nh-ring 9s ease-out infinite;
+}
+
+.nh-rings i:nth-child(2) {
+  animation-delay: 3s;
+}
+.nh-rings i:nth-child(3) {
+  animation-delay: 6s;
+}
+
+@keyframes nh-ring {
+  from {
+    width: 560px;
+    height: 560px;
+    opacity: 0.9;
+  }
+  to {
+    width: 1100px;
+    height: 1100px;
+    opacity: 0;
+  }
+}
+
+/* Globe stage fills the hero; edges fade instead of cropping */
+.nh-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  mask-image: radial-gradient(120% 100% at 60% 45%, #000 55%, transparent 92%);
+}
+
+.nh-stage .ss-globe {
+  position: absolute;
+  inset: 0;
+}
+
+.nh-globe-wrap {
+  display: none;
+}
+
+/* Copy sits above the globe; only its controls take pointer events */
+.nh-inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: block;
+  min-height: 0;
+  padding: 112px 32px 40px;
+  pointer-events: none;
+}
+
+.nh-copy {
+  max-width: 560px;
+}
+
+.nh-copy button,
+.nh-copy a {
+  pointer-events: auto;
+}
+
+.nh-greet {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 500;
+  color: rgb(238 245 241 / 0.7);
+}
+
+.nh-title {
+  font-size: clamp(42px, 5.6vw, 72px);
+  text-shadow: 0 2px 30px rgb(6 19 15 / 0.6);
+}
+
+.nh-sub {
+  font-size: 18px;
+  max-width: 44ch;
+  color: rgb(238 245 241 / 0.75);
+}
+
+/* Medicine cards */
+.nh-meds {
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.nh-med {
+  height: auto;
+  min-width: 200px;
+  padding: 12px 20px 12px 12px;
+  gap: 14px;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #fff !important;
+  text-align: left;
+  cursor: default;
+  transition: transform 0.25s var(--ease), border-color 0.25s, background 0.25s;
+}
+
+.nh-med.sI,
+.nh-med.sII,
+.nh-med.sIII {
+  cursor: pointer;
+}
+
+.nh-med:hover {
+  transform: translateY(-3px);
+  background: rgb(255 255 255 / 0.09);
+}
+
+.nh-med-ico {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgb(95 211 168 / 0.16);
+  color: #5fd3a8;
+  flex: none;
+}
+
+.nh-med-ico svg {
+  width: 24px;
+  height: 24px;
+}
+
+.nh-med.sI .nh-med-ico {
+  background: rgb(255 106 85 / 0.16);
+  color: #ff8a77;
+}
+.nh-med.sII .nh-med-ico {
+  background: rgb(242 184 75 / 0.16);
+  color: #f2b84b;
+}
+
+.nh-med-txt {
+  display: grid;
+  gap: 2px;
+}
+
+.nh-med-txt b {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.nh-med-txt small {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(238 245 241 / 0.65);
+}
+
+.nh-med.sI .nh-med-txt small {
+  color: #ff9f8f;
+}
+.nh-med.sII .nh-med-txt small {
+  color: #f6cc7a;
+}
+
+.nh-med i {
+  display: none;
+}
+
+.nh-actions {
+  margin-top: 28px;
+}
+
+/* Stats strip */
+.nh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 0;
+  margin: 40px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  animation: nh-fade 0.9s var(--ease) 1.1s both;
+}
+
+.nh-stats div {
+  padding: 0 32px 0 0;
+  margin-right: 32px;
+  border-right: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.nh-stats div:last-child {
+  border-right: 0;
+  margin-right: 0;
+}
+
+.nh-stats dt {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(238 245 241 / 0.55);
+}
+
+.nh-stats dd {
+  margin: 4px 0 0;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.nh-stats dd span {
+  font-size: 20px;
+  color: rgb(238 245 241 / 0.55);
+  margin-left: 2px;
+}
+
+.nh-scan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgb(238 245 241 / 0.65);
+  animation: nh-fade 0.9s var(--ease) 1.3s both;
+}
+
+.nh-scan-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5fd3a8;
+  animation: nh-beat 2s ease-out infinite;
+}
+
+.nh-scramble {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #b8f0d9;
+  min-width: 11ch;
+}
+
+.nh-scan em {
+  font-style: normal;
+  color: rgb(238 245 241 / 0.45);
+  padding-left: 12px;
+  border-left: 1px solid rgb(255 255 255 / 0.15);
+}
+
+/* Floating recall cards around the globe */
+.nh-float {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(10 30 24 / 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #fff !important;
+  text-align: left;
+  box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.6);
+  animation:
+    nh-pop 0.7s var(--ease) both,
+    nh-float 7s ease-in-out infinite;
+  transition: border-color 0.2s, transform 0.25s var(--ease);
+}
+
+.nh-float:hover {
+  border-color: rgb(255 255 255 / 0.35);
+}
+
+.nh-float.f0 {
+  right: 6%;
+  top: 150px;
+  animation-delay: 1.6s, 1.6s;
+}
+.nh-float.f1 {
+  right: 31%;
+  top: 520px;
+  animation-delay: 1.9s, 3.4s;
+}
+.nh-float.f2 {
+  right: 4%;
+  top: 470px;
+  animation-delay: 2.2s, 5s;
+}
+
+@keyframes nh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.nh-float-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9fb4c8;
+  flex: none;
+}
+.nh-float.sI .nh-float-dot {
+  background: #ff6a55;
+  box-shadow: 0 0 14px #ff6a55;
+}
+.nh-float.sII .nh-float-dot {
+  background: #f2b84b;
+  box-shadow: 0 0 14px #f2b84b;
+}
+
+.nh-float-txt {
+  display: grid;
+  gap: 1px;
+}
+.nh-float-txt b {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+}
+.nh-float-txt small {
+  font-size: 14px;
+  color: rgb(238 245 241 / 0.65);
+}
+
+/* Zoom controls */
+.nh-zoom {
+  position: absolute;
+  z-index: 2;
+  right: 32px;
+  top: 50%;
+  display: grid;
+  gap: 8px;
+  transform: translateY(-50%);
+}
+
+.nh-zoom button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(10px);
+  color: #fff !important;
+  font-size: 20px;
+  line-height: 1;
+  transition: background 0.2s, transform 0.2s var(--ease);
+}
+
+.nh-zoom button:hover {
+  background: rgb(255 255 255 / 0.14);
+  transform: scale(1.05);
+}
+
+/* Legend: a calm row under the globe, never on top of it */
+.nh-legend {
+  position: relative;
+  z-index: 2;
+  right: auto;
+  bottom: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 24px;
+  max-width: 1160px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(238 245 241 / 0.6);
+  pointer-events: none;
+}
+
+.nh-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nh-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #5fd3a8;
+}
+
+.nh-legend i.mine {
+  background: #ff6a55;
+  box-shadow: 0 0 10px #ff6a55;
+}
+
+.nh-hint {
+  color: rgb(238 245 241 / 0.4);
+}
+
+/* Picked recall card */
+.nh-card {
+  position: absolute;
+  z-index: 3;
+  right: 96px;
+  bottom: 120px;
+  width: 340px;
+  display: grid;
+  gap: 8px;
+  padding: 22px 22px 20px;
+  border-radius: 20px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(8 24 19 / 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.8);
+  animation: nh-pop 0.4s var(--ease) both;
+}
+
+.nh-card-x {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: none;
+  color: rgb(255 255 255 / 0.6) !important;
+  font-size: 22px;
+}
+
+.nh-card-sev {
+  justify-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgb(159 180 200 / 0.18);
+  color: #c9d6e3;
+}
+.nh-card.sI .nh-card-sev {
+  background: rgb(255 106 85 / 0.18);
+  color: #ffa293;
+}
+.nh-card.sII .nh-card-sev {
+  background: rgb(242 184 75 / 0.18);
+  color: #f6cc7a;
+}
+
+.nh-card b {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.nh-card p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgb(238 245 241 / 0.8);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nh-card small {
+  font-size: 14px;
+  color: rgb(238 245 241 / 0.55);
+}
+
+.nh-card-cta {
+  justify-self: start;
+  margin-top: 6px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  background: #fff;
+  color: #06130f !important;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+@media (max-width: 1100px) {
+  .nh-float {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .nh {
+    min-height: 0;
+  }
+  .nh-stage {
+    position: relative;
+    inset: auto;
+    height: 380px;
+    margin-top: 80px;
+    mask-image: radial-gradient(80% 80% at 50% 50%, #000 60%, transparent 95%);
+  }
+  .nh-inner {
+    padding: 0 16px 24px;
+  }
+  .nh-rings {
+    left: 50%;
+    top: 240px;
+  }
+  .nh-zoom {
+    top: 260px;
+    right: 16px;
+  }
+  .nh-stats div {
+    padding-right: 16px;
+    margin-right: 16px;
+  }
+  .nh-stats dd {
+    font-size: 26px;
+  }
+  .nh-card {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    bottom: auto;
+    top: 300px;
+  }
+  .nh-legend {
+    justify-content: flex-start;
+    padding: 0 16px 16px;
+  }
+  .nh-hint {
+    display: none;
+  }
+}
+
+/* layout fixes */
+.nh-inner { width: 100%; max-width: 1160px; margin: 0 auto; box-sizing: border-box; }
+.nh-float.f0 { right: 7%; top: 140px; }
+.nh-float.f1 { right: 9%; top: auto; bottom: 150px; }
+.nh-float.f2 { right: 30%; top: auto; bottom: 90px; }
+.nh-card { right: 110px; bottom: 140px; }
+.nh-rings { left: 72%; }
+.ss-pulse-text { display: inline-flex; align-items: baseline; gap: 8px; }
+.ss-pulse b { font-family: var(--display); font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
+.ss-pulse-sub { font-size: 14px; opacity: 0.7; font-variant-numeric: tabular-nums; }

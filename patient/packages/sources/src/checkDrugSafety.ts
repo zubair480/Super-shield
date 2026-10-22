@@ -77,7 +77,7 @@ function oneFact(r: OpenFdaRecall): string {
   const firm = r.recalling_firm ? `, manufacturer ${r.recalling_firm}` : "";
   const when = date ? `, initiated ${date}` : "";
   const lot = r.code_info ? `, lot(s): ${truncate(r.code_info.replace(/\s+/g, " "), 70)}` : "";
-  return `recall ${r.recall_number} (Class ${cls}, ${r.status}${when}${firm}) — ${r.reason_for_recall}${lot}`;
+  return `recall ${r.recall_number} (Class ${cls}, ${r.status}${when}${firm}): ${r.reason_for_recall}${lot}`;
 }
 
 async function buildBulletin(
@@ -141,7 +141,8 @@ Rules:
 - Say clearly that a match on the medicine name does NOT confirm that their package is affected. Only the lot number and product details can tell.
 - Never tell the patient to stop, skip or change their medication. Tell them to keep taking it as prescribed unless their pharmacist or doctor says otherwise, and to contact their pharmacist or doctor with questions.
 - Refer to the patient only by the patient ID given. Do not guess a name.
-- Output plain text only (no markdown headings or tables), under about 200 words.`;
+- Output plain text only (no markdown headings or tables), under about 200 words.
+- Never use em dashes.`;
 
 function bulletinUserPrompt(patientId: string, facts: string): string {
   return (

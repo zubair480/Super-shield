@@ -416,3 +416,15 @@
 .nh-inner { padding-top: 100px; }
 .ss .ss-night ~ .ss-shell { position: relative; }
 .ss:has(.nh) { background: linear-gradient(#06130f 0 76px, var(--paper) 76px); }
+
+/* Spacing system: 8pt grid, controls 48px tall, 6px inner inset for round content */
+.ss-top { height: 88px; gap: 16px; }
+.ss-top-right { gap: 12px; }
+.ss-profile { height: 48px; padding: 6px 40px 6px 6px; gap: 12px; }
+.ss-profile::after { right: 18px; }
+.ss-avatar { width: 36px; height: 36px; font-size: 14px; letter-spacing: 0.04em; }
+.ss-profile select { padding: 0; line-height: 36px; font-size: 16px; font-weight: 600; }
+.ss-icon-btn { width: 48px; height: 48px; font-size: 22px; }
+.ss-pulse { height: 48px; padding: 0 20px 0 18px; gap: 10px; }
+.ss-brand { gap: 12px; font-size: 20px; }
+.ss-brand svg { width: 30px; height: 30px; }

@@ -4,6 +4,8 @@ export interface GlobeMarker {
   lat: number;
   lon: number;
   tone: "I" | "II" | "III" | "bg";
+  id?: string; // recall_number (para elegirlo con clic)
+  label?: string; // texto corto: fármaco · fabricante
 }
 
 /* Centroides aproximados por estado (para ubicar al fabricante del recall). */

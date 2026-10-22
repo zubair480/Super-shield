@@ -11,8 +11,8 @@ This file states plainly what is **real**, what is **synthetic/test**, and what 
 | Continuous monitoring | **Real** | Worker re-checks every saved medication every 60s (`WORKER_INTERVAL_SEC`). No Scan button. |
 | Drug matching | **Real** (FarmaWatcher) | Name + synonym match against openFDA generic/brand/substance/product. It is a **name match**, never shown as a lot match. |
 | In-app alerts | **Real** | One per (patient, `recall_number`). Stored in `patient/demo/seed-data/notifications.json`. |
-| Patient UI | **Real** | `npm --prefix patient run dev` → http://localhost:3000 (prod build) / http://localhost:5173 (live dev). Hero status, medication cards, alert list, 3-step "what to do" with lot numbers. |
-| Claude bulletins | **Partial** | Code calls Anthropic directly. Current key needs `ANTHROPIC_WORKSPACE_ID` → until set, a factual template is used. |
+| Patient UI | **Real** | `npm --prefix patient run dev` → http://localhost:3000 (prod build) / http://localhost:5173 (live dev). Live 3D globe of real recall locations (click to fly, double click to zoom), live FDA ticker, stats, medication cards, alert list, 3-step lot check. |
+| Claude bulletins | **Real** | Direct Anthropic API (`claude-sonnet-5-5`), workspace-scoped key verified. New alerts get a Claude-written patient summary; template only if the API is down. |
 | Slack/Gmail (Composio) | **Partial** | `COMPOSIO_API_KEY` set; needs `COMPOSIO_SLACK_CHANNEL` (or `NOTIFY_CHANNEL=gmail` + `COMPOSIO_GMAIL_TO`). UI labels it "Not configured" until then — never claims "sent". |
 | ClickHouse | **Real** | Connected to ClickHouse Cloud. Every new alert is written to `default.patient_notifications`, every pipeline event to `default.events`. History backfilled (`npm --prefix patient run ch:backfill`: 224 alerts, 468 events). Verified: recall injected 21:47:29Z → row in ClickHouse 21:47:37Z. |
 | Demo recall | **Synthetic, labeled** | `node shared/fda/inject-recall.mjs --drug Losartan --class "Class I"` adds one openFDA-shaped record with `"synthetic": true`. UI shows "Test recall". Reset with `--reset`. |
@@ -33,5 +33,5 @@ All in `patient/.env` (gitignored). Template: `patient/.env.example`. Never comm
 
 ## Not done yet
 
-- Anthropic workspace id, Slack channel for Composio.
+- Slack channel for Composio.
 - Pharmacy side lives on Developer 1's branch.

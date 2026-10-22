@@ -310,7 +310,7 @@ export function reasonGist(r?: string): string | null {
   const s = clean(r);
   if (!s) return null;
   if (/N-?nitros|NDMA|NDEA|NMBA/i.test(s)) {
-    return "A nitrosamine-class impurity was detected — linked to cancer risk with prolonged exposure.";
+    return "A nitrosamine-class impurity was detected. It has been linked to cancer risk with prolonged exposure.";
   }
   if (/declared strength/i.test(s)) {
     return "The strength printed on the package may not be the real one; check both carton and blister.";
