@@ -1,0 +1,37 @@
+{
+  "name": "@farmavigia/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:web": "vite",
+    "dev:server": "tsx watch server/index.ts",
+    "build": "vite build",
+    "start": "tsx server/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@farmavigia/notifier": "*",
+    "@farmavigia/shared": "*",
+    "@farmavigia/sources": "*",
+    "@fontsource-variable/schibsted-grotesk": "^5.2.8",
+    "@fontsource-variable/sora": "^5.2.8",
+    "@fontsource/fragment-mono": "^5.2.8",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0",
+    "topojson-client": "^3.1.0",
+    "tsx": "^4.19.2",
+    "vite": "^5.4.11",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.169.0",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.6.3"
+  }
+}

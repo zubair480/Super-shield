@@ -1,0 +1,253 @@
+[
+  {
+    "id": "PX-001",
+    "name": "Margaret Collins",
+    "drugs": [
+      "Losartan",
+      "Aspirin"
+    ]
+  },
+  {
+    "id": "PX-002",
+    "name": "James Porter",
+    "drugs": [
+      "Metformin",
+      "Atorvastatin"
+    ]
+  },
+  {
+    "id": "PX-003",
+    "name": "Anna Reed",
+    "drugs": [
+      "Ibuprofen"
+    ]
+  },
+  {
+    "id": "PX-004",
+    "name": "Charles Hendricks",
+    "drugs": [
+      "Ranitidine",
+      "Omeprazole",
+      "Clonazepam"
+    ]
+  },
+  {
+    "id": "PX-005",
+    "name": "Lucy Tanner",
+    "drugs": [
+      "Valsartan"
+    ]
+  },
+  {
+    "id": "PX-006",
+    "name": "Emily Carter",
+    "drugs": [
+      "Duloxetine"
+    ]
+  },
+  {
+    "id": "PX-007",
+    "name": "Daniel Whitfield",
+    "drugs": [
+      "Levothyroxine",
+      "Lisinopril"
+    ]
+  },
+  {
+    "id": "PX-008",
+    "name": "Sophie Bennett",
+    "drugs": [
+      "Bupropion",
+      "Sertraline"
+    ]
+  },
+  {
+    "id": "PX-009",
+    "name": "Marcus Hale",
+    "drugs": [
+      "Hydrochlorothiazide"
+    ]
+  },
+  {
+    "id": "PX-010",
+    "name": "Grace Liu",
+    "drugs": [
+      "Montelukast",
+      "Prednisone"
+    ]
+  },
+  {
+    "id": "PX-011",
+    "name": "Robert Hayes",
+    "drugs": [
+      "Amlodipine"
+    ]
+  },
+  {
+    "id": "PX-012",
+    "name": "Test 2",
+    "drugs": [
+      "Levothyroxine"
+    ]
+  },
+  {
+    "id": "PX-013",
+    "name": "Elena Vásquez",
+    "drugs": [
+      "Irbesartan",
+      "Metoprolol"
+    ]
+  },
+  {
+    "id": "PX-014",
+    "name": "Thomas O'Brien",
+    "drugs": [
+      "Quinapril",
+      "Atorvastatin"
+    ]
+  },
+  {
+    "id": "PX-015",
+    "name": "Priya Sharma",
+    "drugs": [
+      "Sitagliptin",
+      "Metformin"
+    ]
+  },
+  {
+    "id": "PX-016",
+    "name": "Héctor Ramírez",
+    "drugs": [
+      "Losartan",
+      "Hydrochlorothiazide",
+      "Aspirin"
+    ]
+  },
+  {
+    "id": "PX-017",
+    "name": "Naomi Fischer",
+    "drugs": [
+      "Escitalopram"
+    ]
+  },
+  {
+    "id": "PX-018",
+    "name": "Samuel Greene",
+    "drugs": [
+      "Valsartan",
+      "Carvedilol"
+    ]
+  },
+  {
+    "id": "PX-019",
+    "name": "Alicia Mendoza",
+    "drugs": [
+      "Levothyroxine",
+      "Omeprazole"
+    ]
+  },
+  {
+    "id": "PX-020",
+    "name": "David Kim",
+    "drugs": [
+      "Rosuvastatin",
+      "Clopidogrel"
+    ]
+  },
+  {
+    "id": "PX-021",
+    "name": "Fatima Al-Rashid",
+    "drugs": [
+      "Insulin Glargine",
+      "Metformin"
+    ]
+  },
+  {
+    "id": "PX-022",
+    "name": "George Whitman",
+    "drugs": [
+      "Warfarin",
+      "Furosemide"
+    ]
+  },
+  {
+    "id": "PX-023",
+    "name": "Carmen Ortega",
+    "drugs": [
+      "Gabapentin",
+      "Duloxetine"
+    ]
+  },
+  {
+    "id": "PX-024",
+    "name": "Liam Murphy",
+    "drugs": [
+      "Albuterol",
+      "Montelukast"
+    ]
+  },
+  {
+    "id": "PX-025",
+    "name": "Rosa Delgado",
+    "drugs": [
+      "Amlodipine",
+      "Simvastatin"
+    ]
+  },
+  {
+    "id": "PX-026",
+    "name": "Kenji Watanabe",
+    "drugs": [
+      "Pantoprazole"
+    ]
+  },
+  {
+    "id": "PX-027",
+    "name": "Isabel Fuentes",
+    "drugs": [
+      "Sertraline",
+      "Trazodone"
+    ]
+  },
+  {
+    "id": "PX-028",
+    "name": "Walter Briggs",
+    "drugs": [
+      "Tamsulosin",
+      "Finasteride"
+    ]
+  },
+  {
+    "id": "PX-029",
+    "name": "Monica Reyes",
+    "drugs": [
+      "Prednisone",
+      "Methotrexate"
+    ]
+  },
+  {
+    "id": "PX-030",
+    "name": "Arthur Pennington",
+    "drugs": [
+      "Donepezil",
+      "Memantine"
+    ]
+  },
+  {
+    "id": "PX-031",
+    "name": "Lucía Herrera",
+    "drugs": [
+      "Ranitidine",
+      "Esomeprazole"
+    ]
+  },
+  {
+    "id": "PX-032",
+    "name": "Frank Delaney",
+    "drugs": [
+      "Lisinopril",
+      "Metformin",
+      "Aspirin"
+    ]
+  }
+]

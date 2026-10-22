@@ -1,0 +1,114 @@
+/* SuperShield patient UI — motion layer (scroll reveal + micro-interactions) */
+
+/* ---------- Scroll reveal (driven by reveal.ts) ---------- */
+.ss-rv {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s var(--ease) var(--d, 0ms),
+    transform 0.7s var(--ease) var(--d, 0ms);
+}
+.ss-rv.ss-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Medication glyph: gentle wiggle on hover ---------- */
+@keyframes ss-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  50% { transform: rotate(4deg); }
+  75% { transform: rotate(-2deg); }
+}
+.ss-med:hover .ss-med-glyph svg {
+  animation: ss-wiggle 0.6s var(--ease) 1;
+}
+
+/* ---------- Serious severity pill: subtle breathing glow ---------- */
+@keyframes ss-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--serious) 0%, transparent); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--serious) 14%, transparent); }
+}
+.ss-row.sI .ss-sev {
+  animation: ss-breathe 3.2s ease-in-out infinite;
+}
+
+/* ---------- Primary button: shine sweep on hover ---------- */
+.ss-btn.primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ss-btn.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+}
+.ss-btn.primary:hover::after {
+  transform: translateX(120%);
+  transition: transform 0.9s var(--ease);
+}
+.ss-btn.primary:disabled::after {
+  display: none;
+}
+
+/* ---------- Detail steps: number circles pop in sequentially ---------- */
+@keyframes ss-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.ss-detail.ss-in .ss-steps li::before {
+  animation: ss-pop 0.45s var(--ease) both;
+  animation-delay: calc(var(--d, 0ms) + 200ms);
+}
+.ss-detail.ss-in .ss-steps li:nth-child(2)::before { animation-delay: calc(var(--d, 0ms) + 320ms); }
+.ss-detail.ss-in .ss-steps li:nth-child(3)::before { animation-delay: calc(var(--d, 0ms) + 440ms); }
+.ss-detail.ss-in .ss-steps li:nth-child(4)::before { animation-delay: calc(var(--d, 0ms) + 560ms); }
+.ss-detail.ss-in .ss-steps li:nth-child(5)::before { animation-delay: calc(var(--d, 0ms) + 680ms); }
+.ss-detail.ss-in .ss-steps li:nth-child(n + 6)::before { animation-delay: calc(var(--d, 0ms) + 800ms); }
+
+/* ---------- Lot numbers: lift + copy cursor ---------- */
+.ss-lots code {
+  cursor: copy;
+  transition:
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    border-color 0.15s;
+}
+.ss-lots code:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-3);
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ss-rv,
+  .ss-rv.ss-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .ss-med:hover .ss-med-glyph svg,
+  .ss-row.sI .ss-sev,
+  .ss-detail.ss-in .ss-steps li::before {
+    animation: none;
+  }
+  .ss-btn.primary::after {
+    display: none;
+  }
+  .ss-lots code,
+  .ss-lots code:hover {
+    transition: none;
+    transform: none;
+  }
+}

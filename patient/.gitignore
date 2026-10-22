@@ -1,0 +1,19 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.local
+# Config MCP local — lleva API key de Render, no se versiona
+.mcp.json
+*.log
+.DS_Store
+
+# Espejo local de eventos generado por el worker (runtime, no se versiona)
+demo/seed-data/events-live.json
+
+# Memoria de Claude (no va en el repo)
+memory/
+
+# SuperShield runtime state
+demo/seed-data/notifications.json
+demo/seed-data/monitor-status.json

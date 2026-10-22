@@ -1,0 +1,34 @@
+# Deploy del backend FarmacoVigía (Persona B) en Render.
+# Un solo web service: corre el API y sirve el dashboard estático.
+services:
+  - type: web
+    name: farmacovigia-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run api
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Render inyecta PORT automáticamente; el API ya lo lee.
+      - key: DRY_RUN
+        value: "false"
+      # Secrets: setéalos en el dashboard de Render (sync:false = no en el repo).
+      - key: CLICKHOUSE_URL
+        sync: false
+      - key: CLICKHOUSE_USER
+        sync: false
+      - key: CLICKHOUSE_PASSWORD
+        sync: false
+      - key: CLICKHOUSE_DATABASE
+        sync: false
+      - key: COMPOSIO_API_KEY
+        sync: false
+      - key: COMPOSIO_USER_ID
+        sync: false
+      - key: COMPOSIO_SLACK_CHANNEL
+        sync: false
+      - key: COMPOSIO_GMAIL_TO
+        sync: false
