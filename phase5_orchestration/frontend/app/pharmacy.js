@@ -61,15 +61,6 @@
     if (missing[key] && Date.now() - missing[key] < 300000) return Promise.resolve(null);
     return optional(call()).then((r) => { if (r === null) missing[key] = Date.now(); else delete missing[key]; return r; });
   }
-  function csvAvailable(url) {
-    if (missing.csv && Date.now() - missing.csv < 300000) return Promise.resolve(false);
-    // The CSV route comes from the backend session; probe it (HEAD) and hide Export while it 404s.
-    return fetch(url, { method: "HEAD" }).then((r) => {
-      const ok = r.ok || r.status === 405;
-      if (r.status === 404) missing.csv = Date.now(); else delete missing.csv;
-      return ok;
-    }).catch(() => false);
-  }
 
   // ---------- map data (cached across pages) ----------
 
@@ -131,7 +122,7 @@
   function RecallPicker({ alerts, meta, value, onChange }) {
     return html`<select className="ss-input ph-picker" value=${value} onChange=${(e) => onChange(e.target.value)} aria-label="Recall">
       ${alerts.map((a) => html`<option key=${a.recall_number} value=${a.recall_number}>
-        ${a.recall_number} · ${drugName(a, meta)}${a.status === "resolved" ? " (resolved)" : ""}</option>`)}
+        ${a.recall_number} · ${drugName(a, meta)}${ui.isSynthetic(a.recall_number) ? " (Test recall)" : ""}${a.status === "resolved" ? " (resolved)" : ""}</option>`)}
     </select>`;
   }
 
@@ -266,24 +257,40 @@
     const [res, setRes] = useState({ data: null, error: null, loading: true });
     const [sel, setSel] = useState(() => new Set());
     const [busy, setBusy] = useState("");
-    const [csv, setCsv] = useState(false);
+    const reqId = useRef(0);
     const local = q.trim() !== "" || fs !== "all"; // search/filter run over the full list client-side
 
     const load = useCallback(async () => {
+      const id = ++reqId.current; // a slower, older response must not overwrite a newer one
       setRes((r) => ({ ...r, loading: true }));
       try {
-        const data = await P.customers(rn, local ? { state, limit: 5000, offset: 0 } : { state, limit: pageSize, offset: page * pageSize });
+        let data;
+        if (local) {
+          // Server caps limit at 500: page through offsets to search the whole list.
+          data = await P.customers(rn, { state, limit: 500, offset: 0 });
+          while (data.customers.length < data.total && id === reqId.current) {
+            const more = await P.customers(rn, { state, limit: 500, offset: data.customers.length });
+            if (!more.customers.length) break;
+            data = { ...data, customers: data.customers.concat(more.customers) };
+          }
+        } else data = await P.customers(rn, { state, limit: pageSize, offset: page * pageSize });
+        if (id !== reqId.current) return;
         setRes({ data, error: null, loading: false });
         onCounts && onCounts(data);
-      } catch (error) { setRes((r) => ({ ...r, error, loading: false })); }
+      } catch (error) { if (id === reqId.current) setRes((r) => ({ ...r, error, loading: false })); }
     }, [rn, state, local, page, pageSize]);
     useEffect(() => { load(); }, [load]);
     useEffect(() => { setPage(0); setSel(new Set()); }, [rn, state, q, fs]);
-    useEffect(() => {
-      let live = true; setCsv(false);
-      csvAvailable(P.exportUrl(rn)).then((ok) => { if (live) setCsv(ok); });
-      return () => { live = false; };
-    }, [rn]);
+    const exportCsv = async () => {
+      // The CSV route comes from the backend session; download it, or say so if it isn't there yet.
+      try {
+        const r = await fetch(P.exportUrl(rn));
+        if (!r.ok) { toast(r.status === 404 ? "CSV export isn't available on this server yet" : `Export failed (HTTP ${r.status})`, "danger"); return; }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(await r.blob()); a.download = `${rn}-affected-customers.csv`;
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      } catch (e) { toast(`Export failed: ${e.message}`, "danger"); }
+    };
 
     const data = res.data;
     const counts = useMemo(() => {
@@ -340,7 +347,7 @@
             <option value="all">All statuses (${fmt(counts.total)})</option>
             ${Object.entries(FOLLOW).map(([k, f]) => html`<option key=${k} value=${k}>${f.label} (${fmt(counts[k])})</option>`)}
           </select>
-          ${csv && html`<a className="ss-btn ph-export" href=${P.exportUrl(rn)} download><${Icon} name="file-export" />Export</a>`}
+          <button className="ss-btn ph-export" onClick=${exportCsv}><${Icon} name="file-export" />Export</button>
         </div>
       </div>
       <div className="ph-chips">
@@ -519,8 +526,8 @@
     const sorted = useMemo(() => [...alerts].sort(byNewest), [alerts]);
     const fallback = sorted.find(isActive) || sorted[0];
     const alert = route.id ? alerts.find((a) => a.recall_number === route.id) : fallback;
-    const [state, setState] = useState("");
-    useEffect(() => { setState(""); }, [route.id]);
+    const [state, setState] = useState((route.query && route.query[0]) || "");
+    useEffect(() => { setState((route.query && route.query[0]) || ""); }, [route.id]);
     const st = useStates(alert && alert.recall_number);
     const pick = (v) => navigate(`pharmacy/customers/${v}`);
     if (!alert) return html`<${PageHead} title="Affected Customers" monitor=${monitor} />
@@ -591,7 +598,7 @@
             <h2>Live events</h2>
             <p className="ph-small ph-muted">Received over the live stream while this page is open.</p>
             ${events.length ? html`<ul className="ph-events">${events.slice(0, 30).map((e, i) => html`<li key=${i}>
-              <span className="ph-mono">${e.stage}</span><span>${e.recall_number || ""}</span>
+              <span className="ph-mono">${e.stage}</span><span>${e.recall_number || ""} <${SyntheticBadge} rn=${e.recall_number} /></span>
               <small>${e.ts ? ago(new Date(e.ts * 1000).toISOString()) : ""}</small></li>`)}</ul>`
               : html`<${Empty} icon="broadcast" title="No events yet">They appear here as the monitor processes recalls.<//>`}
           </section>
@@ -621,7 +628,7 @@
       </section>
       <section className="ss-card ph-table-card">
         <div className="ph-card-head"><h2>All states</h2>
-          ${state && html`<button className="ss-btn sm primary" onClick=${() => navigate(`pharmacy/customers/${cur.recall_number}`)}>
+          ${state && html`<button className="ss-btn sm primary" onClick=${() => navigate(`pharmacy/customers/${cur.recall_number}/${state}`)}>
             Open customer list<${Icon} name="arrow-right" /></button>`}</div>
         ${st.data ? html`<div className="ph-table-wrap"><table className="ss-table ph-table">
           <thead><tr><th>State</th><th className="num">Customers</th><th className="num">Pharmacies</th><th>Share of customers</th></tr></thead>
@@ -719,7 +726,7 @@
       ${open && q.trim().length >= 2 && html`<div className="ph-results">
         ${hits.length ? hits.map((h) => html`<button key=${h.recall_number} onClick=${() => go(h)} disabled=${h.noAlert}>
           <div><b>${h.name}</b><small><span className="ph-mono">${h.recall_number}</span> · NDC ${h.ndc || "-"} · ${h.firm || ""}</small></div>
-          <span className="ph-res-badges"><${ClassBadge} classification=${h.classification} />${h.noAlert && html`<${Badge}>No network match<//>`}</span>
+          <span className="ph-res-badges"><${ClassBadge} classification=${h.classification} /><${SyntheticBadge} rn=${h.recall_number} />${h.noAlert && html`<${Badge}>No network match<//>`}</span>
         </button>`) : html`<div className="ph-res-empty">No recalls match "${q.trim()}"</div>`}
       </div>`}
     </div>`;
