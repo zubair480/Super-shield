@@ -4,8 +4,27 @@
     {
       "name": "supershield-pharmacy",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "uvicorn", "phase5_orchestration.server:app", "--host", "127.0.0.1", "--port", "8000"],
+      "runtimeArgs": [
+        "-m",
+        "uvicorn",
+        "phase5_orchestration.server:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000"
+      ],
       "port": 8000
+    },
+    {
+      "name": "supershield-patient",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "patient",
+        "run",
+        "dev"
+      ],
+      "port": 3000
     }
   ]
 }

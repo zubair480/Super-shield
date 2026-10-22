@@ -10,8 +10,8 @@ import os
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -133,6 +133,46 @@ async def stream(ws: WebSocket):
         pass
     finally:
         bus.unsubscribe(q)
+
+
+# ---------- unified SuperShield app (pharmacy + patient portals) ----------
+
+PATIENT_API = os.getenv("PATIENT_API_URL", "http://127.0.0.1:3000").rstrip("/")
+
+
+@app.get("/api/pharmacy/alerts/{recall_number}/states")
+async def alert_states(recall_number: str):
+    """De-identified per-state rollup + affected pharmacy points for one recall (map)."""
+    summary = await asyncio.to_thread(clickhouse_tools.cohort_summary, recall_number)
+    summary["points"] = await asyncio.to_thread(clickhouse_tools.affected_pharmacy_points,
+                                                recall_number)
+    return summary
+
+
+@app.api_route("/api/patient/{path:path}", methods=["GET", "POST", "PUT"])
+async def patient_proxy(path: str, request: Request):
+    """Same-origin pass-through to the patient workflow's API (runs on its own server)."""
+    import requests
+
+    body = await request.body()
+
+    def _forward():
+        return requests.request(
+            request.method, f"{PATIENT_API}/api/{path}", params=dict(request.query_params),
+            data=body or None, headers={"Content-Type": "application/json"}, timeout=30)
+
+    try:
+        resp = await asyncio.to_thread(_forward)
+    except requests.RequestException:
+        return JSONResponse({"error": "patient service unreachable", "url": PATIENT_API},
+                            status_code=502)
+    return Response(resp.content, status_code=resp.status_code,
+                    media_type=resp.headers.get("Content-Type", "application/json"))
+
+
+@app.get("/app")
+async def unified_app():
+    return FileResponse(FRONTEND / "app" / "index.html")
 
 
 @app.get("/")
