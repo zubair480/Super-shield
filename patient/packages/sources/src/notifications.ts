@@ -109,7 +109,8 @@ export async function monitorPatient(
   deps: { postAlert: PostAlert; log: EventLogger },
 ): Promise<PatientNotification[]> {
   if (patient.drugs.length === 0) return [];
-  const report = await checkDrugSafety({ patientId: patient.id, drugs: patient.drugs });
+  // Primero solo recalls (rápido, sin LLM). Claude escribe el boletín solo si hay algo nuevo.
+  let report = await checkDrugSafety({ patientId: patient.id, drugs: patient.drugs, skipBulletin: true });
 
   const known = new Set(listNotifications(patient.id).map((n) => n.id));
   const createdAt = new Date().toISOString();
@@ -131,6 +132,9 @@ export async function monitorPatient(
     }
   }
   if (fresh.length === 0) return [];
+
+  report = await checkDrugSafety({ patientId: patient.id, drugs: patient.drugs });
+  for (const n of fresh) n.bulletin = report.bulletin;
 
   for (const n of fresh) {
     await deps.log("recall_detected", {

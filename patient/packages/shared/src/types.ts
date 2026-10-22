@@ -6,6 +6,7 @@
 export interface SafetyCheckRequest {
   patientId?: string;
   drugs: string[];
+  skipBulletin?: boolean; // solo buscar recalls (sin llamar al LLM)
 }
 
 export interface RecallHit {

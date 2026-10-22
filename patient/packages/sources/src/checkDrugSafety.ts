@@ -50,7 +50,7 @@ export const checkDrugSafety: CheckDrugSafety = async (req) => {
     if (records.length) raw.push({ input, records });
   }
 
-  const bulletin = await buildBulletin(req, drugs, raw);
+  const bulletin = req.skipBulletin ? "" : await buildBulletin(req, drugs, raw);
 
   return {
     drugs,
