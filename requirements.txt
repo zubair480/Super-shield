@@ -1,0 +1,33 @@
+# SuperShield - Python dependencies (Python 3.12)
+# Installed incrementally per phase to keep the build fast and debuggable.
+
+# --- Phase 1: synthetic data + openFDA seed fetch ---
+requests>=2.31
+Faker>=24.0
+numpy>=1.26
+pandas>=2.2
+python-dotenv>=1.0
+
+# --- Phase 2: ingestion (direct openFDA HTTP via requests) ---
+clickhouse-connect>=0.7
+
+# --- Phase 3: ClickHouse client (shared with Phase 2) ---
+# clickhouse-connect (above)
+
+# --- Phase 4: ML severity classification ---
+scikit-learn==1.9.0  # must match the version severity_model.joblib was trained with
+scipy>=1.12
+joblib>=1.3
+# guildai (training only) goes in its own .venv-guild: it pins protobuf<5 and its
+# deep test paths fail on Windows without long-path support. Not needed to run the app.
+
+# --- Phase 5: orchestration + API ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+websockets>=12.0
+anthropic>=0.70  # Claude: runtime alert cards
+composio>=0.30   # optional: real pharmacist alert via Slack/Gmail (no-op if unconfigured)
+
+# --- Phase 6 (optional): OpenAI Agents SDK ---
+# openai-agents>=0.0.1
+

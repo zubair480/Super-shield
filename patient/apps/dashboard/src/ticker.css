@@ -1,0 +1,141 @@
+.tk-root {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.tk-label {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 16, 14, 0.82);
+  backdrop-filter: blur(8px);
+  color: rgba(238, 245, 241, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tk-live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff6a55;
+  box-shadow: 0 0 0 0 rgba(255, 106, 85, 0.6);
+  animation: tk-pulse 1.8s ease-out infinite;
+}
+
+.tk-viewport {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding-left: 200px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, transparent 170px, #000 260px, #000 calc(100% - 90px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, transparent 170px, #000 260px, #000 calc(100% - 90px), transparent 100%);
+}
+
+.tk-track {
+  display: flex;
+  width: max-content;
+  animation: tk-scroll 75s linear infinite;
+}
+
+.tk-root:hover .tk-track {
+  animation-play-state: paused;
+}
+
+.tk-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tk-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 28px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  text-decoration: none;
+  color: inherit;
+  line-height: 1;
+}
+
+.tk-item:hover .tk-drug,
+.tk-item:focus-visible .tk-drug {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tk-item:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.tk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tk-cI { background: #ff6a55; box-shadow: 0 0 8px rgba(255, 106, 85, 0.6); }
+.tk-cII { background: #f2b84b; }
+.tk-cIII { background: #9fb4c8; }
+
+.tk-drug {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+}
+
+.tk-meta {
+  font-size: 14px;
+  color: rgba(238, 245, 241, 0.6);
+}
+
+@keyframes tk-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes tk-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 106, 85, 0.6); }
+  70% { box-shadow: 0 0 0 7px rgba(255, 106, 85, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 106, 85, 0); }
+}
+
+@media (max-width: 640px) {
+  .tk-label { left: 12px; padding: 5px 10px; font-size: 11px; }
+  .tk-viewport { padding-left: 170px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-track { animation: none; }
+  .tk-dup { display: none; }
+  .tk-live { animation: none; }
+  .tk-viewport {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tk-viewport::-webkit-scrollbar { display: none; }
+}

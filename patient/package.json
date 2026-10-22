@@ -1,0 +1,30 @@
+{
+  "name": "supershield-patient",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SuperShield — agente de pharmacovigilance: vigila retiros FDA, cruza pacientes, alerta vía Slack/Gmail",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && npm run dashboard:build",
+    "start": "npm run start -w @supershield/dashboard",
+    "typecheck": "tsc --noEmit",
+    "worker": "npm run start -w @supershield/worker",
+    "dashboard": "npm run start -w @supershield/dashboard",
+    "dashboard:build": "npm run build -w @supershield/dashboard",
+    "api": "npm run start -w @supershield/api",
+    "api:dev": "npm run dev -w @supershield/api",
+    "notifier:demo": "npm run demo -w @supershield/notifier",
+    "dev": "node scripts/dev.mjs",
+    "ch:password": "node scripts/set-clickhouse-password.mjs",
+    "ch:backfill": "node scripts/ch-backfill.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
