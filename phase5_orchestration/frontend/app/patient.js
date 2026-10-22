@@ -149,9 +149,9 @@
               <span className="pt-chip-name">${patient ? patient.name : "Loading"}</span>
               <${Icon} name="chevron-down" />
             </button>
-            ${open && html`<div className="pt-menu" role="listbox" aria-label="Switch patient">
+            ${open && html`<div className="pt-menu" role="listbox" aria-label="Demo patients">
               <div className="pt-menu-head">
-                <b>Switch demo patient</b><small>${(patients || []).length} patients in the demo</small>
+                <b>Demo patients</b><small>Demo tool: switch between ${(patients || []).length} synthetic patients</small>
                 <input className="ss-input" placeholder="Search by name or ID" value=${q} autoFocus
                   onInput=${(e) => setQ(e.target.value)} />
               </div>
@@ -441,7 +441,7 @@
       </div>
       ${note.bulletin && html`<section className="ss-card pt-panel pt-bulletin">
         <h2><${Icon} name="message-2" />What this means for you</h2>
-        <small className="pt-muted">A plain-language summary of your FDA recall matches, written by Claude from the FDA data.</small>
+        <small className="pt-muted">Plain-language summary of the FDA data.</small>
         <div className="pt-bulletin-text">${note.bulletin}</div>
       </section>`}
     </div>`;
