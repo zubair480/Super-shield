@@ -83,12 +83,12 @@ export async function anthropicComplete(
     },
     body: JSON.stringify({
       model,
-      max_tokens: opts.maxTokens ?? 600,
+      max_tokens: opts.maxTokens ?? 3000,
       ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
       ...(opts.system ? { system: opts.system } : {}),
       messages: [{ role: "user", content: prompt }],
     }),
-    signal: AbortSignal.timeout(20_000),
+    signal: AbortSignal.timeout(60_000),
   });
 
   if (!res.ok) {

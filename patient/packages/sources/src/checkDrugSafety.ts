@@ -115,8 +115,8 @@ async function buildBulletin(
   if (process.env.ANTHROPIC_API_KEY) {
     try {
       return await anthropicComplete(userPrompt, { system: BULLETIN_SYSTEM_PROMPT });
-    } catch {
-      /* fall through */
+    } catch (e) {
+      console.warn(`[bulletin] Claude failed, using template: ${(e as Error).message.slice(0, 200)}`);
     }
   }
   // (3) Generic OpenAI-compatible endpoint (no registry prompt).
