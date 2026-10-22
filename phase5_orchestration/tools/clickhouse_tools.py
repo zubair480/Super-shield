@@ -7,6 +7,7 @@ these functions (the privacy-ready boundary).
 from __future__ import annotations
 
 import sys
+import threading
 from functools import lru_cache
 from pathlib import Path
 
@@ -19,11 +20,17 @@ from settings import CLICKHOUSE  # noqa: E402
 SEVERITY_RANK = "multiIf(sev = 'Lethal', 3, sev = 'Moderate', 2, 1)"
 
 
-@lru_cache(maxsize=1)
+_local = threading.local()
+
+
 def get_client():
-    cfg = dict(CLICKHOUSE)
-    db = cfg.pop("database")
-    return clickhouse_connect.get_client(database=db, **cfg)
+    # One client per thread: clickhouse-connect sessions reject concurrent queries,
+    # and the API serves requests from a thread pool while the monitor runs.
+    if getattr(_local, "client", None) is None:
+        cfg = dict(CLICKHOUSE)
+        db = cfg.pop("database")
+        _local.client = clickhouse_connect.get_client(database=db, **cfg)
+    return _local.client
 
 
 @lru_cache(maxsize=1)
@@ -140,3 +147,26 @@ def global_stats() -> dict:
         "total_pharmacies": int(client.command("SELECT count() FROM safetynet.pharmacies")),
         "total_alerts": int(client.command("SELECT count() FROM safetynet.patient_alerts")),
     }
+
+
+def shared_recalls(limit: int = 100) -> list[dict]:
+    """SuperShield shared feed: one row per recall, keyed by openFDA recall_number."""
+    rows = get_client().query(
+        """
+        SELECT recall_number, groupUniqArray(product_ndc), any(classification), any(severity),
+               any(recalling_firm), any(reason_for_recall), any(generic_name),
+               any(product_description), any(report_date), any(source_url), max(ingested_at)
+        FROM safetynet.fda_recalls
+        GROUP BY recall_number ORDER BY max(ingested_at) DESC, any(report_date) DESC
+        LIMIT %(n)s
+        """,
+        parameters={"n": int(limit)},
+    ).result_rows
+    return [
+        {"recall_number": r[0], "product_ndcs": list(r[1]), "classification": r[2],
+         "severity": r[3], "recalling_firm": r[4], "reason_for_recall": r[5],
+         "generic_name": r[6], "product_description": r[7], "report_date": r[8],
+         "source_url": r[9], "ingested_at": r[10].isoformat() + "Z",
+         "synthetic": r[0].startswith("DEMO-")}
+        for r in rows
+    ]

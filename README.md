@@ -112,3 +112,29 @@ One practical distinction: the current HawkSign repository supports ingestion, b
 Final demo: Introduce one new FDA recall in the synthetic environment. Both sides independently detect it: the pharmacy dashboard highlights affected customers, while the patient dashboard receives its own medication safety alert. Neither workflow waits for the other.
 
 That's SuperShield: one FDA safety network, two independent experiences, continuous protection.
+
+---
+
+## Running SuperShield Pharmacy (Developer 1, branch `feat/pharmacy`)
+
+Built on HawkSign (original README: [docs/HAWKSIGN_README.md](docs/HAWKSIGN_README.md)).
+Shared data contract with the patient workflow: [docs/INTEGRATION.md](docs/INTEGRATION.md).
+
+```bash
+python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+cp .env.example .env    # ClickHouse Cloud host/password; optional Telegram bot for phone push
+.venv/Scripts/python phase1_data/fetch_seed_ndcs.py
+.venv/Scripts/python phase1_data/generate_pharmacies.py
+.venv/Scripts/python phase1_data/generate_customers.py
+.venv/Scripts/python phase3_lakehouse/clickhouse_bootstrap.py   # schema + 1M customers
+.venv/Scripts/python phase2_ingest/load_to_clickhouse.py         # live openFDA recalls
+.venv/Scripts/python -m uvicorn phase5_orchestration.server:app --port 8000
+```
+
+The server starts the always-on monitor (`phase7_monitor/monitor.py`): it polls openFDA every
+`FDA_POLL_SEC` (300s), and every `MONITOR_INTERVAL_SEC` (15s) turns each newly matched recall
+into a pharmacist alert, pushes it to Telegram (`ALERT_CHANNEL=telegram`, `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_CHAT_ID`) and replays it on the US map. No button press needed.
+Recalls already present when the monitor starts are listed as "Earlier" and never paged.
+Matches are **NDC candidates** — the pharmacist verifies the lot per customer.
+Customer SMS fan-out remains simulated and is labelled so.

@@ -38,3 +38,6 @@ CREATE TABLE IF NOT EXISTS safetynet.customer_followups
 )
 ENGINE = ReplacingMergeTree(updated_at)
 ORDER BY (recall_number, customer_id);
+
+-- Result of the real phone push for this alert (sent / not_configured / error text).
+ALTER TABLE safetynet.pharmacist_alerts ADD COLUMN IF NOT EXISTS push_status String DEFAULT '';

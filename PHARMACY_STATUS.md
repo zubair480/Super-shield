@@ -35,11 +35,11 @@ ask instead of editing it.
 | Endpoint | Purpose | State |
 |---|---|---|
 | `GET /api/stats`, `GET /api/recalls`, `GET /api/pharmacies`, `POST /api/run`, `WS /stream` | HawkSign base (map, trace) | Committed |
-| `GET /api/monitor/status` | Poller health (FDA poll every `FDA_POLL_SEC`=300s, alert scan every `MONITOR_INTERVAL_SEC`=15s) | In progress |
-| `GET /api/pharmacy/alerts` | Pharmacist alert list | In progress |
-| `POST /api/pharmacy/alerts/{recall_number}/status` | new → reviewing → resolved | In progress |
-| `GET /api/pharmacy/alerts/{recall_number}/customers` | Affected-customer review list | In progress |
-| `POST /api/pharmacy/alerts/{recall_number}/customers/{customer_id}` | contacted / lot_verified / not_affected | In progress |
+| `GET /api/monitor/status` | Poller health (FDA poll every `FDA_POLL_SEC`=300s, alert scan every `MONITOR_INTERVAL_SEC`=15s) | Done, tested live |
+| `GET /api/pharmacy/alerts` | Pharmacist alert list | Done, tested live |
+| `POST /api/pharmacy/alerts/{recall_number}/status` | new → reviewing → resolved | Done, tested live |
+| `GET /api/pharmacy/alerts/{recall_number}/customers` | Affected-customer review list | Done, tested live |
+| `POST /api/pharmacy/alerts/{recall_number}/customers/{customer_id}` | contacted / lot_verified / not_affected | Done, tested live |
 | `POST /api/demo/recall` | Own demo injector — **to be replaced by shared feed** | In progress |
 | `GET /api/shared/recalls` | Recall feed without PII; Patient doesn't need it (reads openFDA directly) | In progress, may be dropped |
 

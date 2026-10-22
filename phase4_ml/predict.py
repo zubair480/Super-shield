@@ -15,6 +15,8 @@ sys.path.append(str(ROOT))
 from settings import CLASSIFICATION_TO_SEVERITY  # noqa: E402
 
 MODEL_PATH = ROOT / "phase4_ml" / "models" / "severity_model.joblib"
+if not MODEL_PATH.exists():  # the committed canonical copy (models/ is gitignored)
+    MODEL_PATH = ROOT / "severity_model.joblib"
 
 
 @lru_cache(maxsize=1)

@@ -84,6 +84,7 @@ def main() -> None:
     print("Applying schema...")
     run_sql_file(admin, SQL_DIR / "01_create_tables.sql")
     run_sql_file(admin, SQL_DIR / "02_materialized_view.sql")
+    run_sql_file(admin, SQL_DIR.parent / "phase7_monitor" / "schema.sql")
 
     if args.schema_only:
         print("Schema applied (--schema-only). Done.")
