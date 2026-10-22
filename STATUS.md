@@ -1,0 +1,38 @@
+# SuperShield — live build status
+
+Last updated: 2026-10-22 (Developer 2 / Patient). Branch: `feat/patient`.
+This file states plainly what is **real**, what is **synthetic/test**, and what is **not done yet**.
+
+## Patient workflow (Developer 2) — `patient/`
+
+| Piece | State | Notes |
+|---|---|---|
+| FDA data | **Real** | Live openFDA `drug/enforcement` API, no key needed. `USE_SEED=0` by default. |
+| Continuous monitoring | **Real** | Worker re-checks every saved medication every 60s (`WORKER_INTERVAL_SEC`). No Scan button. |
+| Drug matching | **Real** (FarmaWatcher) | Name + synonym match against openFDA generic/brand/substance/product. It is a **name match**, never shown as a lot match. |
+| In-app alerts | **Real** | One per (patient, `recall_number`). Stored in `patient/demo/seed-data/notifications.json`. |
+| Patient UI | **Real** | `npm --prefix patient run dev` → http://localhost:3000 (prod build) / http://localhost:5173 (live dev). Hero status, medication cards, alert list, 3-step "what to do" with lot numbers. |
+| Claude bulletins | **Partial** | Code calls Anthropic directly. Current key needs `ANTHROPIC_WORKSPACE_ID` → until set, a factual template is used. |
+| Slack/Gmail (Composio) | **Partial** | `COMPOSIO_API_KEY` set; needs `COMPOSIO_SLACK_CHANNEL` (or `NOTIFY_CHANNEL=gmail` + `COMPOSIO_GMAIL_TO`). UI labels it "Not configured" until then — never claims "sent". |
+| ClickHouse | **Partial** | Tables created in ClickHouse Cloud (see below). App writes `events` + `patient_notifications` once `CLICKHOUSE_PASSWORD` is set (`npm --prefix patient run ch:password`). Until then: local JSON. |
+| Demo recall | **Synthetic, labeled** | `node shared/fda/inject-recall.mjs --drug Losartan --class "Class I"` adds one openFDA-shaped record with `"synthetic": true`. UI shows "Test recall". Reset with `--reset`. |
+
+Verified end to end: synthetic Class I Losartan recall injected 21:28:38Z → patient PX-001 alerted in-app 21:29:47Z, no pharmacist action.
+
+## Shared contract with Pharmacy (Developer 1)
+
+- Recall identifier: openFDA **`recall_number`** (same as HawkSign).
+- Shared test feed: `shared/fda/demo-recalls.json` (openFDA shape). Load it alongside openFDA into `safetynet.fda_recalls` so both sides detect the same demo recall independently.
+- ClickHouse Cloud service "My first service" — tables already created:
+  - `default.events`, `default.patient_notifications` (patient)
+  - `safetynet.fda_recalls`, `pharmacies`, `patient_ehr`, `patient_alerts`, `alert_geo_rollup` (HawkSign schema, ready for Developer 1; materialized view not created yet)
+
+## Secrets
+
+All in `patient/.env` (gitignored). Template: `patient/.env.example`. Never commit keys.
+
+## Not done yet
+
+- ClickHouse password (owner must reset in console and run `ch:password`).
+- Anthropic workspace id, Slack channel for Composio.
+- Pharmacy side lives on Developer 1's branch.

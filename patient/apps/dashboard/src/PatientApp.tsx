@@ -10,7 +10,6 @@ import {
   reasonGist,
   rel,
   statusLabel,
-  statusTitle,
   type DetailState,
 } from "./lib";
 import {
@@ -21,18 +20,24 @@ import {
   fetchNotifications,
   fetchPatients,
   updateDrugs,
-  type DrugCheckHit,
   type MonitorStatus,
   type Patient,
   type PatientNotification,
 } from "./patientApi";
+import "./patient.css";
+import "./patient-sections.css";
 
-// Pantalla del paciente: perfil, medicamentos, estado del monitor automático,
-// alertas de seguridad y detalle del recall. Todo con datos reales del server.
+// SuperShield — experiencia del paciente. Responde primero "¿estoy bien?",
+// luego qué medicamento está afectado y qué hacer, paso a paso.
 
 const POLL_MS = 5000;
 const LS_KEY = "supershield.patient";
 const MAX_DRUGS = 8;
+
+type Sev = "I" | "II" | "III";
+const SEV_WORD: Record<Sev, string> = { I: "Serious", II: "Moderate", III: "Low" };
+
+/* ── utilidades ───────────────────────────────────────────────────────── */
 
 function readStoredId(): string | null {
   const q = new URLSearchParams(location.search).get("patient");
@@ -53,7 +58,7 @@ function persistId(id: string | null) {
     if (id) localStorage.setItem(LS_KEY, id);
     else localStorage.removeItem(LS_KEY);
   } catch {
-    /* almacenamiento bloqueado: la URL basta */
+    /* sin storage: la URL basta */
   }
 }
 
@@ -66,29 +71,58 @@ function useNow(ms = 1000): number {
   return now;
 }
 
-function isoDate(s?: string): Date | null {
+function toDate(s?: string): Date | null {
   if (!s) return null;
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
 
-function fmtDateTime(s?: string): string {
-  const d = isoDate(s);
-  if (!d) return "";
-  return d.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+}
+
+function firstName(name: string): string {
+  return name.split(/\s+/)[0] ?? name;
+}
+
+function greeting(): string {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
+
+function titleCase(s: string): string {
+  return s.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+}
+
+/** Lotes legibles del texto libre de openFDA ("Lot # 1169752A, exp..."). */
+function extractLots(code?: string): string[] {
+  const s = clean(code);
+  if (!s) return [];
+  const out = new Set<string>();
+  const re = /\blots?\b\s*(?:#|no\.?|numbers?)?\s*:?\s*([A-Z0-9][A-Z0-9-]{3,})/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s))) out.add(m[1]!.toUpperCase());
+  // Después de "Lot #", openFDA suele listar más códigos sueltos separados por espacio/coma.
+  for (const tok of s.split(/[\s,;]+/)) {
+    if (/^[A-Z]{0,3}\d{5,}[A-Z]?$/i.test(tok) && !/^20\d{6}$/.test(tok)) out.add(tok.toUpperCase());
+  }
+  return [...out].slice(0, 12);
 }
 
 function notifSupported(): boolean {
   return typeof window !== "undefined" && "Notification" in window;
 }
 
-/* ── Raíz ─────────────────────────────────────────────────────────────── */
+function sevRank(c: Sev): number {
+  return c === "I" ? 0 : c === "II" ? 1 : 2;
+}
+
+/* ── raíz ─────────────────────────────────────────────────────────────── */
 
 export default function PatientApp() {
   const [patients, setPatients] = useState<Patient[] | null>(null);
@@ -101,10 +135,8 @@ export default function PatientApp() {
       const list = await fetchPatients();
       setPatients(list);
       setLoadError(null);
-      return list;
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Could not load profiles");
-      return null;
     }
   }, []);
 
@@ -112,12 +144,10 @@ export default function PatientApp() {
     void loadPatients();
   }, [loadPatients]);
 
-  // Si el id guardado ya no existe, caer al primero disponible.
   useEffect(() => {
     if (!patients) return;
     if (patientId && patients.some((p) => p.id === patientId)) return;
-    const next = patients[0]?.id ?? null;
-    setPatientId(next);
+    setPatientId(patients[0]?.id ?? null);
   }, [patients, patientId]);
 
   useEffect(() => {
@@ -126,164 +156,168 @@ export default function PatientApp() {
 
   const patient = patients?.find((p) => p.id === patientId) ?? null;
 
-  const onPatientUpdated = (p: Patient) => {
+  const onUpdated = (p: Patient) =>
     setPatients((list) => (list ? list.map((x) => (x.id === p.id ? p : x)) : [p]));
-  };
 
-  const onCreated = async (p: Patient) => {
+  const onCreated = (p: Patient) => {
     setShowNew(false);
     setPatients((list) => [...(list ?? []).filter((x) => x.id !== p.id), p]);
     setPatientId(p.id);
-    void loadPatients();
   };
 
   return (
-    <div className="pt-wrap">
-      <header className="pt-head">
-        <div className="pt-brand">
-          <span className="mark" aria-hidden="true" />
-          <div>
-            <h1>
-              SuperShield <span className="pt-dot-sep">·</span> Patient
-            </h1>
-            <p>Automatic FDA recall monitoring for the medications you take.</p>
-          </div>
-        </div>
-        <div className="pt-head-actions">
-          {patients && patients.length > 0 && (
-            <label className="pt-select">
-              <span className="pt-cap">Profile</span>
-              <select
-                value={patientId ?? ""}
-                onChange={(e) => setPatientId(e.target.value || null)}
-                aria-label="Select patient profile"
-              >
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <button
-            className={`pt-btn ${showNew ? "" : "pt-btn-primary"}`}
-            onClick={() => setShowNew((v) => !v)}
-            aria-expanded={showNew}
-          >
-            {showNew ? "Cancel" : "New profile"}
-          </button>
-          <a className="pt-link" href="/events">
-            Ops event log →
+    <div className="ss">
+      <div className="ss-shell">
+        <header className="ss-top">
+          <a className="ss-brand" href="/">
+            <ShieldMark />
+            SuperShield
           </a>
-        </div>
-      </header>
+          <div className="ss-top-right">
+            <Pulse />
+            {patients && patients.length > 0 && patient && (
+              <label className="ss-profile" title="Switch profile">
+                <span className="ss-avatar" aria-hidden="true">
+                  {initials(patient.name)}
+                </span>
+                <select
+                  value={patientId ?? ""}
+                  onChange={(e) => setPatientId(e.target.value || null)}
+                  aria-label="Profile"
+                >
+                  {patients.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <button className="ss-icon-btn" onClick={() => setShowNew(true)} aria-label="New profile" title="New profile">
+              +
+            </button>
+          </div>
+        </header>
 
-      {showNew && <NewProfileForm onCreated={onCreated} />}
+        {loadError && !patients && (
+          <div className="ss-hero attention">
+            <h1 className="ss-headline">We can’t reach SuperShield right now.</h1>
+            <p className="ss-sub">{loadError}</p>
+            <div className="ss-hero-actions">
+              <button className="ss-btn primary" onClick={() => void loadPatients()}>
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
 
-      {loadError && !patients && (
-        <div className="pt-error" role="alert">
-          Could not reach the SuperShield server ({loadError}).{" "}
-          <button className="pt-btn pt-btn-sm" onClick={() => void loadPatients()}>
-            Retry
-          </button>
-        </div>
-      )}
+        {patients && patients.length === 0 && (
+          <div className="ss-hero clear">
+            <h1 className="ss-headline">
+              Know the moment a medicine you take is <em>recalled.</em>
+            </h1>
+            <p className="ss-sub">
+              Add your medications once. SuperShield watches the FDA’s recall reports around the clock
+              and tells you — in plain language — if one of them is affected.
+            </p>
+            <div className="ss-hero-actions">
+              <button className="ss-btn primary" onClick={() => setShowNew(true)}>
+                Add my medications
+              </button>
+            </div>
+          </div>
+        )}
 
-      {!patients && !loadError && <p className="pt-muted pt-pad">Loading profiles…</p>}
+        {patient && <Home key={patient.id} patient={patient} onUpdated={onUpdated} />}
 
-      {patients && patients.length === 0 && !showNew && (
-        <div className="pt-empty pt-empty-hero">
-          <h2>No profile yet</h2>
-          <p>
-            Create a profile with the medications you take. SuperShield then checks the FDA
-            enforcement reports automatically and alerts you if one of them is recalled.
-          </p>
-          <button className="pt-btn pt-btn-primary" onClick={() => setShowNew(true)}>
-            Create your profile
-          </button>
-        </div>
-      )}
+        <footer className="ss-foot">
+          <span>
+            Recall data from the U.S. FDA enforcement reports via openFDA. SuperShield is not a substitute
+            for advice from your pharmacist or doctor.
+          </span>
+          <a href="/events">Activity log</a>
+        </footer>
+      </div>
 
-      {patient && <PatientDashboard key={patient.id} patient={patient} onUpdated={onPatientUpdated} />}
+      {showNew && <NewProfileSheet onClose={() => setShowNew(false)} onCreated={onCreated} />}
     </div>
   );
 }
 
-/* ── Alta de perfil ───────────────────────────────────────────────────── */
-
-function NewProfileForm({ onCreated }: { onCreated: (p: Patient) => void }) {
-  const [name, setName] = useState("");
-  const [meds, setMeds] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  const drugs = useMemo(() => {
-    const seen = new Set<string>();
-    return meds
-      .split(/[,\n]/)
-      .map((s) => s.trim())
-      .filter((s) => {
-        const k = s.toLowerCase();
-        if (!s || seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      });
-  }, [meds]);
-
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (saving) return;
-    if (!name.trim()) return setErr("Enter a name.");
-    if (drugs.length === 0) return setErr("Enter at least one medication.");
-    if (drugs.length > MAX_DRUGS) return setErr(`At most ${MAX_DRUGS} medications.`);
-    setSaving(true);
-    setErr(null);
-    try {
-      const p = await createPatient(name.trim(), drugs);
-      onCreated(p);
-    } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : "Could not create the profile.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
+function ShieldMark() {
   return (
-    <form className="pt-card pt-new" onSubmit={submit}>
-      <h2 className="pt-h2">New profile</h2>
-      <div className="pt-new-grid">
-        <label className="pt-field">
-          <span className="pt-cap">Name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Maria Lopez" />
-        </label>
-        <label className="pt-field">
-          <span className="pt-cap">Medications (comma-separated, up to {MAX_DRUGS})</span>
-          <input
-            value={meds}
-            onChange={(e) => setMeds(e.target.value)}
-            placeholder="e.g. losartan, metformin"
-          />
-        </label>
-      </div>
-      {err && <p className="pt-inline-err">{err}</p>}
-      <div className="pt-row">
-        <button className="pt-btn pt-btn-primary" type="submit" disabled={saving}>
-          {saving ? "Creating…" : "Create profile"}
-        </button>
-        <span className="pt-muted">Monitoring starts automatically once the profile is saved.</span>
-      </div>
-    </form>
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path
+        d="M16 3 5 7v8.2c0 6.7 4.6 11.7 11 13.8 6.4-2.1 11-7.1 11-13.8V7L16 3Z"
+        fill="var(--green)"
+      />
+      <path d="m11 16.2 3.4 3.4L21.5 12.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
-/* ── Panel del paciente ───────────────────────────────────────────────── */
+/* ── latido del monitor (barra superior) ───────────────────────────────── */
 
-function PatientDashboard({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient) => void }) {
+function Pulse() {
+  const [st, setSt] = useState<MonitorStatus | null>(null);
+  const [err, setErr] = useState(false);
+  useNow(5000);
+
+  useEffect(() => {
+    let alive = true;
+    const tick = async () => {
+      try {
+        const s = await fetchMonitorStatus();
+        if (alive) {
+          setSt(s);
+          setErr(false);
+        }
+      } catch {
+        if (alive) setErr(true);
+      }
+    };
+    void tick();
+    const t = setInterval(tick, POLL_MS);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+
+  const live = !!st?.running && !err;
+  const last = toDate(st?.lastRunAt);
+  const title = st
+    ? `Checks every ${st.intervalSec}s against ${st.dataSource === "openfda" ? "live openFDA" : "the demo fixture"} · ${st.patientsChecked} profiles${st.lastError ? ` · last error: ${st.lastError}` : ""}`
+    : undefined;
+
+  return (
+    <span className={`ss-pulse ${live ? "" : "off"}`} title={title}>
+      <span className="ss-pulse-dot" aria-hidden="true" />
+      <span className="ss-pulse-text">
+        {err ? (
+          "Monitor unreachable"
+        ) : !st ? (
+          "Connecting…"
+        ) : live ? (
+          <>
+            <b>Watching FDA</b> · checked {last ? rel(last) : "just now"}
+          </>
+        ) : (
+          "Monitoring paused"
+        )}
+      </span>
+    </span>
+  );
+}
+
+/* ── inicio del paciente ──────────────────────────────────────────────── */
+
+function Home({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient) => void }) {
   const [notifs, setNotifs] = useState<PatientNotification[] | null>(null);
   const [notifErr, setNotifErr] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [toast, setToast] = useState<PatientNotification[]>([]);
+  const [fresh, setFresh] = useState<PatientNotification | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
   const seen = useRef<Set<string> | null>(null);
 
   useEffect(() => {
@@ -295,26 +329,22 @@ function PatientDashboard({ patient, onUpdated }: { patient: Patient; onUpdated:
         setNotifErr(null);
         setNotifs(list);
         if (seen.current === null) {
-          // Primera carga: línea base, sin avisos.
           seen.current = new Set(list.map((n) => n.id));
-        } else {
-          const fresh = list.filter((n) => !seen.current!.has(n.id));
-          if (fresh.length) {
-            fresh.forEach((n) => seen.current!.add(n.id));
-            setToast((t) => [...fresh, ...t].slice(0, 3));
-            setSelectedId((cur) => cur ?? fresh[0].id);
-            if (notifSupported() && Notification.permission === "granted") {
-              for (const n of fresh) {
-                try {
-                  new Notification(`Recall alert: ${n.drug}`, {
-                    body: `${CLASS_META[classOf(n.classification)].name} (${
-                      CLASS_META[classOf(n.classification)].risk
-                    }) — ${n.reason}`.slice(0, 220),
-                    tag: n.id,
-                  });
-                } catch {
-                  /* algunos navegadores exigen service worker */
-                }
+          return;
+        }
+        const added = list.filter((n) => !seen.current!.has(n.id));
+        if (added.length) {
+          added.forEach((n) => seen.current!.add(n.id));
+          setFresh(added[0]!);
+          if (notifSupported() && Notification.permission === "granted") {
+            for (const n of added) {
+              try {
+                new Notification(`Recall alert: ${n.drug}`, {
+                  body: `${SEV_WORD[classOf(n.classification)]} FDA recall — ${n.reason}`.slice(0, 200),
+                  tag: n.id,
+                });
+              } catch {
+                /* algunos navegadores exigen service worker */
               }
             }
           }
@@ -331,84 +361,241 @@ function PatientDashboard({ patient, onUpdated }: { patient: Patient; onUpdated:
     };
   }, [patient.id]);
 
-  // Seleccionar la más reciente por defecto.
+  // Severidad primero, luego lo más reciente.
+  const sorted = useMemo(
+    () =>
+      [...(notifs ?? [])].sort(
+        (a, b) =>
+          sevRank(classOf(a.classification)) - sevRank(classOf(b.classification)) ||
+          b.createdAt.localeCompare(a.createdAt),
+      ),
+    [notifs],
+  );
+
+  const byDrug = useMemo(() => {
+    const m = new Map<string, PatientNotification[]>();
+    for (const n of sorted) {
+      const k = n.drug.toLowerCase();
+      m.set(k, [...(m.get(k) ?? []), n]);
+    }
+    return m;
+  }, [sorted]);
+
+  const visible = filter ? sorted.filter((n) => n.drug.toLowerCase() === filter) : sorted;
+
   useEffect(() => {
-    if (!notifs?.length) return;
-    if (!selectedId || !notifs.some((n) => n.id === selectedId)) setSelectedId(notifs[0].id);
-  }, [notifs, selectedId]);
+    if (!visible.length) return;
+    if (!selectedId || !visible.some((n) => n.id === selectedId)) setSelectedId(visible[0]!.id);
+  }, [visible, selectedId]);
 
-  const selected = notifs?.find((n) => n.id === selectedId) ?? null;
+  const selected = visible.find((n) => n.id === selectedId) ?? null;
 
-  const openAlert = (id: string) => {
+  const open = (id: string) => {
     setSelectedId(id);
-    setToast([]);
+    setFresh(null);
     requestAnimationFrame(() =>
-      document.getElementById("pt-detail")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      document.getElementById("ss-alerts")?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
   };
 
+  const affectedDrugs = [...byDrug.keys()].filter((k) =>
+    patient.drugs.some((d) => d.toLowerCase() === k),
+  );
+  const top = sorted[0];
+  const topSev = top ? classOf(top.classification) : null;
+
   return (
     <>
-      {toast.length > 0 && (
-        <div className="pt-toast" role="alert" aria-live="assertive">
-          <div className="pt-toast-body">
-            <span className="pt-cap pt-red">New safety alert</span>
-            <strong>
-              {toast[0].drug}: {CLASS_META[classOf(toast[0].classification)].name} recall (
-              {CLASS_META[classOf(toast[0].classification)].risk})
-            </strong>
-            <span className="pt-toast-reason">{toast[0].reason}</span>
-            {toast.length > 1 && <span className="pt-muted">+{toast.length - 1} more</span>}
+      {fresh && (
+        <div className="ss-toast" role="alert" aria-live="assertive">
+          <span className={`ss-toast-mark s${classOf(fresh.classification)}`} aria-hidden="true" />
+          <div className="ss-toast-text">
+            <b>New recall for {titleCase(fresh.drug)}</b>
+            <span>{reasonGist(fresh.reason) ?? fresh.reason}</span>
           </div>
-          <div className="pt-toast-actions">
-            <button className="pt-btn pt-btn-primary pt-btn-sm" onClick={() => openAlert(toast[0].id)}>
-              View details
-            </button>
-            <button className="pt-btn pt-btn-sm" onClick={() => setToast([])} aria-label="Dismiss alert banner">
-              Dismiss
-            </button>
-          </div>
+          <button className="ss-btn sm primary" onClick={() => open(fresh.id)}>
+            See what to do
+          </button>
+          <button className="ss-toast-x" onClick={() => setFresh(null)} aria-label="Dismiss">
+            ×
+          </button>
         </div>
       )}
 
-      <div className="pt-grid">
-        <div className="pt-col">
-          <MedicationsCard patient={patient} onUpdated={onUpdated} />
-          <MonitorCard />
+      <Hero
+        name={patient.name}
+        medCount={patient.drugs.length}
+        affected={affectedDrugs.map((k) => patient.drugs.find((d) => d.toLowerCase() === k) ?? k)}
+        topSev={topSev}
+        loading={!notifs}
+        onReview={() => top && open(top.id)}
+      />
+
+      <Medications
+        patient={patient}
+        onUpdated={onUpdated}
+        byDrug={byDrug}
+        filter={filter}
+        onFilter={(k) => setFilter((cur) => (cur === k ? null : k))}
+      />
+
+      <section className="ss-section" id="ss-alerts">
+        <div className="ss-section-head">
+          <h2>Recall alerts</h2>
+          <p>
+            {filter
+              ? `Showing ${titleCase(filter)} · `
+              : notifs && notifs.length
+                ? `${notifs.length} active · most serious first`
+                : ""}
+            {filter && (
+              <button className="ss-linkbtn" onClick={() => setFilter(null)}>
+                show all
+              </button>
+            )}
+          </p>
+          <span className="ss-right">
+            <DesktopAlerts />
+          </span>
         </div>
-        <div className="pt-col pt-col-wide">
-          <AlertsCard
-            notifs={notifs}
-            error={notifErr}
-            selectedId={selectedId}
-            onSelect={openAlert}
-            hasMeds={patient.drugs.length > 0}
-          />
-          {selected && <RecallDetailPanel n={selected} />}
-        </div>
-      </div>
+
+        {notifErr && <p className="ss-err">Couldn’t refresh alerts ({notifErr}).</p>}
+
+        {notifs && notifs.length === 0 ? (
+          <div className="ss-allclear">
+            <ShieldMark />
+            <div>
+              <b>No recalls affect your medications.</b>
+              <span>We’ll alert you here the moment the FDA reports one.</span>
+            </div>
+          </div>
+        ) : (
+          <div className="ss-split">
+            <ul className="ss-list">
+              {visible.map((n) => (
+                <AlertRow key={n.id} n={n} on={n.id === selectedId} onClick={() => setSelectedId(n.id)} />
+              ))}
+            </ul>
+            {selected && <Detail key={selected.id} n={selected} />}
+          </div>
+        )}
+      </section>
     </>
   );
 }
 
-/* ── Medicamentos ─────────────────────────────────────────────────────── */
+/* ── hero: "¿estoy bien?" ─────────────────────────────────────────────── */
 
-function MedicationsCard({ patient, onUpdated }: { patient: Patient; onUpdated: (p: Patient) => void }) {
+function Hero({
+  name,
+  medCount,
+  affected,
+  topSev,
+  loading,
+  onReview,
+}: {
+  name: string;
+  medCount: number;
+  affected: string[];
+  topSev: Sev | null;
+  loading: boolean;
+  onReview: () => void;
+}) {
+  const tone = loading ? "clear" : !affected.length ? "clear" : topSev === "I" ? "attention" : "watch";
+  const list =
+    affected.length <= 2
+      ? affected.map(titleCase).join(" and ")
+      : `${affected.slice(0, -1).map(titleCase).join(", ")} and ${titleCase(affected.at(-1)!)}`;
+
+  return (
+    <section className={`ss-hero ${tone}`}>
+      <div className="ss-hero-aside" aria-hidden="true">
+        <div className="ss-ring">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" className="track" />
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              className="arc"
+              style={{ opacity: medCount - affected.length > 0 ? 1 : 0 }}
+              strokeDasharray={`${(2 * Math.PI * 52 * (medCount - affected.length)) / Math.max(medCount, 1)} 999`}
+            />
+          </svg>
+          <span>
+            <b>
+              {loading ? "–" : medCount - affected.length}/{medCount}
+            </b>
+            clear
+          </span>
+        </div>
+      </div>
+      <p className="ss-greet">
+        {greeting()}, {firstName(name)}.
+      </p>
+      {loading ? (
+        <h1 className="ss-headline">Checking your medications…</h1>
+      ) : affected.length === 0 ? (
+        <>
+          <h1 className="ss-headline">
+            Your medications are <em>clear.</em>
+          </h1>
+          <p className="ss-sub">
+            None of your {medCount} medication{medCount === 1 ? "" : "s"} appear in an active FDA recall.
+            We keep checking automatically — you don’t need to do anything.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 className="ss-headline">
+            {affected.length === 1 ? "One" : affected.length} of your medications{" "}
+            {affected.length === 1 ? "has" : "have"} an <em>active recall.</em>
+          </h1>
+          <p className="ss-sub">
+            {list} {affected.length === 1 ? "matches" : "match"} FDA recall reports. That doesn’t mean
+            your bottle is affected — checking the lot number takes about a minute.
+          </p>
+          <div className="ss-hero-actions">
+            <button className="ss-btn primary" onClick={onReview}>
+              Check my {affected.length === 1 ? titleCase(affected[0]!) : "medications"}
+            </button>
+            <span className="ss-hero-meta">Keep taking your medicine unless your pharmacist says otherwise.</span>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+/* ── medicamentos ─────────────────────────────────────────────────────── */
+
+function Medications({
+  patient,
+  onUpdated,
+  byDrug,
+  filter,
+  onFilter,
+}: {
+  patient: Patient;
+  onUpdated: (p: Patient) => void;
+  byDrug: Map<string, PatientNotification[]>;
+  filter: string | null;
+  onFilter: (k: string) => void;
+}) {
+  const [adding, setAdding] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const [warnings, setWarnings] = useState<Record<string, { hits: DrugCheckHit[]; source: string }>>({});
-  const [unverified, setUnverified] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [edit, setEdit] = useState(false);
 
   const save = async (drugs: string[]) => {
     setBusy(true);
-    setErr(null);
+    setMsg(null);
     try {
-      const p = await updateDrugs(patient.id, drugs);
-      onUpdated(p);
+      onUpdated(await updateDrugs(patient.id, drugs));
       return true;
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Could not save medications.");
+      setMsg(e instanceof Error ? e.message : "Could not save.");
       return false;
     } finally {
       setBusy(false);
@@ -420,319 +607,182 @@ function MedicationsCard({ patient, onUpdated }: { patient: Patient; onUpdated: 
     const d = input.trim();
     if (!d || busy) return;
     if (patient.drugs.some((x) => x.toLowerCase() === d.toLowerCase())) {
-      setErr(`${d} is already on your list.`);
+      setMsg(`${titleCase(d)} is already on your list.`);
       return;
     }
     if (patient.drugs.length >= MAX_DRUGS) {
-      setErr(`You can track up to ${MAX_DRUGS} medications.`);
+      setMsg(`You can track up to ${MAX_DRUGS} medications.`);
       return;
     }
     setBusy(true);
-    setErr(null);
-    setUnverified(null);
-    // Verificación previa: avisa si ya hay recalls, pero igual se agrega.
+    let note: string | null = null;
     try {
       const res = await checkDrug(d);
       if (res.recalls.length) {
-        setWarnings((w) => ({ ...w, [d.toLowerCase()]: { hits: res.recalls, source: res.source } }));
+        note = `${titleCase(d)} has ${res.recalls.length} active FDA recall${res.recalls.length > 1 ? "s" : ""}. Details will appear below in a moment.`;
       }
     } catch {
-      setUnverified(d);
+      note = `Couldn’t reach openFDA to pre-check ${titleCase(d)} — it’s still being monitored.`;
     }
-    const ok = await save([...patient.drugs, d]);
-    if (ok) setInput("");
+    if (await save([...patient.drugs, d])) {
+      setInput("");
+      setAdding(false);
+      setMsg(note);
+    }
   };
 
   const remove = async (d: string) => {
     if (busy) return;
     if (patient.drugs.length <= 1) {
-      setErr("A profile needs at least one medication.");
+      setMsg("Keep at least one medication on your profile.");
       return;
     }
-    const ok = await save(patient.drugs.filter((x) => x !== d));
-    if (ok) {
-      setWarnings((w) => {
-        const next = { ...w };
-        delete next[d.toLowerCase()];
-        return next;
-      });
-    }
+    await save(patient.drugs.filter((x) => x !== d));
   };
 
   return (
-    <section className="pt-card" aria-labelledby="pt-meds-h">
-      <div className="pt-card-head">
-        <h2 className="pt-h2" id="pt-meds-h">
-          My medications
-        </h2>
-        <span className="pt-cap pt-muted">
-          {patient.drugs.length}/{MAX_DRUGS}
+    <section className="ss-section">
+      <div className="ss-section-head">
+        <h2>Your medications</h2>
+        <p>Checked against every new FDA recall, automatically.</p>
+        <span className="ss-right">
+          <button className="ss-linkbtn" onClick={() => setEdit((v) => !v)}>
+            {edit ? "Done" : "Edit"}
+          </button>
         </span>
       </div>
-      <p className="pt-muted pt-small">
-        Monitoring is automatic: every medication here is checked against FDA recall reports on a
-        schedule. Changes are saved immediately.
-      </p>
 
-      {patient.drugs.length === 0 ? (
-        <div className="pt-empty">No medications yet. Add the ones you take below.</div>
-      ) : (
-        <ul className="pt-meds">
-          {patient.drugs.map((d) => {
-            const w = warnings[d.toLowerCase()];
-            return (
-              <li key={d} className="pt-med">
-                <div className="pt-med-row">
-                  <span className="pt-med-name">{d}</span>
-                  <button
-                    className="pt-btn pt-btn-sm pt-btn-ghost"
-                    onClick={() => void remove(d)}
-                    disabled={busy}
-                    aria-label={`Remove ${d}`}
-                  >
-                    Remove
-                  </button>
-                </div>
-                {w && (
-                  <div className="pt-warn">
-                    <strong>
-                      {w.hits.length} FDA recall{w.hits.length > 1 ? "s" : ""} found for “{d}”
-                      {w.source === "seed" ? " (demo fixture)" : ""}.
-                    </strong>{" "}
-                    It was still added; you'll get an alert with details.
-                    <ul>
-                      {w.hits.slice(0, 3).map((h) => (
-                        <li key={h.recallId}>
-                          <span className={`pt-class c${classOf(h.classification)}`}>
-                            {CLASS_META[classOf(h.classification)].name}
-                          </span>{" "}
-                          <a href={h.sourceUrl} target="_blank" rel="noreferrer" className="pt-mono">
-                            {h.recallId}
-                          </a>{" "}
-                          — {h.reason.length > 120 ? `${h.reason.slice(0, 120)}…` : h.reason}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <div className="ss-meds">
+        {patient.drugs.map((d) => {
+          const hits = byDrug.get(d.toLowerCase()) ?? [];
+          const worst = hits[0] ? classOf(hits[0].classification) : null;
+          const on = filter === d.toLowerCase();
+          return (
+            <div key={d} className={`ss-med ${worst ? `s${worst}` : "ok"} ${on ? "on" : ""}`}>
+              <button
+                className="ss-med-hit"
+                onClick={() => hits.length && onFilter(d.toLowerCase())}
+                disabled={!hits.length}
+                aria-pressed={on}
+              >
+                <span className="ss-med-glyph" aria-hidden="true">
+                  <PillGlyph />
+                </span>
+                <span className="ss-med-name">{titleCase(d)}</span>
+                <span className="ss-med-state">
+                  <i aria-hidden="true" />
+                  {worst
+                    ? `${hits.length} recall${hits.length > 1 ? "s" : ""} · ${SEV_WORD[worst].toLowerCase()}`
+                    : "No active recalls"}
+                </span>
+              </button>
+              {edit && (
+                <button className="ss-med-x" onClick={() => void remove(d)} disabled={busy} aria-label={`Remove ${d}`}>
+                  Remove
+                </button>
+              )}
+            </div>
+          );
+        })}
 
-      <form className="pt-add" onSubmit={add}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Add a medication (e.g. valsartan)"
-          aria-label="Medication name"
-          disabled={busy}
-        />
-        <button className="pt-btn pt-btn-primary" type="submit" disabled={busy || !input.trim()}>
-          {busy ? "Saving…" : "Add"}
-        </button>
-      </form>
-      {unverified && (
-        <p className="pt-muted pt-small">
-          Could not check “{unverified}” against openFDA right now; it will still be monitored.
-        </p>
-      )}
-      {err && <p className="pt-inline-err">{err}</p>}
+        {adding ? (
+          <form className="ss-med ss-med-add on" onSubmit={add}>
+            <input
+              autoFocus
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="e.g. Metformin"
+              aria-label="Medication name"
+              disabled={busy}
+            />
+            <div className="ss-med-add-row">
+              <button className="ss-btn sm primary" type="submit" disabled={busy || !input.trim()}>
+                {busy ? "Checking FDA…" : "Add"}
+              </button>
+              <button className="ss-btn sm" type="button" onClick={() => setAdding(false)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          patient.drugs.length < MAX_DRUGS && (
+            <button className="ss-med ss-med-new" onClick={() => setAdding(true)}>
+              <span>+</span>
+              Add medication
+            </button>
+          )
+        )}
+      </div>
+      {msg && <p className="ss-note">{msg}</p>}
     </section>
   );
 }
 
-/* ── Estado del monitor ───────────────────────────────────────────────── */
-
-function MonitorCard() {
-  const [st, setSt] = useState<MonitorStatus | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const now = useNow(1000);
-
-  useEffect(() => {
-    let alive = true;
-    const tick = async () => {
-      try {
-        const s = await fetchMonitorStatus();
-        if (alive) {
-          setSt(s);
-          setErr(null);
-        }
-      } catch (e) {
-        if (alive) setErr(e instanceof Error ? e.message : "unreachable");
-      }
-    };
-    void tick();
-    const t = setInterval(tick, POLL_MS);
-    return () => {
-      alive = false;
-      clearInterval(t);
-    };
-  }, []);
-
-  const last = isoDate(st?.lastRunAt);
-  const next = isoDate(st?.nextRunAt);
-  const secsToNext = next ? Math.max(0, Math.round((next.getTime() - now) / 1000)) : null;
-  const live = !!st?.running && !err;
-
+function PillGlyph() {
   return (
-    <section className="pt-card" aria-labelledby="pt-mon-h">
-      <div className="pt-card-head">
-        <h2 className="pt-h2" id="pt-mon-h">
-          Monitoring status
-        </h2>
-        <span className={`pt-live ${live ? "on" : "off"}`}>
-          <span className="pt-live-dot" aria-hidden="true" />
-          {err ? "Unreachable" : st ? (st.running ? "Live" : "Stopped") : "…"}
-        </span>
-      </div>
-      {err && <p className="pt-inline-err">Could not reach the monitor ({err}).</p>}
-      {st && (
-        <>
-          <p className="pt-mon-line">
-            {last ? `Last checked ${rel(last)}` : "Not checked yet"} · every {st.intervalSec}s · Source:{" "}
-            {st.dataSource === "openfda" ? (
-              <span className="pt-src-live">live openFDA</span>
-            ) : (
-              <span className="pt-src-demo">demo fixture</span>
-            )}
-          </p>
-          <dl className="pt-kv">
-            <div>
-              <dt>Next check</dt>
-              <dd className="pt-mono">
-                {!st.running ? "—" : secsToNext === null ? "scheduling…" : secsToNext === 0 ? "running now" : `in ${secsToNext}s`}
-              </dd>
-            </div>
-            <div>
-              <dt>Profiles checked</dt>
-              <dd className="pt-mono">{st.patientsChecked}</dd>
-            </div>
-          </dl>
-          {st.lastError && (
-            <p className="pt-inline-err">
-              Last run error: <span className="pt-mono">{st.lastError}</span>
-            </p>
-          )}
-        </>
-      )}
-      {!st && !err && <p className="pt-muted">Loading…</p>}
-    </section>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <g transform="rotate(-40 12 12)">
+        <rect x="4" y="8" width="16" height="8" rx="4" />
+        <path d="M12 8v8" />
+        <path d="M12 8h4a4 4 0 0 1 0 8h-4z" fill="currentColor" fillOpacity="0.22" />
+      </g>
+    </svg>
   );
 }
 
-/* ── Alertas ──────────────────────────────────────────────────────────── */
+/* ── lista de alertas ─────────────────────────────────────────────────── */
 
-function DesktopAlertsButton() {
+function AlertRow({ n, on, onClick }: { n: PatientNotification; on: boolean; onClick: () => void }) {
+  useNow(30000);
+  const k = classOf(n.classification);
+  const created = toDate(n.createdAt);
+  const isNew = created ? Date.now() - created.getTime() < 10 * 60 * 1000 : false;
+  return (
+    <li>
+      <button className={`ss-row s${k} ${on ? "on" : ""}`} onClick={onClick} aria-pressed={on}>
+        <span className="ss-row-bar" aria-hidden="true" />
+        <span className="ss-row-main">
+          <span className="ss-row-top">
+            <b>{titleCase(n.drug)}</b>
+            <span className={`ss-sev s${k}`}>{SEV_WORD[k]}</span>
+            {n.synthetic && <span className="ss-tag">Test recall</span>}
+            {isNew && <span className="ss-new">New</span>}
+          </span>
+          <span className="ss-row-reason">{reasonGist(n.reason) ?? n.reason}</span>
+        </span>
+        <span className="ss-row-time">{created ? rel(created) : ""}</span>
+      </button>
+    </li>
+  );
+}
+
+function DesktopAlerts() {
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">(() =>
     notifSupported() ? Notification.permission : "unsupported",
   );
-  if (perm === "unsupported") return null;
-  if (perm === "granted") return <span className="pt-cap pt-muted">Desktop alerts on</span>;
-  if (perm === "denied") return <span className="pt-cap pt-muted">Desktop alerts blocked</span>;
+  if (perm === "unsupported" || perm === "denied") return null;
+  if (perm === "granted") return <span className="ss-muted ss-small">Desktop alerts on</span>;
   return (
-    <button
-      className="pt-btn pt-btn-sm"
-      onClick={() => void Notification.requestPermission().then((p) => setPerm(p))}
-    >
-      Enable desktop alerts
+    <button className="ss-btn sm" onClick={() => void Notification.requestPermission().then(setPerm)}>
+      Turn on desktop alerts
     </button>
   );
 }
 
-function AlertsCard({
-  notifs,
-  error,
-  selectedId,
-  onSelect,
-  hasMeds,
-}: {
-  notifs: PatientNotification[] | null;
-  error: string | null;
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-  hasMeds: boolean;
-}) {
-  useNow(15000); // refresca los "hace X"
-  return (
-    <section className="pt-card" aria-labelledby="pt-alerts-h">
-      <div className="pt-card-head">
-        <h2 className="pt-h2" id="pt-alerts-h">
-          Safety alerts
-          {notifs && notifs.length > 0 && <span className="pt-count">{notifs.length}</span>}
-        </h2>
-        <DesktopAlertsButton />
-      </div>
-      {error && <p className="pt-inline-err">Could not refresh alerts ({error}).</p>}
-      {!notifs && !error && <p className="pt-muted">Loading…</p>}
-      {notifs && notifs.length === 0 && (
-        <div className="pt-empty">
-          {hasMeds
-            ? "No recall alerts for your medications. You'll be alerted here automatically if the FDA reports one."
-            : "Add a medication to start receiving recall alerts."}
-        </div>
-      )}
-      {notifs && notifs.length > 0 && (
-        <ul className="pt-alerts">
-          {notifs.map((n) => {
-            const k = classOf(n.classification);
-            const created = isoDate(n.createdAt);
-            return (
-              <li key={n.id}>
-                <button
-                  className={`pt-alert ${n.id === selectedId ? "on" : ""}`}
-                  onClick={() => onSelect(n.id)}
-                  aria-pressed={n.id === selectedId}
-                >
-                  <div className="pt-alert-top">
-                    <span className={`pt-class c${k}`}>
-                      {CLASS_META[k].name} · {CLASS_META[k].risk}
-                    </span>
-                    {n.synthetic && <span className="pt-badge pt-badge-synth">Synthetic test recall</span>}
-                    <span className="pt-alert-time pt-mono" title={fmtDateTime(n.createdAt)}>
-                      {created ? rel(created) : ""}
-                    </span>
-                  </div>
-                  <div className="pt-alert-drug">{n.drug}</div>
-                  <div className="pt-alert-reason">{n.reason}</div>
-                  {n.delivery?.length > 0 && (
-                    <div className="pt-badges">
-                      {n.delivery.map((d, i) => {
-                        const l = deliveryLabel(d);
-                        return (
-                          <span key={`${d.channel}-${i}`} className={`pt-badge pt-badge-${l.tone}`} title={d.ref}>
-                            {l.text}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
-  );
-}
+/* ── detalle: qué hacer ───────────────────────────────────────────────── */
 
-/* ── Detalle del recall ───────────────────────────────────────────────── */
-
-function RecallDetailPanel({ n }: { n: PatientNotification }) {
+function Detail({ n }: { n: PatientNotification }) {
   const [detail, setDetail] = useState<DetailState>({ status: "loading" });
+  const [more, setMore] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    setDetail({ status: "loading" });
     if (n.synthetic) {
       setDetail({ status: "none" });
       return;
     }
     void fetchRecallDetail(n.recallId).then((res) => {
-      if (!alive) return;
-      setDetail(res ? { status: "ready", source: res.source, record: res.record } : { status: "none" });
+      if (alive) setDetail(res ? { status: "ready", source: res.source, record: res.record } : { status: "none" });
     });
     return () => {
       alive = false;
@@ -741,120 +791,205 @@ function RecallDetailPanel({ n }: { n: PatientNotification }) {
 
   const rec = detail.status === "ready" ? detail.record : null;
   const k = classOf(n.classification || rec?.classification);
-  const status = statusLabel(n.status || rec?.status);
+  const product = clean(n.product) ?? clean(rec?.product_description);
+  const code = clean(n.lotInfo) ?? clean(rec?.code_info);
+  const lots = extractLots(code ?? undefined);
   const firm = clean(n.firm) ?? clean(rec?.recalling_firm);
   const place = rec ? firmPlace(rec) : null;
-  const product = clean(n.product) ?? clean(rec?.product_description);
-  const lots = clean(n.lotInfo) ?? clean(rec?.code_info);
-  const reportDate = fmtFdaDate(n.reportDate ?? rec?.report_date);
-  const initDate = fmtFdaDate(n.initiationDate ?? rec?.recall_initiation_date);
   const gist = reasonGist(n.reason);
   const bulletin = plainBulletin(n.bulletin);
 
   return (
-    <section className="pt-card pt-detail" id="pt-detail" aria-labelledby="pt-detail-h">
-      <div className="pt-card-head">
-        <h2 className="pt-h2" id="pt-detail-h">
-          Recall details · {n.drug}
-        </h2>
-        {n.synthetic && <span className="pt-badge pt-badge-synth">Synthetic test recall</span>}
-      </div>
-
-      <div className="pt-src-row">
-        <span className="pt-cap pt-muted">FDA recall number</span>
-        <a href={n.sourceUrl} target="_blank" rel="noreferrer" className="pt-mono pt-recall-no">
-          {n.recallId}
-        </a>
-        <span className="pt-muted pt-small">
-          Source:{" "}
-          <a href={n.sourceUrl} target="_blank" rel="noreferrer">
-            FDA openFDA enforcement report
-          </a>
-          {detail.status === "ready" && detail.source === "seed" ? " (demo fixture copy)" : ""}
+    <article className={`ss-detail s${k}`} aria-labelledby="ss-detail-h">
+      <header className="ss-detail-head">
+        <span className={`ss-sev lg s${k}`}>
+          {SEV_WORD[k]} · {CLASS_META[k].name} recall
         </span>
-      </div>
+        {n.synthetic && <span className="ss-tag">Synthetic test record</span>}
+        <h3 id="ss-detail-h">{titleCase(n.drug)}</h3>
+        <p className="ss-detail-gist">{gist ?? n.reason}</p>
+        <p className="ss-detail-def">{CLASS_META[k].def}</p>
+      </header>
 
-      <div className={`pt-classbox c${k}`}>
+      <ol className="ss-steps">
+        <li>
+          <b>Find your bottle or box</b>
+          <span>The lot number is usually printed near the expiration date.</span>
+        </li>
+        <li>
+          <b>Compare the lot number</b>
+          {lots.length > 0 ? (
+            <>
+              <span>Recalled lots:</span>
+              <span className="ss-lots">
+                {lots.map((l) => (
+                  <code key={l}>{l}</code>
+                ))}
+              </span>
+            </>
+          ) : (
+            <span>
+              {detail.status === "loading"
+                ? "Loading the FDA record…"
+                : "The FDA record doesn’t list lot numbers — ask your pharmacist to check."}
+            </span>
+          )}
+        </li>
+        <li>
+          <b>If it matches, call your pharmacist</b>
+          <span>Don’t stop taking it on your own — they’ll arrange a replacement.</span>
+        </li>
+      </ol>
+
+      <p className="ss-caveat">
+        This alert matched your medication by name. It doesn’t confirm your specific package is recalled.
+      </p>
+
+      <dl className="ss-facts">
         <div>
-          <span className={`pt-class c${k}`}>{CLASS_META[k].name}</span>{" "}
-          <strong>{CLASS_META[k].risk}</strong>
+          <dt>Why it was recalled</dt>
+          <dd>{n.reason}</dd>
         </div>
-        <p>{CLASS_META[k].def}</p>
-      </div>
-
-      <dl className="pt-facts">
-        {status && (
+        {product && (
           <div>
-            <dt>Status</dt>
-            <dd title={statusTitle(n.status || rec?.status)}>{status}</dd>
+            <dt>Recalled product</dt>
+            <dd>{product}</dd>
           </div>
         )}
         {firm && (
           <div>
-            <dt>Recalling firm</dt>
+            <dt>Manufacturer</dt>
             <dd>
               {firm}
-              {place ? <span className="pt-muted"> · {place}</span> : null}
+              {place ? ` · ${place}` : ""}
             </dd>
           </div>
         )}
-        {initDate && (
+        <div className="ss-facts-row">
           <div>
-            <dt>Recall initiated</dt>
-            <dd>{initDate}</dd>
+            <dt>Status</dt>
+            <dd>{statusLabel(n.status || rec?.status) ?? "—"}</dd>
           </div>
-        )}
-        {reportDate && (
           <div>
-            <dt>FDA report date</dt>
-            <dd>{reportDate}</dd>
+            <dt>Started</dt>
+            <dd>{fmtFdaDate(n.initiationDate ?? rec?.recall_initiation_date) ?? "—"}</dd>
           </div>
-        )}
-        <div>
-          <dt>Alert created</dt>
-          <dd>{fmtDateTime(n.createdAt)}</dd>
+          <div>
+            <dt>FDA recall no.</dt>
+            <dd>
+              <a href={n.sourceUrl} target="_blank" rel="noreferrer" className="ss-mono">
+                {n.recallId}
+              </a>
+            </dd>
+          </div>
         </div>
       </dl>
 
-      <div className="pt-block">
-        <h3 className="pt-cap pt-muted">Reason for recall</h3>
-        <p>{n.reason}</p>
-        {gist && <p className="pt-muted pt-small">In short: {gist}</p>}
-      </div>
-
-      {product && (
-        <div className="pt-block">
-          <h3 className="pt-cap pt-muted">Product description</h3>
-          <p>{product}</p>
-        </div>
+      {code && lots.length > 0 && (
+        <details className="ss-raw">
+          <summary>Full lot & code text from the FDA</summary>
+          <pre>{code}</pre>
+        </details>
       )}
-
-      <div className="pt-block">
-        <h3 className="pt-cap pt-muted">Lot / code information</h3>
-        {lots ? (
-          <pre className="pt-lots">{lots}</pre>
-        ) : (
-          <p className="pt-muted">
-            {detail.status === "loading" ? "Loading FDA record…" : "No lot information published in this record."}
-          </p>
-        )}
-      </div>
 
       {bulletin && (
-        <div className="pt-block">
-          <h3 className="pt-cap pt-muted">What this means (plain-language summary by Claude)</h3>
-          <div className="pt-bulletin">{bulletin}</div>
+        <div className="ss-bulletin">
+          <div className="ss-bulletin-head">
+            <span>Summary written for you</span>
+            <button className="ss-linkbtn" onClick={() => setMore((v) => !v)}>
+              {more ? "Show less" : "Read all"}
+            </button>
+          </div>
+          <p className={more ? "" : "clamp"}>{bulletin}</p>
         </div>
       )}
 
-      <div className="pt-verify" role="note">
-        <h3>Verify your package</h3>
-        <p>
-          This alert matched your medication by name. It does NOT confirm your specific package is
-          recalled. Compare the product and lot numbers above with your bottle's label. Do not stop
-          taking your medication without talking to your pharmacist or doctor.
-        </p>
-      </div>
-    </section>
+      <footer className="ss-detail-foot">
+        {n.delivery.map((d, i) => {
+          const l = deliveryLabel(d);
+          return (
+            <span key={i} className={`ss-deliv ${l.tone}`} title={d.ref}>
+              {l.text}
+            </span>
+          );
+        })}
+        <a href={n.sourceUrl} target="_blank" rel="noreferrer">
+          View FDA source ↗
+        </a>
+      </footer>
+    </article>
+  );
+}
+
+/* ── alta de perfil (hoja modal) ──────────────────────────────────────── */
+
+function NewProfileSheet({ onClose, onCreated }: { onClose: () => void; onCreated: (p: Patient) => void }) {
+  const [name, setName] = useState("");
+  const [meds, setMeds] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const drugs = useMemo(() => {
+    const seen = new Set<string>();
+    return meds
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter((s) => s && !seen.has(s.toLowerCase()) && (seen.add(s.toLowerCase()), true));
+  }, [meds]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (saving) return;
+    if (!name.trim()) return setErr("Add a name.");
+    if (!drugs.length) return setErr("Add at least one medication.");
+    if (drugs.length > MAX_DRUGS) return setErr(`Up to ${MAX_DRUGS} medications.`);
+    setSaving(true);
+    setErr(null);
+    try {
+      onCreated(await createPatient(name.trim(), drugs));
+    } catch (e2) {
+      setErr(e2 instanceof Error ? e2.message : "Could not create the profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="ss-scrim" onClick={onClose}>
+      <form className="ss-sheet" onSubmit={submit} onClick={(e) => e.stopPropagation()}>
+        <h2>Start watching your medications</h2>
+        <p className="ss-muted">We check them against every new FDA recall — no need to come back and scan.</p>
+        <label>
+          <span>Your name</span>
+          <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Maria Lopez" />
+        </label>
+        <label>
+          <span>Medications you take</span>
+          <input value={meds} onChange={(e) => setMeds(e.target.value)} placeholder="Losartan, Metformin" />
+        </label>
+        {drugs.length > 0 && (
+          <div className="ss-chips">
+            {drugs.map((d) => (
+              <span key={d}>{titleCase(d)}</span>
+            ))}
+          </div>
+        )}
+        {err && <p className="ss-err">{err}</p>}
+        <div className="ss-sheet-actions">
+          <button className="ss-btn" type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="ss-btn primary" type="submit" disabled={saving}>
+            {saving ? "Checking FDA…" : "Start monitoring"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -76,6 +76,10 @@ export async function anthropicComplete(
       "Content-Type": "application/json",
       "x-api-key": key,
       "anthropic-version": "2023-06-01",
+      // Llaves sin workspace (sk-ant-usr-…) exigen el id del workspace.
+      ...(process.env.ANTHROPIC_WORKSPACE_ID
+        ? { "anthropic-workspace-id": process.env.ANTHROPIC_WORKSPACE_ID }
+        : {}),
     },
     body: JSON.stringify({
       model,
