@@ -61,6 +61,7 @@
 .ss-portal-patient .pt-page-head .pt-mon { align-self: center; }
 
 /* alert hero */
+.ss-portal-patient .pt-home { display: grid; gap: 22px; }
 .ss-portal-patient .pt-home-grid > div { display: grid; gap: 26px; }
 .ss-portal-patient .pt-hero { padding: 22px 24px; background: linear-gradient(180deg, #fff5f4, #fff 70%); border-color: var(--ss-red-line); }
 .ss-portal-patient .pt-hero.ok { display: flex; gap: 16px; align-items: center; background: linear-gradient(180deg, #f1fbf5, #fff); border-color: #cdebd8; }
