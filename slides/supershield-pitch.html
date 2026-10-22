@@ -208,8 +208,8 @@ body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:h
   <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
   <h1 class="h in" style="--d:.1">Recalls go public.<br>Nobody tells <span class="hl">you.</span></h1>
   <div class="s1stat in" style="--d:.35">
-    <div class="val num" data-count="765">765</div>
-    <div class="lab">FDA drug recall reports in <b>2025</b>.<br><b>84</b> Class I in 2025–26: serious harm or death.</div>
+    <div class="val num" data-count="671">671</div>
+    <div class="lab">FDA drug recall reports in <b>2026</b> so far.<br><b>12</b> Class I in the last 4 months: serious harm or death.</div>
   </div>
   <div class="card in" id="s1feed" style="--d:.55">
     <div class="cbar"><span class="t">openFDA · drug enforcement</span><span class="s">real recalls, Sep–Oct 2026</span><span class="live"><b></b>LIVE</span></div>
@@ -235,7 +235,7 @@ body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:h
   <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 8 5.2 13.2 12 15 6.8-1.8 12-7 12-15V7L16 2Z" fill="#0b1a33"/><path d="M11 16.5l3.5 3.5L21.5 12" stroke="#8fb4ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SuperShield</div>
   <h1 class="h in" style="--d:.1;font-size:88px">One recall. Two shields.<br><span class="hb">No Scan button.</span></h1>
   <div class="s2clock in" style="--d:.3"><div class="v num"><span id="s2t">13</span><small> s</small></div><div class="l">FDA recall → pharmacist’s phone</div></div>
-  <div class="card" id="s2recall"><span class="pill p1">CLASS I</span><div><div class="tt">Levothyroxine · NDC 16729-447</div><div class="ss">D-SS-7458-2026 · synthetic demo recall · ingested from the FDA feed</div></div></div>
+  <div class="card" id="s2recall"><span class="pill p1">CLASS I</span><div><div class="tt">Aripiprazole · NDC 27241-051</div><div class="ss">D-SS-3302-2026 · synthetic demo recall · ingested from the FDA feed</div></div></div>
   <div class="card in" id="s2ph" style="--d:.5">
     <div class="cbar"><span class="t">💊 Pharmacy</span><span class="s">NDC match over 1,000,000 prescriptions</span><span class="live"><b></b>MONITORING</span></div>
     <div class="split">
@@ -280,10 +280,10 @@ body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:h
       <circle r="9" fill="#1f6feb"><animateMotion dur="2.4s" repeatCount="indefinite" path="M300 270 C 360 270 360 130 420 130 L 720 130 L 800 130 L 1100 130 L 1180 130"/></circle>
       <circle r="9" fill="#6941c6"><animateMotion dur="2.8s" begin=".6s" repeatCount="indefinite" path="M300 290 C 360 290 360 450 420 450 L 720 450 L 800 450 L 1100 450 L 1180 450"/></circle>
     </svg>
-    <div class="node src" style="left:0;top:160px"><div class="k">Public API · free</div><div class="n">openFDA drug enforcement</div><div class="d">Live recalls, polled every 5 min. No key.</div><span class="m">765 reports in 2025</span></div>
+    <div class="node src" style="left:0;top:160px"><div class="k">Public API · free</div><div class="n">openFDA drug enforcement</div><div class="d">Live recalls, polled every 5 min. No key.</div><span class="m">671 reports in 2026</span></div>
     <div class="lane" style="left:420px;top:0;color:var(--blue)">Pharmacy lane</div>
     <div class="node" style="left:420px;top:36px"><div class="k">ClickHouse Cloud</div><div class="n">Materialized-view NDC match</div><div class="d">Fires on insert, no app code.</div><span class="m">1M rx in &lt;1 s</span></div>
-    <div class="node" style="left:800px;top:36px"><div class="k">Monitor · every 15 s</div><div class="n">Pharmacist alert + US map</div><div class="d">Review list, Claude alert card.</div><span class="m">136,209 matches</span></div>
+    <div class="node" style="left:800px;top:36px"><div class="k">Monitor · every 15 s</div><div class="n">Pharmacist alert + US map</div><div class="d">Review list, Claude alert card.</div><span class="m">140,873 matches</span></div>
     <div class="node out" style="left:1180px;top:36px"><div class="k">Telegram Bot API · free</div><div class="n">Phone push</div><div class="d">Counts only. No customer names.</div><span class="m">13 s end to end</span></div>
     <div class="lane" style="left:420px;top:322px;color:var(--violet)">Patient lane</div>
     <div class="node" style="left:420px;top:356px"><div class="k">Worker · every 60 s</div><div class="n">Drug-name + synonym match</div><div class="d">Against saved medications.</div><span class="m" style="background:var(--violet-soft);color:var(--violet)">1 alert per recall</span></div>
@@ -306,14 +306,14 @@ body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:h
   <div class="dtable" id="s5t">
     <div class="dr hd in" style="--d:.25"><span>Data point</span><span>Source</span><span>How we use it</span><span>Type</span></div>
     <div class="dr in" style="--d:.32"><span>Recall ID</span><span class="sc">openFDA API</span><span class="us">Shared ID linking pharmacy and patient alerts</span><span><span class="ty real"><b></b>Real, live</span></span></div>
-    <div class="dr in" style="--d:.39"><span>Drug code (NDC)</span><span class="sc">openFDA API</span><span class="us">Matched against 1M prescriptions: 136,209 hits</span><span><span class="ty real"><b></b>Real, live</span></span></div>
+    <div class="dr in" style="--d:.39"><span>Drug code (NDC)</span><span class="sc">openFDA API</span><span class="us">Matched against 1M prescriptions: 140,873 hits</span><span><span class="ty real"><b></b>Real, live</span></span></div>
     <div class="dr in" style="--d:.46"><span>Drug names</span><span class="sc">openFDA API</span><span class="us">Matched against each patient’s saved medications</span><span><span class="ty real"><b></b>Real, live</span></span></div>
     <div class="dr in" style="--d:.53"><span>Class I / II / III</span><span class="sc">openFDA API</span><span class="us">Severity label: Lethal, Moderate or Minor</span><span><span class="ty real"><b></b>Real, live</span></span></div>
     <div class="dr in" style="--d:.6"><span>Recall reason</span><span class="sc">openFDA API</span><span class="us">Trains our ML severity model; quoted in alerts</span><span><span class="ty real"><b></b>Real, live</span></span></div>
     <div class="dr in" style="--d:.67"><span>Lot, firm, date</span><span class="sc">openFDA API</span><span class="us">Tells people what to check on their bottle</span><span><span class="ty real"><b></b>Real, live</span></span></div>
     <div class="dr in" style="--d:.74"><span>5,000 pharmacies</span><span class="sc">Generated</span><span class="us">Real chain names, all 50 states + DC; drives the map</span><span><span class="ty syn">Synthetic</span></span></div>
     <div class="dr in" style="--d:.81"><span>1M prescriptions</span><span class="sc">Generated</span><span class="us">18% seeded with real recalled drug codes</span><span><span class="ty syn">Synthetic</span></span></div>
-    <div class="dr in" style="--d:.88"><span>32 patients</span><span class="sc">Generated</span><span class="us">Saved medication lists that trigger patient alerts</span><span><span class="ty syn">Synthetic</span></span></div>
+    <div class="dr in" style="--d:.88"><span>33 patients</span><span class="sc">Generated</span><span class="us">Saved medication lists that trigger patient alerts</span><span><span class="ty syn">Synthetic</span></span></div>
   </div>
   <div class="proof in" style="--d:1">
     <span class="k">Not mocked: real API calls</span>
@@ -347,8 +347,8 @@ body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:h
     </div>
     <div class="vc in" style="--d:.6">
       <div class="who">Why now</div>
-      <div class="big num"><span data-count="84">84</span></div>
-      <div class="bl">Class I recalls since Jan 2025: nearly one a week</div>
+      <div class="big num"><span data-count="12">12</span></div>
+      <div class="bl">Class I recalls in the last 4 months: about one every 10 days</div>
       <ul><li>Live public data, zero data cost</li><li>Runs on one cloud database</li><li>Works for devices and food recalls next</li></ul>
       <div class="cite">openFDA, queried Oct 22, 2026</div>
     </div>
