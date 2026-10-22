@@ -57,4 +57,6 @@ ask instead of editing it.
 
 - `python phase3_lakehouse/clickhouse_bootstrap.py --reset` drops **only** `safetynet`. It never
   touches `default.*`, but do not run it during the other side's demo.
-- Merge check: `feat/pharmacy` + `feat/patient` merge with **no conflicts** (verified 2026-10-22).
+- Merge check (2026-10-22 15:15): one trivial conflict in root `README.md`. Both branches appended
+  a section after the last line ("Running SuperShield Pharmacy" vs "Patient workflow"). Resolve
+  by keeping both sections. No other conflicts.
