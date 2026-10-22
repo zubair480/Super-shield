@@ -1,6 +1,6 @@
 # SuperShield Pharmacy — coordination board (Developer 1)
 
-Last updated: 2026-10-22 22:00 PDT. Branch: `feat/pharmacy`. Counterpart of `STATUS.md` /
+Last updated: 2026-10-22 15:30 PDT. Branch: `feat/pharmacy`. Counterpart of `STATUS.md` /
 `patient/COORDINATION.md` on `feat/patient`.
 
 **Purpose:** tell the Patient side (Developer 2, `feat/patient`) exactly what Pharmacy owns, so the
@@ -23,10 +23,14 @@ ask instead of editing it.
 
 - Common identifier: openFDA **`recall_number`**.
 - One FDA source: live openFDA `drug/enforcement` (no key), ingested by PyAirbyte into `safetynet.fda_recalls`.
-- Synthetic demo recalls: **adopting** `shared/fda/demo-recalls.json` + `node shared/fda/inject-recall.mjs`
-  (`D-SS-####-2026`, `"synthetic": true`). Pharmacy will load that file into `safetynet.fda_recalls`.
-  - *Open item:* `feat/pharmacy` work-in-progress still has its own `POST /api/demo/recall` (prefix `DEMO-`).
-    It will be switched to the shared feed so both dashboards show the same demo recall.
+- Synthetic demo recalls: **uses** `shared/fda/demo-recalls.json` + `node shared/fda/inject-recall.mjs`
+  (`D-SS-####-2026`, `"synthetic": true`). The pharmacy monitor reads the file every 15s
+  (`SHARED_RECALLS_FILE`) and loads new records into `safetynet.fda_recalls`. Package NDCs
+  (`00093-1048-01`) are normalised to product NDCs (`00093-1048`) to match dispensing records.
+  - Joint-demo recall that hits **both** sides: `node shared/fda/inject-recall.mjs --drug Levothyroxine --ndc 16729-447 --class "Class I"`
+    (238 pharmacy customers fill NDC 16729-447; Levothyroxine is on the patient demo list).
+  - Until `feat/patient` is merged, `shared/fda/` is absent on this branch, so `POST /api/demo/recall`
+    falls back to a pharmacy-only `DEMO-…` recall (still labelled synthetic).
 - Match honesty: Pharmacy matches by **NDC = candidate**, never a verified lot match. Customer
   names/phones never enter LLM prompts or public map events.
 
@@ -40,7 +44,7 @@ ask instead of editing it.
 | `POST /api/pharmacy/alerts/{recall_number}/status` | new → reviewing → resolved | Done, tested live |
 | `GET /api/pharmacy/alerts/{recall_number}/customers` | Affected-customer review list | Done, tested live |
 | `POST /api/pharmacy/alerts/{recall_number}/customers/{customer_id}` | contacted / lot_verified / not_affected | Done, tested live |
-| `POST /api/demo/recall` | Own demo injector — **to be replaced by shared feed** | In progress |
+| `POST /api/demo/recall?drug=&ndc=&classification=` | Runs the shared injector (default Levothyroxine / 16729-447 / Class I) | Done, tested live (detected in 14s, 257 customers) |
 | `GET /api/shared/recalls` | Recall feed without PII; Patient doesn't need it (reads openFDA directly) | In progress, may be dropped |
 
 ## Integrations
@@ -50,8 +54,9 @@ ask instead of editing it.
 | openFDA | Live, no key |
 | ClickHouse Cloud (`qstouvfciz.us-east-2.aws.clickhouse.cloud:8443`) | Live: 5,000 pharmacies, 1,000,000 customers, 648 recalls, 136,209 NDC matches |
 | Claude (alert cards) | Code switched from OpenAI; key needs a workspace ID (same blocker as Patient) |
-| Composio | Key set; delivery not wired yet |
-| Twilio / Telegram / TrueFoundry / Senso | Not used |
+| Telegram (pharmacist phone push) | **Live, chosen channel** (`ALERT_CHANNEL=telegram`), delivered in the E2E test |
+| Composio (Slack/Gmail) | Code path ready, same env names as Patient; not in use (key rejected as invalid) |
+| Twilio / TrueFoundry / Senso | Not used |
 
 ## Danger notes
 
