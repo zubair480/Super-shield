@@ -80,7 +80,33 @@ export function matchSeed(drug: string): OpenFdaRecall[] {
 }
 
 /** Consulta en vivo el endpoint drug enforcement de openFDA para un fármaco. */
+// Caché por fármaco: 32 perfiles repiten los mismos fármacos y openFDA sin key
+// permite ~1,000 llamadas/día. El feed compartido se lee aparte en cada pasada,
+// así que un recall inyectado sigue llegando de inmediato.
+const CACHE_MS = Math.max(0, Number(process.env.OPENFDA_CACHE_SEC ?? 300)) * 1000;
+const recallCache = new Map<string, { at: number; rows: OpenFdaRecall[] }>();
+
+/** Último error de openFDA (p. ej. 429), para que el estado no mienta "live". */
+export let lastOpenFdaError: { at: string; message: string } | null = null;
+
 export async function fetchRecalls(drug: string, limit = 10): Promise<OpenFdaRecall[]> {
+  const ck = `${canonicalDrug(drug).toLowerCase()}|${limit}`;
+  const hit = recallCache.get(ck);
+  if (hit && Date.now() - hit.at < CACHE_MS) return hit.rows;
+  try {
+    const rows = await fetchRecallsLive(drug, limit);
+    recallCache.set(ck, { at: Date.now(), rows });
+    lastOpenFdaError = null;
+    return rows;
+  } catch (e) {
+    lastOpenFdaError = { at: new Date().toISOString(), message: (e as Error).message.slice(0, 120) };
+    // Mejor el último dato real que el fixture, si lo tenemos.
+    if (hit) return hit.rows;
+    throw e;
+  }
+}
+
+async function fetchRecallsLive(drug: string, limit: number): Promise<OpenFdaRecall[]> {
   const v = encodeURIComponent(canonicalDrug(drug).toLowerCase());
   const search =
     `(openfda.generic_name:"${v}"+OR+openfda.brand_name:"${v}"` +

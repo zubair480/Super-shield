@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SuperShield · Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#f4f7fb; --card:#ffffff; --line:#e3e8f0; --hair:rgba(15,23,42,.08);
+  --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8;
+  --navy:#0b1a33; --blue:#1f6feb; --blue-soft:#e8f0fe;
+  --red:#d92d20; --red-soft:#fdecea;
+  --amber:#b54708; --amber-soft:#fef3e2;
+  --green:#067647; --green-soft:#e7f6ec;
+  --violet:#6941c6; --violet-soft:#f1ecfd;
+  --frame:#e6eaf1;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 18px 40px -18px rgba(15,23,42,.22);
+  --display:'Inter Tight',Inter,system-ui,sans-serif;
+  --sans:Inter,system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--frame);color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;flex:none;background:var(--bg);overflow:hidden;box-shadow:0 40px 120px rgba(15,23,42,.18);transform-origin:center center}
+#stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(15,23,42,.07) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(180deg,transparent,#000 22%,#000 80%,transparent)}
+
+.eyebrow{position:absolute;top:52px;left:110px;display:inline-flex;align-items:center;gap:12px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.85);border:1px solid var(--line);font:600 17px var(--mono);color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase}
+.eyebrow i{width:9px;height:9px;border-radius:50%;background:var(--blue);animation:ping 1.6s infinite}
+h1{position:absolute;left:110px;top:108px;margin:0;font:800 60px/1 var(--display);letter-spacing:-.04em;color:var(--navy)}
+h1 em{font-style:normal;color:var(--blue)}
+.brand{position:absolute;top:58px;right:110px;display:flex;align-items:center;gap:10px;font:700 22px var(--display);color:var(--navy)}
+.brand svg{width:26px;height:26px}
+
+.livebox{position:absolute;top:50px;right:110px;display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);font:600 15px var(--mono);color:var(--ink-2)}
+.livebox b{font-family:var(--display);font-size:22px;color:var(--navy)}
+.livebox .dot{width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+.livebox.ok .dot{background:#12b76a;box-shadow:0 0 0 4px rgba(18,183,106,.15)}
+
+/* lanes */
+.lane{position:absolute;left:96px;right:96px;border-radius:28px;border:1px dashed}
+.lane.ph{top:214px;height:330px;background:linear-gradient(90deg,rgba(31,111,235,.06),rgba(31,111,235,.015));border-color:rgba(31,111,235,.28)}
+.lane.pt{top:566px;height:330px;background:linear-gradient(90deg,rgba(6,118,71,.07),rgba(6,118,71,.015));border-color:rgba(6,118,71,.28)}
+.lane span{position:absolute;left:-1px;top:22px;transform:translateX(-50%) rotate(-90deg) translateX(-50%);transform-origin:center;font:700 13px var(--mono);letter-spacing:.14em;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.lane.ph span{background:var(--blue);color:#fff;top:150px}
+.lane.pt span{background:var(--green);color:#fff;top:150px}
+.lane .who{position:absolute;right:20px;top:14px;font:600 13px var(--mono);letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+
+/* nodes */
+.node{position:absolute;width:300px;padding:14px 16px 13px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);opacity:0;transform:translateY(10px);animation:in .7s var(--ease) forwards}
+.node .k{display:flex;align-items:center;gap:8px;font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.node .k .st{margin-left:auto;width:10px;height:10px;border-radius:50%;background:var(--ink-3);transition:background .4s}
+.node .k .st.ok{background:#12b76a;box-shadow:0 0 0 4px rgba(18,183,106,.16);animation:breathe 2.4s infinite}
+.node .k .st.warn{background:#f79009;box-shadow:0 0 0 4px rgba(247,144,9,.16)}
+.node .k .st.down{background:var(--red);box-shadow:0 0 0 4px rgba(217,45,32,.14)}
+.node h3{margin:6px 0 3px;font:700 20px/1.15 var(--display);letter-spacing:-.02em;color:var(--navy)}
+.node p{margin:0;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.node .live{margin-top:8px;padding-top:7px;border-top:1px solid var(--line);font:500 12px var(--mono);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:22px}
+.node .live.ok{color:var(--green)} .node .live.warn{color:var(--amber)} .node .live.down{color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chips i{font:600 11.5px var(--mono);font-style:normal;padding:3px 8px;border-radius:7px;background:var(--bg);border:1px solid var(--line);color:var(--ink-2)}
+.node.src{border-left:4px solid var(--navy)}
+.node.ph{border-left:4px solid var(--blue)}
+.node.pt{border-left:4px solid var(--green)}
+.node.ai{border-left:4px solid var(--violet)}
+
+/* ClickHouse spine */
+.spine{position:absolute;left:806px;top:236px;width:300px;height:640px;padding:18px;border-radius:22px;background:var(--navy);color:#dbe5f5;box-shadow:0 30px 60px -24px rgba(11,26,51,.55);opacity:0;animation:in .8s var(--ease) .25s forwards}
+.spine .k{display:flex;align-items:center;gap:8px;font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#8ea3c4}
+.spine .k .st{margin-left:auto;width:10px;height:10px;border-radius:50%;background:#64748b}
+.spine .k .st.ok{background:#32d583;box-shadow:0 0 0 4px rgba(50,213,131,.18);animation:breathe 2.4s infinite}
+.spine .k .st.down{background:#f97066}
+.spine h3{margin:6px 0 2px;font:800 26px var(--display);letter-spacing:-.02em;color:#fff}
+.spine p{margin:0 0 12px;font-size:14px;color:#a9b8d3}
+.tbl{display:grid;gap:6px}
+.tbl div{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font:500 13px var(--mono);color:#e6edf8}
+.tbl div em{margin-left:auto;font-style:normal;font-size:11px;color:#8ea3c4}
+.tbl .g{font:700 11px var(--mono);letter-spacing:.1em;color:#7aa7ff;padding:6px 2px 0;background:none;border:0}
+.tbl .g.p{color:#6ce9a6}
+.tbl .mv{border-color:rgba(122,167,255,.45);background:rgba(31,111,235,.18)}
+.spine .live{position:absolute;left:18px;right:18px;bottom:16px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12);font:500 12.5px var(--mono);color:#6ce9a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* wires */
+svg.wires{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none;overflow:visible}
+.w{fill:none;stroke-width:2.2;stroke-linecap:round;opacity:.55}
+.w.ph{stroke:var(--blue)} .w.pt{stroke:var(--green)} .w.src{stroke:#64748b} .w.ai{stroke:var(--violet)}
+.w{stroke-dasharray:6 7;animation:flow 1.2s linear infinite}
+.pk{r:5}
+.pk.ph{fill:var(--blue)} .pk.pt{fill:var(--green)} .pk.src{fill:#334155} .pk.ai{fill:var(--violet)}
+
+/* bottom strip */
+.rules{position:absolute;left:96px;right:96px;bottom:44px;display:flex;gap:10px;align-items:center}
+.rules .lbl{font:700 13px var(--mono);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-right:6px}
+.rules span{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font:600 15px var(--sans);color:var(--ink);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.rules span b{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.foot{position:absolute;left:110px;bottom:14px;font:500 12.5px var(--mono);color:var(--ink-3)}
+
+@keyframes in{to{opacity:1;transform:none}}
+@keyframes flow{to{stroke-dashoffset:-26}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(31,111,235,.5)}100%{box-shadow:0 0 0 10px rgba(31,111,235,0)}}
+@keyframes breathe{50%{box-shadow:0 0 0 7px rgba(18,183,106,.05)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="eyebrow"><i></i>Architecture · live</div>
+  <h1>Two pipelines. One recall ID. <em>Zero scan buttons.</em></h1>
+  <div class="livebox" id="livebox"><span class="dot"></span><span id="livetxt">checking system…</span></div>
+
+  <div class="lane ph"><span>PHARMACY LANE</span><div class="who">Python · FastAPI · ClickHouse MV · scikit-learn · Telegram</div></div>
+  <div class="lane pt"><span>PATIENT LANE</span><div class="who">TypeScript · Node worker · React · three.js · Claude · Composio</div></div>
+
+  <!-- sources -->
+  <div class="node src" id="s1" style="left:124px;top:262px;animation-delay:.05s">
+    <div class="k">Public API · no key<span class="st" data-check="openfda"></span></div>
+    <h3>openFDA drug enforcement</h3>
+    <p>Every recall: number, class, reason, lots, firm.</p>
+    <div class="live" data-live="openfda">—</div>
+  </div>
+  <div class="node src" id="s2" style="left:124px;top:478px;animation-delay:.12s">
+    <div class="k">shared/fda · demo<span class="st" data-check="feed"></span></div>
+    <h3>Shared recall feed</h3>
+    <p>openFDA-shaped records, <b>synthetic</b> flag shown in both UIs.</p>
+    <div class="live" data-live="feed">—</div>
+  </div>
+  <div class="node src" id="s3" style="left:124px;top:706px;animation-delay:.19s">
+    <div class="k">Generated · synthetic</div>
+    <h3>Synthetic world</h3>
+    <p>No real customer data anywhere.</p>
+    <div class="chips"><i>5,000 pharmacies</i><i>1M prescriptions</i><i>32 patients</i></div>
+  </div>
+
+  <!-- pharmacy lane -->
+  <div class="node ph" id="p1" style="left:464px;top:250px;animation-delay:.3s">
+    <div class="k">Python · every 5 min<span class="st" data-check="pharmacy"></span></div>
+    <h3>Recall ingest</h3>
+    <p>Pulls openFDA + shared feed, maps class → severity, upserts by NDC.</p>
+  </div>
+  <div class="node ph" id="p2" style="left:464px;top:404px;animation-delay:.36s">
+    <div class="k">scikit-learn<span class="st" data-check="pharmacy"></span></div>
+    <h3>Severity model</h3>
+    <p>Lethal / Moderate / Minor from recall text.</p>
+  </div>
+  <div class="node ph" id="p3" style="left:1150px;top:250px;animation-delay:.42s">
+    <div class="k">FastAPI :8000<span class="st" data-check="pharmacy"></span></div>
+    <h3>Pharmacist alert API</h3>
+    <p>Affected customers, status, Claude alert card (no names).</p>
+    <div class="live" data-live="pharmacy">—</div>
+  </div>
+  <div class="node ph" id="p4" style="left:1500px;top:250px;width:310px;animation-delay:.48s">
+    <div class="k">Dashboard<span class="st" data-check="pharmacy"></span></div>
+    <h3>Live US map</h3>
+    <p>Per-state rollup, NDC candidate vs verified lot.</p>
+  </div>
+  <div class="node ph" id="p5" style="left:1500px;top:404px;width:310px;animation-delay:.54s">
+    <div class="k">Telegram Bot API<span class="st" data-check="pharmacy"></span></div>
+    <h3>Pharmacist phone push</h3>
+    <p>Counts only, no customer names.</p>
+  </div>
+
+  <!-- patient lane -->
+  <div class="node pt" id="q1" style="left:464px;top:600px;animation-delay:.62s">
+    <div class="k">Node worker · every 60s<span class="st" data-check="worker"></span></div>
+    <h3>Continuous monitor</h3>
+    <p>Re-checks every saved medication. 5-min openFDA cache, shared feed every pass.</p>
+    <div class="live" data-live="worker">—</div>
+  </div>
+  <div class="node pt" id="q2" style="left:464px;top:770px;animation-delay:.68s">
+    <div class="k">FarmaWatcher matcher</div>
+    <h3>Name + synonym match</h3>
+    <p>Generic / brand / substance, ES→EN synonyms. Never claims a lot match.</p>
+  </div>
+  <div class="node ai" id="q3" style="left:1150px;top:600px;animation-delay:.74s">
+    <div class="k">Anthropic API<span class="st" data-check="claude"></span></div>
+    <h3>Claude bulletin</h3>
+    <p>Plain language, patient ID only → template if down.</p>
+    <div class="live" data-live="claude">—</div>
+  </div>
+  <div class="node pt" id="q4" style="left:1150px;top:770px;animation-delay:.8s">
+    <div class="k">Alert store<span class="st" data-check="inapp"></span></div>
+    <h3>1 alert per patient × recall</h3>
+    <div class="live" data-live="inapp">—</div>
+  </div>
+  <div class="node pt" id="q5" style="left:1500px;top:600px;width:310px;animation-delay:.86s">
+    <div class="k">React · Vite · three.js<span class="st" data-check="ui"></span></div>
+    <h3>Patient app</h3>
+    <p>3D recall globe, lot-check steps, desktop alerts.</p>
+  </div>
+  <div class="node pt" id="q6" style="left:1500px;top:770px;width:310px;animation-delay:.92s">
+    <div class="k">Composio<span class="st" data-check="composio"></span></div>
+    <h3>Slack / Gmail</h3>
+    <div class="live" data-live="composio">—</div>
+  </div>
+
+  <!-- ClickHouse spine -->
+  <div class="spine" id="ch">
+    <div class="k">ClickHouse Cloud · one store<span class="st" data-check="clickhouse"></span></div>
+    <h3>ClickHouse</h3>
+    <p>Both lanes write here. Join key: <b style="color:#fff">recall_number</b>.</p>
+    <div class="tbl">
+      <div class="g">safetynet · pharmacy</div>
+      <div>fda_recalls<em>Replacing</em></div>
+      <div>patient_ehr<em>1M rows</em></div>
+      <div>pharmacies<em>5k rows</em></div>
+      <div class="mv">⚡ MV: NDC match<em>on insert</em></div>
+      <div>patient_alerts<em>trigger</em></div>
+      <div>alert_geo_rollup<em>map, no PII</em></div>
+      <div class="g p">default · patient</div>
+      <div>patient_notifications<em>Replacing</em></div>
+      <div>events<em>audit trail</em></div>
+    </div>
+    <div class="live" data-live="clickhouse">—</div>
+  </div>
+
+  <svg class="wires" id="wires"></svg>
+
+  <div class="rules">
+    <span class="lbl">Built-in rules</span>
+    <span><b></b>Shared ID: openFDA recall_number</span>
+    <span><b style="background:var(--green)"></b>Patient never waits for pharmacy</span>
+    <span><b style="background:var(--amber)"></b>Name match ≠ lot match</span>
+    <span><b style="background:var(--violet)"></b>No names sent to the LLM</span>
+    <span><b style="background:var(--red)"></b>Synthetic &amp; simulated always labeled</span>
+  </div>
+  <div class="foot" id="foot">Status dots read live from GET localhost:3000/api/system/health · refresh 10s</div>
+</div>
+
+<script>
+// Escala el escenario 1920×1080 a la ventana.
+const stage = document.getElementById('stage');
+function fit(){ const s = Math.min(innerWidth/1920, innerHeight/1080); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+// Cables entre nodos (coordenadas del escenario, sin escala).
+const W = [
+  ['s1','p1','src'],['s2','p1','src'],['s3','ch','src'],
+  ['s1','q1','src'],['s2','q1','src'],
+  ['p1','ch','ph'],['p2','ch','ph'],['ch','p3','ph'],['p3','p4','ph'],['p3','p5','ph'],
+  ['q1','q2','pt','down'],['q2','q4','pt'],['q2','q3','ai'],['q3','q4','ai','down'],
+  ['q4','ch','pt','back'],['q4','q5','pt'],['q4','q6','pt'],
+];
+function box(id){ const e = document.getElementById(id); return { x:e.offsetLeft, y:e.offsetTop, w:e.offsetWidth, h:e.offsetHeight }; }
+function draw(){
+  const svg = document.getElementById('wires'); svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  W.forEach(([a,b,cls,mode], i) => {
+    const A = box(a), B = box(b);
+    let x1, y1, x2, y2, d;
+    if (mode === 'down') { x1 = A.x + A.w/2; y1 = A.y + A.h; x2 = B.x + B.w/2; y2 = B.y;
+      d = `M${x1},${y1} C${x1},${y1+30} ${x2},${y2-30} ${x2},${y2}`;
+    } else if (mode === 'back') { x1 = A.x; y1 = A.y + A.h/2; x2 = B.x + B.w; y2 = Math.min(B.y + B.h - 60, y1);
+      const mx = (x1 + x2)/2; d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    } else {
+      x1 = A.x + A.w; y1 = A.y + A.h/2; x2 = B.x; y2 = B.y + B.h/2;
+      if (b === 'ch') y2 = Math.max(B.y + 40, Math.min(B.y + B.h - 40, y1));
+      if (a === 'ch') y1 = Math.max(A.y + 40, Math.min(A.y + A.h - 40, y2));
+      const mx = (x1 + x2)/2; d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    }
+    const p = document.createElementNS(NS,'path'); p.setAttribute('d', d); p.setAttribute('class', `w ${cls}`); p.id = `w${i}`; svg.appendChild(p);
+    const c = document.createElementNS(NS,'circle'); c.setAttribute('class', `pk ${cls}`); c.setAttribute('r','5');
+    const m = document.createElementNS(NS,'animateMotion');
+    m.setAttribute('dur', `${2.2 + (i % 4) * .35}s`); m.setAttribute('repeatCount','indefinite'); m.setAttribute('begin', `${(i*0.23)%2}s`);
+    const mp = document.createElementNS(NS,'mpath'); mp.setAttribute('href', `#w${i}`); m.appendChild(mp); c.appendChild(m); svg.appendChild(c);
+  });
+}
+setTimeout(draw, 60);
+
+// Estado real.
+const API = location.protocol.startsWith('http') ? '/api/system/health' : 'http://localhost:3000/api/system/health';
+async function poll(){
+  const lb = document.getElementById('livebox'), lt = document.getElementById('livetxt');
+  try {
+    const r = await fetch(API, { cache:'no-store' });
+    const d = await r.json();
+    const by = Object.fromEntries(d.checks.map(c => [c.id, c]));
+    by.ui = { state:'ok', detail:'serving' };
+    document.querySelectorAll('[data-check]').forEach(el => { el.className = 'st ' + (by[el.dataset.check]?.state || ''); el.title = by[el.dataset.check]?.detail || ''; });
+    document.querySelectorAll('[data-live]').forEach(el => {
+      const c = by[el.dataset.live]; if (!c) return;
+      el.textContent = (c.state === 'ok' ? '● ' : c.state === 'warn' ? '◐ ' : '○ ') + c.detail + (c.ms != null ? ` · ${c.ms}ms` : '');
+      el.className = 'live ' + c.state;
+    });
+    const ok = d.checks.filter(c => c.state === 'ok').length;
+    lt.innerHTML = `<b>${ok}/${d.checks.length}</b> components healthy · ${new Date(d.checkedAt).toLocaleTimeString()}`;
+    lb.className = 'livebox ok';
+  } catch {
+    lt.textContent = 'live status offline (start patient server)';
+    lb.className = 'livebox';
+    document.querySelectorAll('[data-check]').forEach(el => el.className = 'st');
+  }
+}
+poll(); setInterval(poll, 10000);
+</script>
+</body>
+</html>

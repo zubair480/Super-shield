@@ -16,6 +16,7 @@ import {
   validateNewPatient,
 } from "./registry";
 import { listNotifications, readMonitorStatus, dataSource } from "@farmavigia/sources";
+import { systemHealth } from "./health";
 import { alertNewPatient, type InstantAlertResult } from "./alerts";
 
 loadEnv();
@@ -124,6 +125,17 @@ const server = createServer(async (req, res) => {
       res.writeHead(200, {
         "Content-Type": "application/json; charset=utf-8",
         "Cache-Control": "no-store",
+      });
+      res.end(JSON.stringify(data));
+      return;
+    }
+    if (url.startsWith("/api/system/health")) {
+      const data = await systemHealth();
+      res.writeHead(200, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+        // La diapositiva se abre como archivo local: permitir lectura cross-origin.
+        "Access-Control-Allow-Origin": "*",
       });
       res.end(JSON.stringify(data));
       return;

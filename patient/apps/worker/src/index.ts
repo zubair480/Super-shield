@@ -1,6 +1,7 @@
 import { loadEnv } from "./env";
 import {
   dataSource,
+  lastOpenFdaError,
   monitorPatient,
   readMonitorStatus,
   writeMonitorStatus,
@@ -69,6 +70,8 @@ async function main(): Promise<void> {
       lastError = (e as Error).message;
       console.error("Run failed (will retry):", lastError);
     }
+    // openFDA caído o limitado (429): el estado lo dice en vez de fingir "live".
+    if (!lastError && lastOpenFdaError) lastError = `openFDA: ${lastOpenFdaError.message}`;
     const now = Date.now();
     writeMonitorStatus({
       intervalSec,

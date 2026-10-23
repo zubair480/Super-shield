@@ -18,7 +18,7 @@ export {
 } from "./openfda";
 export { mapClassification, isActive, toRecallHit, severityRank, dedupeByRecall } from "./match";
 export { canonicalDrug, normalize, stripAccents } from "./synonyms";
-export { loadSharedRecalls, matchShared, sharedRecallsPath } from "./openfda";
+export { loadSharedRecalls, matchShared, sharedRecallsPath, lastOpenFdaError } from "./openfda";
 export {
   monitorPatient,
   listNotifications,
